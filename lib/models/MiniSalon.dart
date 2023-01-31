@@ -6,8 +6,9 @@ class MiniOffer {
   late bool best;
   late String photo;
   late bool promo;
+  late double rate;
 
-  MiniOffer(this.nom, this.wilaya, this.best, this.promo);
+  MiniOffer(this.nom, this.wilaya, this.best, this.promo,this.rate,this.photo);
 
   MiniOffer.fromJson(Map<String, dynamic> json){
     nom = json['nom'];
