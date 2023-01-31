@@ -7,7 +7,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:monsalondz/providers/AppSettingsProvider.dart';
 import 'package:monsalondz/widgets/PopularOffer.dart';
 import 'package:provider/provider.dart';
-import '../models/Mini_Offer.dart';
+import '../models/MiniSalon.dart';
 
 class Populars extends StatefulWidget {
   const Populars({Key? key}) : super(key: key);
@@ -25,60 +25,11 @@ class _PopularsState extends State<Populars> {
   }
 
   bool getBest = true;
-   dynamic popularSalons = FirebaseFirestore.instance.collection('salon').where('best', isEqualTo: true).get();
+  dynamic popularSalons = FirebaseFirestore.instance.collection('salon').where('best', isEqualTo: true).get();
 
-  List<MiniOffer> offers= [];
+  List<MiniSalon> offers= [];
   @override
   Widget build(BuildContext context) {
-    /*StreamBuilder<QuerySnapshot>(
-      stream: popularSalons,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return const Text('Something went wrong');
-        }
-        else{
-            if(snapshot.data!.docs.isEmpty){
-              WidgetsBinding.instance.addPostFrameCallback((_){
-                setState(() {
-                  popularSalons = FirebaseFirestore.instance.collection('salon').snapshots();
-                });
-              });
-            }
-            else{
-              return CarouselSlider(
-                  options: CarouselOptions(
-                    enlargeCenterPage: true,
-                    disableCenter: true,
-                    viewportFraction: .95,
-                  ),
-                  items: List.generate(
-                    Provider.of<AppSettingsProvider>(context,listen: false).bestSalonNumber, (index) =>
-                      PopularOffer(offer: MiniOffer.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>),),
-                  )
-              );
-            }
-
-        }
-        return GFShimmer(
-          child: Container(
-            width: double.infinity,
-            margin: const EdgeInsets.symmetric(vertical: 20,horizontal: 5),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(12),),
-              color: Colors.white38,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  offset: Offset(0, 3),
-                  blurRadius: 10,
-                )
-              ]
-            ),
-          ),
-        );
-      }
-    );*/
-
 
     return FutureBuilder<QuerySnapshot>(
       future: popularSalons,
@@ -110,7 +61,7 @@ class _PopularsState extends State<Populars> {
                     ),
                     items: List.generate(
                       Provider.of<AppSettingsProvider>(context,listen: false).bestSalonNumber, (index) =>
-                        PopularOffer(offer: MiniOffer.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>),),
+                        PopularOffer(salon: MiniSalon.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>),),
                     )
                 );
               }

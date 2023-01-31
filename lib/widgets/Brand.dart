@@ -1,10 +1,10 @@
+/*
 
 // ignore_for_file: file_names, must_be_immutable
 
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../theme/colors.dart';
 import 'BlankImageWidget.dart';
@@ -128,3 +128,4 @@ class _BrandsState extends State<Brands> {
     );
   }
 }
+*/

@@ -1,30 +1,37 @@
-// ignore_for_file: file_names, must_be_immutable, prefer_typing_uninitialized_variables
 import 'package:flutter/material.dart';
-import '../theme/colors.dart';
 
-class MoreInfos extends StatelessWidget {
-  MoreInfos({Key? key, required this.info,this.spclt= false}) : super(key: key);
-  var info;
-  final bool spclt;
+class SmallInfos extends StatelessWidget {
+  const SmallInfos({Key? key, required this.info, required this.color, this.textColor = Colors.black, this.icon, this.isIcon = false, this.iconColor = Colors.white}) : super(key: key);
+  final String info;
+  final Color color;
+  final Color textColor;
+  final IconData? icon;
+  final bool isIcon;
+  final Color? iconColor;
+
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(20),),
-        color: spclt ? primary : primary.withOpacity(0.07),
+        color: color
       ),
       child: Center(
         child: Row(
           children: [
-            if(spclt) const Icon(Icons.location_on_outlined,color: Colors.white, size: 12,),
-            if(spclt) const SizedBox(width: 5,),
-            Text(
-              info.toString(),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12,color: spclt ? white : primary),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            if(isIcon) Icon(icon, color: iconColor, size: 12,),
+            if(isIcon) const SizedBox(width: 2,),
+            Container(
+              constraints: BoxConstraints(maxWidth: size.width * 0.6,),
+              child: Text(
+                info,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12,color: textColor),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

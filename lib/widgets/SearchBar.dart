@@ -3,7 +3,6 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:monsalondz/utils/wilaya.dart';
 import 'package:intl/intl.dart';
@@ -26,7 +25,16 @@ class _SerachBarState extends State<SerachBar> {
     Size size = MediaQuery.of(context).size;
     return Container(
       width: size.width,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      decoration: BoxDecoration(
+          boxShadow:  [
+            BoxShadow(
+                color: Colors.grey.shade100,
+                offset: const Offset(0, 1),
+                blurRadius: 10,
+                spreadRadius: 10
+            )
+          ]),
       child: Column(
         children: [
           Container(
@@ -39,6 +47,7 @@ class _SerachBarState extends State<SerachBar> {
                   color: Colors.black12,
                   offset: Offset(0, 2),
                   blurRadius: 5,
+                  spreadRadius: 1
                 )
               ]),
             child: TextField(
@@ -137,11 +146,13 @@ class _SerachWilayaState extends State<SerachWilaya> {
       height: 50,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
           boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               offset: Offset(0, 2),
               blurRadius: 5,
+              spreadRadius: 2
             )
           ]),
       child: CustomDropdown(
@@ -193,6 +204,7 @@ class _SearchTimeState extends State<SearchTime> {
               color: Colors.black12,
               offset: Offset(0, 2),
               blurRadius: 5,
+              spreadRadius: 2
             )
           ]),
       child: Row(

@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import '../../../theme/colors.dart';
 import 'components/sign_up_form.dart';
 

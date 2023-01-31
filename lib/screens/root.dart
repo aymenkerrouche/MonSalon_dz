@@ -9,6 +9,7 @@ import 'package:monsalondz/screens/profile/auth/auth.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:provider/provider.dart';
 import '../providers/CategoriesProvider.dart';
+import '../providers/HistouriqueLocal.dart';
 import 'home.dart';
 
 TextStyle optionStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: primary);
@@ -25,13 +26,18 @@ class _RootState extends State<Root> {
   @override
   initState(){
     super.initState();
-    getData();
+    getCategories();
   }
 
-  getData() async {
+  getCategories() async {
     await Provider.of<CategoriesProvider>(context,listen: false).getCategories().then((value) async {
       await Provider.of<CategoriesProvider>(context,listen: false).getCategoriesPhotos();
+      getHistory();
     });
+  }
+
+  getHistory() async {
+    await Provider.of<HistoryProvider>(context,listen: false).initLocalDB();
   }
 
   @override
@@ -142,6 +148,7 @@ class _RootState extends State<Root> {
       ),
     ];
   }
+
   PersistentTabController controller = PersistentTabController(initialIndex: 0);
 }
 

@@ -17,7 +17,6 @@ dependencies:
 
 
   cupertino_icons: ^1.0.2
-  flutter_staggered_animations: ^1.1.1
   firebase_core: ^2.4.1
   firebase_auth: ^4.1.0
   firebase_storage: ^11.0.3
@@ -27,12 +26,13 @@ dependencies:
   carousel_slider: ^4.1.1
   persistent_bottom_nav_bar: ^5.0.2
   getwidget: ^3.0.1
-  lottie: ^2.0.0
   google_sign_in: ^5.4.2
   provider: ^6.0.4
   animated_custom_dropdown: 1.3.0
   flutter_localization: ^0.1.9
-  flutter_rating_bar: ^4.0.1
+  sqflite: ^2.2.4+1
+  path_provider: ^2.0.12
+  shared_preferences: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -40,15 +40,8 @@ dev_dependencies:
 
   flutter_lints: ^2.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
   assets:
@@ -70,6 +63,3 @@ flutter:
         - asset: fonts/Rubik-Regular.ttf
         - asset: fonts/Rubik-SemiBold.ttf
         - asset: fonts/Rubik-VariableFont_wght.ttf
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages

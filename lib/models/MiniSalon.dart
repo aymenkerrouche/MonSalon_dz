@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
-class MiniOffer {
+class MiniSalon {
+  late String id;
   late String nom;
   late String wilaya;
   late bool best;
@@ -8,12 +9,13 @@ class MiniOffer {
   late bool promo;
   late double rate;
 
-  MiniOffer(this.nom, this.wilaya, this.best, this.promo,this.rate,this.photo);
+  MiniSalon(this.nom, this.wilaya, this.best, this.promo,this.rate,this.photo, this.id);
 
-  MiniOffer.fromJson(Map<String, dynamic> json){
-    nom = json['nom'];
-    wilaya = json['wilaya'];
-    best = json['best'];
-    promo = json['promo'];
+  MiniSalon.fromJson(Map<String, dynamic> json){
+    id= json['id'] ?? '';
+    nom = json['nom'] ?? '';
+    wilaya = json['wilaya'] ?? '';
+    best = json['best'] ?? '';
+    promo = json['promo'] ?? '';
   }
 }

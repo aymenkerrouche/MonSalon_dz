@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:monsalondz/widgets/Category.dart';
 import 'package:monsalondz/widgets/Populars.dart';
 import '../theme/colors.dart';
+import '../widgets/Recent.dart';
 import '../widgets/SearchBar.dart';
 
 
@@ -96,6 +97,7 @@ class HomeBody extends StatelessWidget {
                       height: 935,
                       padding: const EdgeInsets.all(5.0),
                       child: const ListCatigories()),
+                    const SizedBox(height: 20,),
 
                     //Populars
                     Align(
@@ -113,13 +115,27 @@ class HomeBody extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 300, child: Populars()),
+                    const SizedBox(height: 20,),
 
-
+                    //Recent
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 15,bottom: 15),
+                        child: Text(
+                          "Salons récents",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                            fontSize: size.width * 0.055,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const RecentItem(),
 
                     //SizedBox(height: 110, width: size.width, child: const Brands(),),
                     const SizedBox(height: 15,),
-                    const SizedBox(height: 30,),
-
                     //Expanded(child: listCategoty()),
                   ],
                 ),

@@ -3,15 +3,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../models/Mini_Offer.dart';
+import '../models/MiniSalon.dart';
 import '../theme/colors.dart';
 import 'BlankImageWidget.dart';
 import 'More_Infos.dart';
 
 
 class PopularOffer extends StatelessWidget {
-  PopularOffer({Key? key, required this.offer}) : super(key: key);
-  MiniOffer offer;
+  PopularOffer({Key? key, required this.salon}) : super(key: key);
+  MiniSalon salon;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +58,11 @@ class PopularOffer extends StatelessWidget {
                             image: DecorationImage(image: imageProvider, fit: BoxFit.fill),
                           ),
                         ),
-                          Positioned(bottom: 10,right: 10,child: MoreInfos(info: offer.wilaya,spclt: true,),),
-            ]
+                          Positioned(
+                            bottom: 10,right: 10,
+                            child: SmallInfos(info: salon.wilaya ,isIcon: true, color: primary, textColor: Colors.white, icon: Icons.location_on_outlined,),
+                          ),
+                        ]
                       ),
                     ),
                   ),
@@ -82,12 +85,11 @@ class PopularOffer extends StatelessWidget {
 
                             //Titre
                             Text(
-                              offer.nom,
-                              style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w600),
+                              salon.nom,
+                              style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-
                             const SizedBox(height: 5,),
 
                             // List more infos
@@ -97,13 +99,13 @@ class PopularOffer extends StatelessWidget {
                                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                                 scrollDirection: Axis.horizontal,
                                 children: [
-                                  MoreInfos(info: offer.nom),
+                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
                                   const SizedBox(width: 6,),
-                                  MoreInfos(info: offer.nom),
+                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
                                   const SizedBox(width: 5,),
-                                  MoreInfos(info: offer.nom),
+                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
                                   const SizedBox(width: 5,),
-                                  MoreInfos(info: offer.nom),
+                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
                                 ],
                               ),
                             ),
@@ -121,7 +123,7 @@ class PopularOffer extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(CupertinoIcons.star_fill),
+                              const Icon(CupertinoIcons.star_fill, color: Color(0xFFEFCA11),),
                               Text("4,6",style: TextStyle(color: primary,fontWeight: FontWeight.w700,fontSize: 18),)
                             ],
                           ),

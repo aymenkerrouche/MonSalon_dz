@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:monsalondz/theme/colors.dart';
 
-/*List categories = [
+List categories = [
   {"category": "Coiffure", "pic": "assets/images/coiffure.jpg"},
   {"category": "Mains et Pieds", "pic": "assets/images/nails.jpg"},
   {"category": "Maquillage", "pic": "assets/images/make_up.jpg"},
@@ -14,7 +14,7 @@ import 'package:monsalondz/theme/colors.dart';
 
   {"category": "Homme", "pic": "assets/images/homme.jpg"},
   {"category": "Beauté à domicile", "pic": "assets/images/salon1.jpg"},
-];*/
+];
 
 
 snackBar(String txt,Color color){
