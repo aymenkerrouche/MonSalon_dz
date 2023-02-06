@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:monsalondz/screens/favorites.dart';
 import 'package:monsalondz/screens/profile/profile.dart';
 import 'package:monsalondz/screens/profile/auth/auth.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:provider/provider.dart';
+import '../providers/AuthProvider.dart';
 import '../providers/CategoriesProvider.dart';
 import '../providers/HistouriqueLocal.dart';
 import 'home.dart';
@@ -26,12 +30,26 @@ class _RootState extends State<Root> {
   @override
   initState(){
     super.initState();
+    checkCnx();
     getCategories();
+    Timer.periodic(const Duration(seconds: 30), (timer) {
+      final prvdr = Provider.of<CategoriesProvider>(context,listen: false);
+      if(prvdr.categories.isNotEmpty && prvdr.done == true){
+        timer.cancel();
+      }
+      else{
+        getCategories();
+      }
+    });
+  }
+
+  checkCnx(){
+    Provider.of<AuthProvider>(context, listen: false).checkCnx();
   }
 
   getCategories() async {
     await Provider.of<CategoriesProvider>(context,listen: false).getCategories().then((value) async {
-      await Provider.of<CategoriesProvider>(context,listen: false).getCategoriesPhotos();
+        await Provider.of<CategoriesProvider>(context, listen: false).getCategoriesPhotos();
       getHistory();
     });
   }
@@ -40,8 +58,11 @@ class _RootState extends State<Root> {
     await Provider.of<HistoryProvider>(context,listen: false).initLocalDB();
   }
 
+  bool testCnx = false;
+
   @override
   Widget build(BuildContext context) {
+
     return PersistentTabView(
       context,
       controller: controller,
@@ -50,7 +71,7 @@ class _RootState extends State<Root> {
       confineInSafeArea: true,
       backgroundColor: Colors.grey.shade50,
       handleAndroidBackButtonPress: true,
-      //resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: true,
       navBarHeight: 55,
       stateManagement: true,
       hideNavigationBarWhenKeyboardShows: true,
@@ -69,26 +90,73 @@ class _RootState extends State<Root> {
   }
   List<Widget> buildScreens() {
     return [
-      const HomeBody(),
+      GestureDetector(onTap: () {FocusScope.of(context).unfocus();},
+        child: Consumer<AuthProvider>(
+          builder: (cxt, cnx, child){
+            if(AuthProvider.isConnect == true){
+              return const HomeBody();
+            }
+            else{
+              return Column(
+                children: [
+                  const SizedBox(height: 150,),
+                  SizedBox(
+                    height: 300,
+                    child: Lottie.asset("assets/animation/404.json"),
+                  ),
+                  const SizedBox(height: 50,),
+                  const Text("veuillez vérifier votre connexion",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 22),),
+                  const SizedBox(height: 20,),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)))
+                    ),
+                    onPressed: (){
+                      getCategories();
+                      if(testCnx == false){
+                        setState(() {
+                          testCnx = true;
+                        });
+                      }
+                      Timer(const Duration(seconds: 4), () {
+                        if(AuthProvider.isConnect == false){
+                          setState(() {
+                            testCnx = false;
+                          });
+                        }
+                      });
+                    },
+                      child: testCnx == false ? const Text("Réessayer",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 18),):
+                      const SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: Colors.white,))
+                  ),
+                ],
+              );
+            }
+          }
+        ),
+      ),
       const FavoriteScreen(),
       const FavoriteScreen(),
-      StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if(snapshot.connectionState == ConnectionState.waiting) {
+      GestureDetector(onTap: () {FocusScope.of(context).unfocus();},
+        child: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if(!snapshot.hasData) {
+                return const SignUp();
+              }
+              if(snapshot.hasData) {
+                if(snapshot.data!.uid.isNotEmpty) return const Profile();
+              }
+              if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
               return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));
             }
-            if(snapshot.hasData) {
-              if(snapshot.data!.uid.isNotEmpty) return const Profile();
-            }
-            if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
-            return const SignUp();
-          }
+        ),
       )
     ];
   }
-  
-  
+
   List<PersistentBottomNavBarItem> navBarsItems() {
     return [
 
