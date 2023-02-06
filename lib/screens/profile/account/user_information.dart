@@ -9,7 +9,9 @@ import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:monsalondz/theme/colors.dart';
+import 'package:provider/provider.dart';
 import '../../../../utils/constants.dart';
+import '../../../providers/ThemeProvider.dart';
 
 class UpdateProfile extends StatefulWidget {
   @override
@@ -76,14 +78,84 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     Size size = MediaQuery.of(context).size;
     return done ? Column(
       children: [
-        buildEmailFormField(),
+        TextFormField(
+          keyboardType: TextInputType.emailAddress,
+          readOnly: true,
+          controller: emailController,
+          cursorColor: providerColor.primary,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+          decoration: InputDecoration(
+            labelText: "Email",
+            labelStyle: TextStyle(color: providerColor.primary,),
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            suffixIcon: Icon(Icons.email_rounded, color: providerColor.primary,),
+            contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            border: outlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: providerColor.primary, width: 1.5),
+                gapPadding: 6),
+            enabledBorder: outlineInputBorder(),
+            hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+          ),
+        ),
+
         SizedBox(height: size.height * 0.05),
-        buildNameFormField(),
+        TextFormField(
+          controller: nameController,
+          cursorColor: providerColor.primary,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+          decoration: InputDecoration(
+            labelText: "Name",
+            hintText: "Enter your name",
+            labelStyle:  TextStyle(color: providerColor.primary,),
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            suffixIcon: Icon(
+              Icons.person,
+              color: providerColor.primary,
+            ),
+            hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+            border: outlineInputBorder(),
+            focusedBorder:OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: providerColor.primary, width: 1.5),
+                gapPadding: 6),
+            enabledBorder: outlineInputBorder(),
+            contentPadding:
+            const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          ),
+        ),
         SizedBox(height: size.height * 0.05),
-        buildPhoneNumberFormField(),
+        TextFormField(
+          keyboardType: TextInputType.phone,
+          controller: phoneController,
+          cursorColor: providerColor.primary,
+          scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          style: const TextStyle(fontWeight: FontWeight.w700),
+          decoration: InputDecoration(
+            labelText: "Phone",
+            hintText: "Enter your phone number",
+            labelStyle:  TextStyle(color: providerColor.primary,),
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            suffixIcon: Icon(
+                Icons.phone_rounded,
+                color: providerColor.primary,
+            ),
+            hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+            border: outlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: providerColor.primary, width: 1.5),
+                gapPadding: 6),
+            enabledBorder: outlineInputBorder(),
+            contentPadding:
+            const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          ),
+        ),
         SizedBox(height: size.height * 0.1),
         SizedBox(
           width: size.width,
@@ -91,7 +163,7 @@ class UpdateProfileState extends State<UpdateProfile> {
           child: TextButton(
             style: TextButton.styleFrom(
               foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              backgroundColor: primary,
+              backgroundColor: Provider.of<ThemeProvider>(context,listen: false).primary,
             ),
             onPressed: () async {
               setState(() {loading = true;});
@@ -138,76 +210,6 @@ class UpdateProfileState extends State<UpdateProfile> {
     return Container(height: 60, width: double.infinity, decoration: const BoxDecoration(color: Colors.white,borderRadius: BorderRadius.all(Radius.circular(20))));
   }
 
-  TextFormField buildEmailFormField() {
-    return TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      readOnly: true,
-      controller: emailController,
-      cursorColor: primary,
-      style: const TextStyle(fontWeight: FontWeight.w500),
-      decoration: InputDecoration(
-        labelText: "Email",
-        labelStyle: TextStyle(color: primary),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(Icons.email_rounded, color: primary),
-        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
-        enabledBorder: outlineInputBorder(),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-      ),
-    );
-  }
-
-  TextFormField buildNameFormField() {
-    return TextFormField(
-      controller: nameController,
-      cursorColor: primary,
-      style: const TextStyle(fontWeight: FontWeight.w500),
-      decoration: InputDecoration(
-        labelText: "Name",
-        hintText: "Enter your name",
-        labelStyle:  TextStyle(color: primary),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(
-          Icons.person,
-          color: primary,
-        ),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-        border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
-        enabledBorder: outlineInputBorder(),
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      ),
-    );
-  }
-
-  TextFormField buildPhoneNumberFormField() {
-    return TextFormField(
-      keyboardType: TextInputType.phone,
-      controller: phoneController,
-      cursorColor: primary,
-      scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      style: const TextStyle(fontWeight: FontWeight.w500),
-      decoration: InputDecoration(
-        labelText: "Phone",
-        hintText: "Enter your phone number",
-        labelStyle:  TextStyle(color: primary),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(
-          Icons.phone_rounded,
-          color: primary,
-        ),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-        border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
-        enabledBorder: outlineInputBorder(),
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      ),
-    );
-  }
 
   Future<void> updateUser() async {
 

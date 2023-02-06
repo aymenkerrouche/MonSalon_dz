@@ -4,6 +4,7 @@ import 'package:monsalondz/providers/AppSettingsProvider.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/providers/SearchPrivider.dart';
+import 'package:monsalondz/providers/ThemeProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:monsalondz/providers/AuthProvider.dart';
 import 'package:monsalondz/root.dart';
@@ -33,6 +34,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => AppSettingsProvider(),),
         ChangeNotifierProvider(create: (context) => CategoriesProvider()),
         ChangeNotifierProvider(create: (context) => HistoryProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -52,8 +54,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Rubik',
         splashFactory: InkRipple.splashFactory,
-        splashColor: primary,
-        iconTheme: IconThemeData(color: primary),
+        splashColor: Provider.of<ThemeProvider>(context,listen: false).primary,
+        iconTheme: IconThemeData(color: Provider.of<ThemeProvider>(context,listen: false).primary),
         useMaterial3: true,
       ),
       home:  const Root(),

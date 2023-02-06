@@ -11,10 +11,11 @@ import 'package:provider/provider.dart';
 import 'package:monsalondz/providers/GoogleSignIn.dart';
 import 'package:monsalondz/theme/colors.dart';
 import '../../../../providers/AuthProvider.dart';
+import '../../../../providers/ThemeProvider.dart';
 import '../../../../utils/constants.dart';
 import '../../../../utils/keyboard.dart';
 import '../../../../widgets/form_error.dart';
-import '../../../../widgets/phone TextField.dart';
+import '../../../../widgets/PhoneTextField.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -35,8 +36,14 @@ class _SignUpFormState extends State<SignUpForm> {
   bool isLoading = false;
   double height = 60;
   double width = 500;
-  Color color = primary;
   bool login = false;
+  Color? color;
+
+  @override
+  void initState() {
+    color = Provider.of<ThemeProvider>(context,listen: false).primary;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -64,6 +71,7 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -78,7 +86,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 children: <InlineSpan>[
                   TextSpan(
                     text: login ? "compte" : "vous",
-                    style: TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
+                    style: TextStyle(color: providerColor.primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
                   )
                 ]
             ),
@@ -95,7 +103,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 SizedBox(height: size.height * 0.03),
                 buildPasswordFormField(),
                 if (login) Container(height:  size.height * 0.03),
-                if (login) buildPhoneNumberFormField(phoneController),
+                if (login) BuildPhoneNumberFormField(phoneController:phoneController),
                 if (login && errors.isNotEmpty) Container(height:  size.height * 0.01),
                 FormError(errors: errors),
                 SizedBox(height: size.height * 0.05),
@@ -108,13 +116,13 @@ class _SignUpFormState extends State<SignUpForm> {
                   Container(
                     width: 70,
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    decoration:  BoxDecoration(shape: BoxShape.circle,color: color,),
+                    decoration:  BoxDecoration(shape: BoxShape.circle,color: providerColor.primary,),
                     child: CircularProgressIndicator(color: white,),
                   ) :
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      backgroundColor: primary,
+                      backgroundColor: providerColor.primary,
                     ),
                     onPressed: () async {
                       KeyboardUtil.hideKeyboard(context);
@@ -157,8 +165,8 @@ class _SignUpFormState extends State<SignUpForm> {
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    side: BorderSide(color: primary, width: 1),
-                    foregroundColor: primary,
+                    side: BorderSide(color: providerColor.primary, width: 1),
+                    foregroundColor: providerColor.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),),
                   onPressed: () async {
                     KeyboardUtil.hideKeyboard(context);
@@ -228,7 +236,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           login ? "Se connecter" : "S'inscrire",
                           style: TextStyle(
                             fontSize: 18,
-                            color: primary,
+                            color: providerColor.primary,
                           ),
                         ),
                       )
@@ -297,10 +305,11 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   TextFormField buildPasswordFormField() {
+    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return TextFormField(
       obscureText: obscureText,
       controller: passwordController,
-      cursorColor: primary,
+      cursorColor: providerColor.primary,
       onSaved: (s){FocusScope.of(context).unfocus();},
       onChanged: (value) {
         if (value.isNotEmpty) {
@@ -327,12 +336,12 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         labelText: "Password",
         hintText: "Saisir votre mot de passe",
-        labelStyle: TextStyle(color: primary),
+        labelStyle: TextStyle(color: providerColor.primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         hintStyle: const TextStyle(fontWeight: FontWeight.w700),
         suffixIcon: IconButton(
             icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility,
-                color: primary),
+                color: providerColor.primary),
             onPressed: () {
               setState(() {
                 obscureText = !obscureText;
@@ -343,7 +352,10 @@ class _SignUpFormState extends State<SignUpForm> {
           vertical: 20,
         ),
         border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: providerColor.primary, width: 1.5),
+            gapPadding: 6),
         enabledBorder: outlineInputBorder(),
       ),
       style: const TextStyle(fontWeight: FontWeight.w700),
@@ -351,10 +363,11 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   TextFormField buildEmailFormField() {
+    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
       controller: emailController,
-      cursorColor: primary,
+      cursorColor: providerColor.primary,
       onSaved: (s){FocusScope.of(context).unfocus();},
       style: const TextStyle(fontWeight: FontWeight.w700),
       onChanged: (value) {
@@ -378,12 +391,15 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         labelText: "Email",
         hintText: "Saisir votre email",
-        labelStyle: TextStyle(color: primary),
+        labelStyle: TextStyle(color: providerColor.primary,),
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(Icons.email_rounded, color: primary),
+        suffixIcon: Icon(Icons.email_rounded, color: providerColor.primary,),
         contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: providerColor.primary, width: 1.5),
+            gapPadding: 6),
         enabledBorder: outlineInputBorder(),
         hintStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),

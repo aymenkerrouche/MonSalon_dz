@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import '../providers/ThemeProvider.dart';
 import '../theme/colors.dart';
 
 class HomeAppBar extends StatelessWidget {
@@ -36,7 +38,7 @@ class HomeAppBar extends StatelessWidget {
                     ]),
                 child: GestureDetector (
                   child:
-                  SvgPicture.asset("assets/icons/setting.svg",height: 28,width: 28,color: primary),
+                  SvgPicture.asset("assets/icons/setting.svg",height: 28,width: 28,color: Provider.of<ThemeProvider>(context,listen: false).primary),
                   onTap: (){ },)
             ),
           ),

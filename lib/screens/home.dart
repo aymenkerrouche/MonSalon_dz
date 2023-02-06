@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:monsalondz/widgets/Category.dart';
 import 'package:monsalondz/widgets/Populars.dart';
+import '../theme/colors.dart';
 import '../widgets/Pubs.dart';
 import '../widgets/Recent.dart';
 import '../widgets/RecentSearch.dart';
@@ -14,7 +15,6 @@ class HomeBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(
-      //physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       floatHeaderSlivers: false,
       headerSliverBuilder: (context, innerBoxIsScrolled) {
         return [
@@ -23,12 +23,11 @@ class HomeBody extends StatelessWidget {
             sliver: const SliverSafeArea(
               top: false,
               sliver: SliverAppBar(
-                expandedHeight: 160,
+                expandedHeight: 170,
                 pinned: false,
                 floating: false,
                 forceElevated: false,
                 elevation: 0,
-
                 flexibleSpace: FlexibleSpaceBar(
                     background: Pubs(),
                 ),
@@ -39,7 +38,7 @@ class HomeBody extends StatelessWidget {
       },
       body: SingleChildScrollView(
         child: Container(
-          color: Colors.white,
+          color: backgroundColor,
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           child: Column(
             children: [
@@ -47,7 +46,6 @@ class HomeBody extends StatelessWidget {
               // SERACH
               const SerachBar(),
               const SizedBox(height: 25,),
-
 
               //Categories
               Align(
@@ -106,11 +104,10 @@ class HomeBody extends StatelessWidget {
               //const RecentItem(),
               const SizedBox(height: 25,),
 
-
-
               //Search History
               const RecentSearch(),
               const SizedBox(height: kToolbarHeight,),
+
             ],
           ),
         ),

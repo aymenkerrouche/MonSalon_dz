@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:provider/provider.dart';
-import '../theme/colors.dart';
+
+import '../providers/ThemeProvider.dart';
 
 class ListCatigories extends StatelessWidget {
   const ListCatigories({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
     return Consumer<CategoriesProvider>(
       builder: (context, categories, child){
        return GridView.builder(
@@ -28,8 +30,8 @@ class ListCatigories extends StatelessWidget {
               clipBehavior: Clip.antiAliasWithSaveLayer,
               child: InkWell(
                 radius: 14,
-                highlightColor: primary,
-                splashColor: primary,
+                highlightColor: Provider.of<ThemeProvider>(context,listen: false).primary,
+                splashColor: Provider.of<ThemeProvider>(context,listen: false).primary,
                 onTap: () {},
                 child: categories.done == true && categories.categories.isNotEmpty ?
                 CachedNetworkImage(

@@ -3,16 +3,17 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
-import 'package:monsalondz/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../providers/ThemeProvider.dart';
 
 class Pubs extends StatelessWidget {
   const Pubs({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 30),
+    return SafeArea(
+      top: true,
       child: Consumer<CategoriesProvider>(
         builder: (context, pubs, child) {
           return CarouselSlider(
@@ -21,7 +22,7 @@ class Pubs extends StatelessWidget {
               autoPlayInterval: const Duration(seconds: 10),
               autoPlayAnimationDuration: const Duration(seconds: 1),
               enlargeCenterPage: true,
-              aspectRatio: 2.5,
+              aspectRatio: 2,
               viewportFraction: 0.95,
             ),
               items: List.generate(pubs.pubs.length, (index) =>
@@ -31,13 +32,20 @@ class Pubs extends StatelessWidget {
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),
-                    highlightColor: primary.withOpacity(0.2),
+                    highlightColor: Provider.of<ThemeProvider>(context,listen: false).primary.withOpacity(0.2),
                     splashFactory: NoSplash.splashFactory,
                     onTap: () async {
                       final Uri url = Uri.parse(pubs.pubs[index].lien!);
                       await launchUrl(url,mode: LaunchMode.externalApplication);
                     },
-                    child: CachedNetworkImage(
+                    child: pubs.pubs[index].id == '0' ?
+
+                    Ink.image(
+                      image: AssetImage(pubs.pubs[index].photo),
+                      fit: BoxFit.fill,
+                    ):
+
+                    CachedNetworkImage(
                       imageUrl: pubs.pubs[index].photo,
                       fit: BoxFit.fill,
                       imageBuilder: (context, imageProvider) => Ink.image(

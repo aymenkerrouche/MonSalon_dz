@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:monsalondz/theme/colors.dart';
 import '../../providers/AuthProvider.dart';
 import '../../providers/GoogleSignIn.dart';
+import '../../providers/ThemeProvider.dart';
 import '../../widgets/profile_menu.dart';
 import '../settings.dart';
 import 'account/update_profil_screen.dart';
@@ -27,7 +28,7 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: const Color(0x0ff8f8f8),
+      backgroundColor: backgroundColor,
         appBar: AppBar(
           title: const Text(
             "Profile",
@@ -39,8 +40,7 @@ class _ProfileState extends State<Profile> {
             maxLines: 1,
             overflow: TextOverflow.clip,
           ),
-          backgroundColor: primary,
-          elevation: 2,
+          backgroundColor: Provider.of<ThemeProvider>(context,listen: false).primary,
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -74,16 +74,12 @@ class _ProfileState extends State<Profile> {
                       );
                     })
                   },
-                  primary: primary,
-                  secondary: secondary,
                 ),
                 ProfileMenu(
                   text: "Historique",
                   icon: "assets/icons/apps.svg",
                   press: () {},
                   width: 30,
-                  primary: primary,
-                  secondary: secondary,
                 ),
                 ProfileMenu(
                   text: "Settings",
@@ -97,8 +93,6 @@ class _ProfileState extends State<Profile> {
                       );
                     });
                   },
-                  primary: primary,
-                  secondary: secondary,
                 ),
 
                 //FEEDBACK
@@ -116,15 +110,13 @@ class _ProfileState extends State<Profile> {
                   text: "Help Center",
                   icon: "assets/icons/Question mark.svg",
                   press: () {},
-                  primary: primary,
-                  secondary: secondary,
+
                 ),
                 ProfileMenu(
                   text: "About us",
                   icon: "assets/icons/Question mark.svg",
                   press: () {},
-                  primary: primary,
-                  secondary: secondary,
+
                 ),
 
                 //LOG OUT
@@ -166,12 +158,10 @@ class _ProfileState extends State<Profile> {
                       setState(() {done = false;});
                     });
                   },
-                  primary: primary,
-                  secondary: secondary,
                   bye: bye,
                 ),
-
                 const SizedBox(height: 25,),
+
                 //VERSION
                 const Align(
                   alignment: Alignment.center,

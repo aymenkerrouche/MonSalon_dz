@@ -72,15 +72,20 @@ class CategoriesProvider extends ChangeNotifier {
   }
 
   Future getCategoriesPhotos() async {
-    try{
-      for( int i=0; i < categories.length ; i++ ) {
-        _categories[i].photo = await storage.child('categories/${_categories[i].category}.jpg').getDownloadURL();
+    for( int i=0; i < categories.length ; i++ ) {
+      try{
+      _categories[i].photo = await storage.child('categories/${_categories[i].category}.jpg').getDownloadURL();
       }
-      done = true;
+      catch(e){
+        categoriesError = e.toString();
+      }
     }
-    catch(e){
-      done = false;
+    for( int i=0; i < categories.length ; i++ ) {
+      if(_categories[i].photo == ''){
+        _categories.removeAt(i);
+      }
     }
+    done = true;
     notifyListeners();
   }
 }

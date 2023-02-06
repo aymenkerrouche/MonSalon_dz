@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:monsalondz/models/History.dart';
 import 'package:monsalondz/models/Pub.dart';
 import 'package:monsalondz/theme/colors.dart';
 
@@ -36,13 +35,6 @@ OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
       borderRadius: BorderRadius.circular(20),
       borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-      gapPadding: 6);
-}
-
-OutlineInputBorder inputBorder() {
-  return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
-      borderSide: BorderSide(color: primary, width: 1.5),
       gapPadding: 6);
 }
 

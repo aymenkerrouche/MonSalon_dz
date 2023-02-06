@@ -2,7 +2,9 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/MiniSalon.dart';
+import '../providers/ThemeProvider.dart';
 import '../theme/colors.dart';
 import 'BlankImageWidget.dart';
 import 'More_Infos.dart';
@@ -11,9 +13,9 @@ import 'More_Infos.dart';
 class PopularOffer extends StatelessWidget {
   PopularOffer({Key? key, required this.salon}) : super(key: key);
   MiniSalon salon;
-
   @override
   Widget build(BuildContext context) {
+    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return SizedBox(
       height: 300,
       child: Column(
@@ -60,7 +62,7 @@ class PopularOffer extends StatelessWidget {
                         ),
                           Positioned(
                             bottom: 10,right: 10,
-                            child: SmallInfos(info: salon.wilaya ,isIcon: true, color: primary, textColor: Colors.white, icon: Icons.location_on_outlined,),
+                            child: SmallInfos(info: salon.wilaya ,isIcon: true, color: providerColor.primary, textColor: Colors.white, icon: Icons.location_on_outlined,),
                           ),
                         ]
                       ),
@@ -101,7 +103,7 @@ class PopularOffer extends StatelessWidget {
                                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  children: List.generate(4, (index) => Container(margin: const EdgeInsets.only(right: 5),child: SmallInfos(info: salon.nom, color: primary.withOpacity(.03),textColor: primaryPro,)),),
+                                  children: List.generate(4, (index) => Container(margin: const EdgeInsets.only(right: 5),child: SmallInfos(info: salon.nom, color: providerColor.primary.withOpacity(.03),textColor: providerColor.primaryPro,)),),
                                 ),
                               ),
                             ),
@@ -120,8 +122,8 @@ class PopularOffer extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Flexible(flex: 1,child: Image.asset("assets/icons/rate.png",color: primaryPro,width: 35,)),
-                          Flexible(flex: 1,child: Text("4,6",style: TextStyle(color: primaryPro,fontWeight: FontWeight.w700,fontSize: 18),))
+                          Flexible(flex: 1,child: Image.asset("assets/icons/rate.png",color: providerColor.primaryPro,width: 35,)),
+                          Flexible(flex: 1,child: Text("4,6",style: TextStyle(color: providerColor.primaryPro,fontWeight: FontWeight.w700,fontSize: 18),))
                         ],
                       ),
                     )
