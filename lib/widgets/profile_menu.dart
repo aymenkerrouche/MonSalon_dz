@@ -37,7 +37,7 @@ class ProfileMenu extends StatelessWidget {
           foregroundColor: primary,
           padding: const EdgeInsets.all(20),
           shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-         backgroundColor: Colors.white,
+          backgroundColor: Colors.white,
           shadowColor: Colors.black12,
           elevation: 20,
         ),

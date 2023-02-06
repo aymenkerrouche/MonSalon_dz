@@ -6,11 +6,12 @@ import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/providers/SearchPrivider.dart';
 import 'package:provider/provider.dart';
 import 'package:monsalondz/providers/AuthProvider.dart';
-import 'package:monsalondz/screens/root.dart';
+import 'package:monsalondz/root.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'providers/GoogleSignIn.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 SharedPreferences? prefs;
@@ -45,17 +46,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
     MaterialApp(
+      useInheritedMediaQuery: true,
       title: 'MonSalon',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Rubik',
-        primaryColor: primary,
+        splashFactory: InkRipple.splashFactory,
+        splashColor: primary,
         iconTheme: IconThemeData(color: primary),
+        useMaterial3: true,
       ),
-      home: ScrollConfiguration(
-        behavior: MyBehavior(),
-        child: const Root()
-      ),
+      home:  const Root(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -67,12 +68,13 @@ class MyApp extends StatelessWidget {
       ],
   );
 }
+/*
 
 class MyBehavior extends ScrollBehavior {
 
   @override
   Widget buildOverscrollIndicator(
-      BuildContext context, Widget child, ScrollableDetails details) {
+    BuildContext context, Widget child, ScrollableDetails details) {
     return child;
   }
-}
+}*/

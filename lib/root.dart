@@ -11,10 +11,10 @@ import 'package:monsalondz/screens/profile/profile.dart';
 import 'package:monsalondz/screens/profile/auth/auth.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:provider/provider.dart';
-import '../providers/AuthProvider.dart';
-import '../providers/CategoriesProvider.dart';
-import '../providers/HistouriqueLocal.dart';
-import 'home.dart';
+import 'providers/AuthProvider.dart';
+import 'providers/CategoriesProvider.dart';
+import 'providers/HistouriqueLocal.dart';
+import 'screens/home.dart';
 
 TextStyle optionStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: primary);
 
@@ -48,8 +48,10 @@ class _RootState extends State<Root> {
   }
 
   getCategories() async {
-    await Provider.of<CategoriesProvider>(context,listen: false).getCategories().then((value) async {
-        await Provider.of<CategoriesProvider>(context, listen: false).getCategoriesPhotos();
+    final prv = Provider.of<CategoriesProvider>(context,listen: false);
+    await prv.getPubs();
+    await prv.getCategories().then((value) async {
+      await prv.getCategoriesPhotos();
       getHistory();
     });
   }
@@ -97,42 +99,45 @@ class _RootState extends State<Root> {
               return const HomeBody();
             }
             else{
-              return Column(
-                children: [
-                  const SizedBox(height: 150,),
-                  SizedBox(
-                    height: 300,
-                    child: Lottie.asset("assets/animation/404.json"),
-                  ),
-                  const SizedBox(height: 50,),
-                  const Text("veuillez vérifier votre connexion",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 22),),
-                  const SizedBox(height: 20,),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)))
+              if(AuthProvider.isConnect == false){
+                return Column(
+                  children: [
+                    const SizedBox(height: 150,),
+                    SizedBox(
+                      height: 300,
+                      child: Lottie.asset("assets/animation/404.json"),
                     ),
-                    onPressed: (){
-                      getCategories();
-                      if(testCnx == false){
-                        setState(() {
-                          testCnx = true;
-                        });
-                      }
-                      Timer(const Duration(seconds: 4), () {
-                        if(AuthProvider.isConnect == false){
-                          setState(() {
-                            testCnx = false;
+                    const SizedBox(height: 50,),
+                    const Text("veuillez vérifier votre connexion",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 22),),
+                    const SizedBox(height: 20,),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: primary,
+                            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)))
+                        ),
+                        onPressed: (){
+                          getCategories();
+                          if(testCnx == false){
+                            setState(() {
+                              testCnx = true;
+                            });
+                          }
+                          Timer(const Duration(seconds: 4), () {
+                            if(AuthProvider.isConnect == false){
+                              setState(() {
+                                testCnx = false;
+                              });
+                            }
                           });
-                        }
-                      });
-                    },
-                      child: testCnx == false ? const Text("Réessayer",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 18),):
-                      const SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: Colors.white,))
-                  ),
-                ],
-              );
+                        },
+                        child: testCnx == false ? const Text("Réessayer",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 18,color: Colors.white),):
+                        const SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: Colors.white,))
+                    ),
+                  ],
+                );
+              }
+              return Center(child: SizedBox(width: 40,height: 40,child: CircularProgressIndicator(color: primary,)));
             }
           }
         ),

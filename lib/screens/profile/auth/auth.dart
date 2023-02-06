@@ -45,11 +45,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: NestedScrollView(
+    return NestedScrollView(
         //physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         controller: _scrollController,
         floatHeaderSlivers: false,
@@ -99,7 +95,6 @@ class _SignUpState extends State<SignUp> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: const SignUpForm(),
         ),
-      ),
-    );
+      );
   }
 }

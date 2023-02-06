@@ -1,20 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:monsalondz/models/History.dart';
+import 'package:monsalondz/models/Pub.dart';
 import 'package:monsalondz/theme/colors.dart';
-
-List categories = [
-  {"category": "Coiffure", "pic": "assets/images/coiffure.jpg"},
-  {"category": "Mains et Pieds", "pic": "assets/images/nails.jpg"},
-  {"category": "Maquillage", "pic": "assets/images/make_up.jpg"},
-  {"category": "Epilation", "pic": "assets/images/epilation.jpg"},
-
-  {"category": "Spa", "pic": "assets/images/spa.jpg"},
-  {"category": "Visage", "pic": "assets/images/visage.jpg"},
-  {"category": "Mariage", "pic": "assets/images/mariage.jpg"},
-  {"category": "Massage", "pic": "assets/images/massage.jpg"},
-
-  {"category": "Homme", "pic": "assets/images/homme.jpg"},
-  {"category": "Beauté à domicile", "pic": "assets/images/salon1.jpg"},
-];
 
 
 snackBar(String txt,Color color){
@@ -58,3 +45,6 @@ OutlineInputBorder inputBorder() {
       borderSide: BorderSide(color: primary, width: 1.5),
       gapPadding: 6);
 }
+
+
+Pub localPub = Pub('0', 0, -1, "MonSalon", "https://monsalon-dz.com/", true, "${DateTime.now()}", "${DateTime.now().add(const Duration(days: 120))}", "assets/images/couverture.jpg");

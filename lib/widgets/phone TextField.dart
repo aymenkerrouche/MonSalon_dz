@@ -9,7 +9,7 @@ TextFormField buildPhoneNumberFormField(phoneController) {
     keyboardType: TextInputType.phone,
     controller: phoneController,
     cursorColor: primary,
-    style: const TextStyle(fontWeight: FontWeight.w500),
+    style: const TextStyle(fontWeight: FontWeight.w700),
     decoration: InputDecoration(
       labelText: "Phone",
       hintText: "Saisir votre numéro",
@@ -19,7 +19,7 @@ TextFormField buildPhoneNumberFormField(phoneController) {
         Icons.phone_rounded,
         color: primary,
       ),
-      hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+      hintStyle: const TextStyle(fontWeight: FontWeight.w700),
       border: outlineInputBorder(),
       focusedBorder: inputBorder(),
       enabledBorder: outlineInputBorder(),

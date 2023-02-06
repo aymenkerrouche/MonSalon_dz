@@ -1,7 +1,6 @@
 // ignore_for_file: file_names, must_be_immutable
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/MiniSalon.dart';
 import '../theme/colors.dart';
@@ -24,6 +23,7 @@ class PopularOffer extends StatelessWidget {
               minHeight: 260,
               //maxHeight: 290
             ),
+            width: MediaQuery.of(context).size.width * 0.95,
             margin: const EdgeInsets.only(bottom: 10) ,
             decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(12),),
@@ -69,11 +69,12 @@ class PopularOffer extends StatelessWidget {
                 ),
 
                 // infos
-                Stack(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(bottom: 5,left: 10,right: 15,top: 5),
-                        margin: const EdgeInsets.only(right: 55),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(bottom: 5,left: 10,right: 10,top: 5),
+                        margin: const EdgeInsets.only(right: 5),
                         constraints: const BoxConstraints(
                           minHeight: 50,
                           //maxHeight: 80,
@@ -95,18 +96,13 @@ class PopularOffer extends StatelessWidget {
                             // List more infos
                             SizedBox(
                               height: 20,
-                              child: ListView(
+                              child:
+                              SingleChildScrollView(
                                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                                 scrollDirection: Axis.horizontal,
-                                children: [
-                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
-                                  const SizedBox(width: 6,),
-                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
-                                  const SizedBox(width: 5,),
-                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
-                                  const SizedBox(width: 5,),
-                                  SmallInfos(info: salon.nom, color: primary.withOpacity(.05),textColor: primary,),
-                                ],
+                                child: Row(
+                                  children: List.generate(4, (index) => Container(margin: const EdgeInsets.only(right: 5),child: SmallInfos(info: salon.nom, color: primary.withOpacity(.03),textColor: primaryPro,)),),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 5,),
@@ -114,22 +110,22 @@ class PopularOffer extends StatelessWidget {
                           ],
                         ),
                       ),
+                    ),
 
-                      //Rate
-                      Positioned(
-                        bottom: 7, top: 7, right: 10,
-                        child: SizedBox(
-                          width: 50,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(CupertinoIcons.star_fill, color: Color(0xFFEFCA11),),
-                              Text("4,6",style: TextStyle(color: primary,fontWeight: FontWeight.w700,fontSize: 18),)
-                            ],
-                          ),
-                        )
-                      )
-                    ]
+                    //Rate
+                    Container(
+                      width: 50,
+                      margin: const EdgeInsets.only(right: 5),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(flex: 1,child: Image.asset("assets/icons/rate.png",color: primaryPro,width: 35,)),
+                          Flexible(flex: 1,child: Text("4,6",style: TextStyle(color: primaryPro,fontWeight: FontWeight.w700,fontSize: 18),))
+                        ],
+                      ),
+                    )
+                  ]
                 ),
               ],
             ),

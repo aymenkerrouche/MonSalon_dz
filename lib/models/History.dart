@@ -18,4 +18,13 @@ class History {
     day = json['day'] ?? '';
     hour = json['hour'] ?? '';
   }
+
+  Map<dynamic, dynamic> asMap() => {
+  "search" : search,
+  "wilaya" : wilaya,
+  "category" : category,
+  "date" : date,
+  "day" : day,
+  "hour" : hour,
+  };
 }

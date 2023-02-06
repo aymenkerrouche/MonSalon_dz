@@ -11,30 +11,25 @@ class SearchProvider extends ChangeNotifier {
   final TextEditingController _searchDate  = TextEditingController();
   TextEditingController get searchDate => _searchDate;
 
-  late String _searchHour;
-  String get searchHour => _searchHour;
+  String _hour = '';
+  String get hour => _hour;
 
-  getSearchDay(day) {
+  String _day = '';
+  String get day => _day;
+
+  setDate(day) {
     _searchDate.text = day;
     notifyListeners();
   }
-  getSearchDayName(dayName) {
-    _searchDate.text = dayName;
+
+  setDayName(dayName) {
+    _day = dayName;
     notifyListeners();
   }
 
-  getSearchHour(hour) {
-    _searchHour = hour;
+  setHour(heure) {
+    _hour = heure;
     notifyListeners();
   }
 
-  getSearchWilaya(wilaya) {
-    _searchWilaya.text = wilaya;
-    notifyListeners();
-  }
-
-  getSearch(searched) {
-    _search.text = searched;
-    notifyListeners();
-  }
 }

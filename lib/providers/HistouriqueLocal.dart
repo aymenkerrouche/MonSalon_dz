@@ -24,39 +24,36 @@ class HistoryProvider extends ChangeNotifier {
   Future<bool> databaseExists(String path) => databaseFactory.databaseExists(path);
 
   Future<void> setSearchHistory(String search, String wilaya, String category, String date, String jour, String hour) async {
+
     _searchHistory.clear();
     int count = Sqflite.firstIntValue(await _localDB.rawQuery('SELECT COUNT(*) FROM history')) ?? 0;
 
-    if(count > 8) {
+    if(search != '' || wilaya != '' || category != '' || date  != '' || jour != '' || hour != ''){
+
       await _localDB.transaction((txn) async {
-
-        await txn.rawQuery('Delete FROM history where id IN (Select id from history limit 1)');
-
-        await txn.rawUpdate("UPDATE history SET id = id-1");
-
+        if(count > 8) {
+          await txn.rawQuery('Delete FROM history where id IN (Select id from history limit 1)');
+          await txn.rawUpdate("UPDATE history SET id = id-1");
+        }
         await txn.rawInsert(
-          'INSERT INTO history(search, wilaya, category, date, day, hour) VALUES(?,?,?,?,?,?)',
-          [search, wilaya, category, date, jour, date, hour,],
-        );
-
-      });
-    }
-    else{
-      await _localDB.transaction((txn) async {
-        await txn.rawInsert(
-          'INSERT INTO history(search, wilaya, category, date, day, hour) VALUES(?,?,?,?,?,?)',
-          [search, wilaya, category, date, jour, date, hour,],
+          'INSERT INTO history(id,search, wilaya, category, date, day, hour) VALUES(?,?,?,?,?,?,?)',
+          [count > 8 ? count : count + 1 , search, wilaya, category, date, jour, hour],
         );
       });
-    }
 
+    }
     await loadLocalData();
-
     notifyListeners();
   }
-  
-  
 
+  deleteHistory(int id) async {
+    await _localDB.transaction((txn) async {
+      await txn.rawQuery("Delete FROM history where id = '$id'");
+      await txn.rawUpdate("UPDATE history SET id = id-1 where id > '$id'");
+    });
+    await loadLocalData();
+    notifyListeners();
+  }
 
   setSalonsHistory(MiniSalon salon) {
     if(_salonsHistory.length > 10){
@@ -71,11 +68,8 @@ class HistoryProvider extends ChangeNotifier {
 
   // InitDB
   initLocalDB() async {
-    print("++++++++++++++++++++++++++++++++++++.db");
     if(prefs?.getString('path') != null) {
-      print("++++++++++++++++++prefs?.getString('path')++++++++++++++++++.db");
       _localDB = await createOrOpenLocalDB(prefs?.getString('db_database')).catchError((e){print(e);});
-      print("============================${_localDB.path}===========================");
       await loadLocalData();
     }
     else{
@@ -88,9 +82,10 @@ class HistoryProvider extends ChangeNotifier {
   // Load from DB
   Future<void> loadLocalData() async {
     List<Map> history = await _localDB.rawQuery("SELECT * FROM history");
-    print(history);
     if(history.isNotEmpty){
+      _searchHistory.clear();
       for(Map hist in history){
+        print(hist);
         _searchHistory.add(History.fromJson(hist));
       }
     }
@@ -112,7 +107,6 @@ class HistoryProvider extends ChangeNotifier {
     }
 
     else {
-      print("++++++++++++++++++++++++++++++++++++$path.db");
       Database dtb = await openDatabase('$path.db', version: 1,
         onCreate: (Database db, int version) async {
           await db.execute(

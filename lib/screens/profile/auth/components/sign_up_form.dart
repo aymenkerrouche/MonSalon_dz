@@ -74,11 +74,11 @@ class _SignUpFormState extends State<SignUpForm> {
             maxLines:1,
             TextSpan(
                 text: login ? "Créer un " : "Connectez-",
-                style:  TextStyle(color: black, fontSize: 25, fontWeight: FontWeight.w600, letterSpacing: 1.0),
+                style:  TextStyle(color: black, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
                 children: <InlineSpan>[
                   TextSpan(
                     text: login ? "compte" : "vous",
-                    style: TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w600, letterSpacing: 1.0),
+                    style: TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
                   )
                 ]
             ),
@@ -147,7 +147,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       }
                     },
                     child: Text("Continue",
-                      style: TextStyle(fontSize: 20, color: white,),
+                      style: TextStyle(fontSize: 22, color: white,fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -301,6 +301,7 @@ class _SignUpFormState extends State<SignUpForm> {
       obscureText: obscureText,
       controller: passwordController,
       cursorColor: primary,
+      onSaved: (s){FocusScope.of(context).unfocus();},
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
@@ -328,7 +329,7 @@ class _SignUpFormState extends State<SignUpForm> {
         hintText: "Saisir votre mot de passe",
         labelStyle: TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w700),
         suffixIcon: IconButton(
             icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility,
                 color: primary),
@@ -345,7 +346,7 @@ class _SignUpFormState extends State<SignUpForm> {
         focusedBorder: inputBorder(),
         enabledBorder: outlineInputBorder(),
       ),
-      style: const TextStyle(fontWeight: FontWeight.w500),
+      style: const TextStyle(fontWeight: FontWeight.w700),
     );
   }
 
@@ -354,7 +355,8 @@ class _SignUpFormState extends State<SignUpForm> {
       keyboardType: TextInputType.emailAddress,
       controller: emailController,
       cursorColor: primary,
-      style: const TextStyle(fontWeight: FontWeight.w500),
+      onSaved: (s){FocusScope.of(context).unfocus();},
+      style: const TextStyle(fontWeight: FontWeight.w700),
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
@@ -383,7 +385,7 @@ class _SignUpFormState extends State<SignUpForm> {
         border: outlineInputBorder(),
         focusedBorder: inputBorder(),
         enabledBorder: outlineInputBorder(),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     );
   }
