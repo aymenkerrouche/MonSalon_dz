@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
-
-import '../providers/ThemeProvider.dart';
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({
@@ -11,17 +8,20 @@ class ProfileMenu extends StatelessWidget {
     required this.icon,
     this.width = 22,
     this.press,
+    required this.primary,
+    required this.secondary,
     this.bye = false
   }) : super(key: key);
 
   final String text, icon;
   final VoidCallback? press;
   final double width;
+  final Color primary;
+  final Color secondary;
   final bool bye;
 
   @override
   Widget build(BuildContext context) {
-    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: const BoxDecoration(
@@ -34,7 +34,7 @@ class ProfileMenu extends StatelessWidget {
         ]),
       child: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: providerColor.primary,
+          foregroundColor: primary,
           padding: const EdgeInsets.all(20),
           shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           backgroundColor: Colors.white,
@@ -46,13 +46,13 @@ class ProfileMenu extends StatelessWidget {
           children: [
             SvgPicture.asset(
               icon,
-              color: providerColor.primary,
+              color: primary,
               width: width,
               height: 22,
             ),
             const SizedBox(width: 20),
             Expanded(child: Text(text)),
-            bye ? SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: providerColor.primary,)) :const Icon(Icons.arrow_forward_ios),
+            bye ? SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: primary,)) :const Icon(Icons.arrow_forward_ios),
           ],
         ),
       ),

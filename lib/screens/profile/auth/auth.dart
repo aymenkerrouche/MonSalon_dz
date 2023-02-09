@@ -1,8 +1,6 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../providers/ThemeProvider.dart';
 import '../../../theme/colors.dart';
 import 'components/sign_up_form.dart';
 
@@ -59,7 +57,7 @@ class _SignUpState extends State<SignUp> {
                 sliver: SliverAppBar(
                   expandedHeight: size.height * 0.25,
                   pinned: true,
-                  backgroundColor: Provider.of<ThemeProvider>(context,listen: false).primary,
+                  backgroundColor: primary,
                   floating: false,
                   forceElevated: false,
                   elevation: 0,

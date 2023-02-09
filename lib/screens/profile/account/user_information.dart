@@ -11,7 +11,7 @@ import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:provider/provider.dart';
 import '../../../../utils/constants.dart';
-import '../../../providers/ThemeProvider.dart';
+import '../../../providers/AuthProvider.dart';
 
 class UpdateProfile extends StatefulWidget {
   @override
@@ -24,7 +24,6 @@ class UpdateProfileState extends State<UpdateProfile> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
-  User? user = FirebaseAuth.instance.currentUser;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   bool done = false;
@@ -32,8 +31,8 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   fillUser() async {
     done = await getUser();
-    emailController.text = user?.email ?? '';
-    nameController.text = user?.displayName ?? '';
+    emailController.text = FirebaseAuth.instance.currentUser?.email ?? FirebaseAuth.instance.currentUser!.providerData.first.email!;
+    nameController.text = FirebaseAuth.instance.currentUser?.displayName ?? '';
 
     if(done == false){
       Timer(const Duration(seconds: 5),(){
@@ -52,7 +51,7 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   Future<bool> getUser() async {
     try{
-      await firestore.collection("users").doc(user?.uid).get().then((snapshot){
+      await firestore.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).get().then((snapshot){
         phoneController.text = snapshot.data()?.values.first ?? '';
       });
       return true;
@@ -78,84 +77,14 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     Size size = MediaQuery.of(context).size;
     return done ? Column(
       children: [
-        TextFormField(
-          keyboardType: TextInputType.emailAddress,
-          readOnly: true,
-          controller: emailController,
-          cursorColor: providerColor.primary,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-          decoration: InputDecoration(
-            labelText: "Email",
-            labelStyle: TextStyle(color: providerColor.primary,),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            suffixIcon: Icon(Icons.email_rounded, color: providerColor.primary,),
-            contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            border: outlineInputBorder(),
-            focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: providerColor.primary, width: 1.5),
-                gapPadding: 6),
-            enabledBorder: outlineInputBorder(),
-            hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-          ),
-        ),
-
+        buildEmailFormField(),
         SizedBox(height: size.height * 0.05),
-        TextFormField(
-          controller: nameController,
-          cursorColor: providerColor.primary,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-          decoration: InputDecoration(
-            labelText: "Name",
-            hintText: "Enter your name",
-            labelStyle:  TextStyle(color: providerColor.primary,),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            suffixIcon: Icon(
-              Icons.person,
-              color: providerColor.primary,
-            ),
-            hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-            border: outlineInputBorder(),
-            focusedBorder:OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: providerColor.primary, width: 1.5),
-                gapPadding: 6),
-            enabledBorder: outlineInputBorder(),
-            contentPadding:
-            const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          ),
-        ),
+        buildNameFormField(),
         SizedBox(height: size.height * 0.05),
-        TextFormField(
-          keyboardType: TextInputType.phone,
-          controller: phoneController,
-          cursorColor: providerColor.primary,
-          scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          style: const TextStyle(fontWeight: FontWeight.w700),
-          decoration: InputDecoration(
-            labelText: "Phone",
-            hintText: "Enter your phone number",
-            labelStyle:  TextStyle(color: providerColor.primary,),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            suffixIcon: Icon(
-                Icons.phone_rounded,
-                color: providerColor.primary,
-            ),
-            hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-            border: outlineInputBorder(),
-            focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: providerColor.primary, width: 1.5),
-                gapPadding: 6),
-            enabledBorder: outlineInputBorder(),
-            contentPadding:
-            const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          ),
-        ),
+        buildPhoneNumberFormField(),
         SizedBox(height: size.height * 0.1),
         SizedBox(
           width: size.width,
@@ -163,7 +92,7 @@ class UpdateProfileState extends State<UpdateProfile> {
           child: TextButton(
             style: TextButton.styleFrom(
               foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              backgroundColor: Provider.of<ThemeProvider>(context,listen: false).primary,
+              backgroundColor: primary,
             ),
             onPressed: () async {
               setState(() {loading = true;});
@@ -210,6 +139,76 @@ class UpdateProfileState extends State<UpdateProfile> {
     return Container(height: 60, width: double.infinity, decoration: const BoxDecoration(color: Colors.white,borderRadius: BorderRadius.all(Radius.circular(20))));
   }
 
+  TextFormField buildEmailFormField() {
+    return TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      readOnly: true,
+      controller: emailController,
+      cursorColor: primary,
+      style: const TextStyle(fontWeight: FontWeight.w700),
+      decoration: InputDecoration(
+        labelText: "Email",
+        labelStyle: TextStyle(color: primary),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: Icon(Icons.email_rounded, color: primary),
+        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        border: outlineInputBorder(),
+        focusedBorder: inputBorder(),
+        enabledBorder: outlineInputBorder(),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+      ),
+    );
+  }
+
+  TextFormField buildNameFormField() {
+    return TextFormField(
+      controller: nameController,
+      cursorColor: primary,
+      style: const TextStyle(fontWeight: FontWeight.w700),
+      decoration: InputDecoration(
+        labelText: "Name",
+        hintText: "Enter your name",
+        labelStyle:  TextStyle(color: primary),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: Icon(
+          Icons.person,
+          color: primary,
+        ),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+        border: outlineInputBorder(),
+        focusedBorder: inputBorder(),
+        enabledBorder: outlineInputBorder(),
+        contentPadding:
+        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      ),
+    );
+  }
+
+  TextFormField buildPhoneNumberFormField() {
+    return TextFormField(
+      keyboardType: TextInputType.phone,
+      controller: phoneController,
+      cursorColor: primary,
+      scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      style: const TextStyle(fontWeight: FontWeight.w700),
+      decoration: InputDecoration(
+        labelText: "Phone",
+        hintText: "Enter your phone number",
+        labelStyle:  TextStyle(color: primary),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: Icon(
+          Icons.phone_rounded,
+          color: primary,
+        ),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+        border: outlineInputBorder(),
+        focusedBorder: inputBorder(),
+        enabledBorder: outlineInputBorder(),
+        contentPadding:
+        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      ),
+    );
+  }
 
   Future<void> updateUser() async {
 
@@ -246,11 +245,12 @@ class UpdateProfileState extends State<UpdateProfile> {
     // UPDATE
     if(nameController.text.isNotEmpty && phoneController.text.isNotEmpty){
       try{
-        await user?.updateDisplayName(nameController.text);
-        await FirebaseFirestore.instance.collection("users").doc(user!.uid).set({
+        await FirebaseAuth.instance.currentUser?.updateDisplayName(nameController.text);
+        await FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
           'phone': phoneController.text.trim(),
+          'name': nameController.text.trim(),
         })
-        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(snackBar("Profile updated",Colors.green.shade600)));
+        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(snackBar("Profil mis à jour",primary.withOpacity(.9))));
       }
       on FirebaseAuthException catch (e) {
         GFToast.showToast(e.code, context,toastDuration: 3,backgroundColor: red,textStyle: TextStyle(color: white),toastPosition:GFToastPosition.BOTTOM,);

@@ -10,8 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
   import 'package:provider/provider.dart';
   import '../providers/HistouriqueLocal.dart';
 import '../providers/SearchPrivider.dart';
-  import '../providers/ThemeProvider.dart';
-import '../utils/constants.dart';
+  import '../utils/constants.dart';
 
   class SerachBar extends StatelessWidget {
     const SerachBar({Key? key}) : super(key: key);
@@ -19,7 +18,6 @@ import '../utils/constants.dart';
     @override
     Widget build(BuildContext context) {
       Size size = MediaQuery.of(context).size;
-      final providerColor = Provider.of<ThemeProvider>(context,listen: false);
       return Container(
         width: size.width,
         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
@@ -43,7 +41,7 @@ import '../utils/constants.dart';
               child: Consumer<SearchProvider>(
                 builder: (context, search, child) {
                   return TextField(
-                    cursorColor: providerColor.primary,
+                    cursorColor: primary,
                     style: const TextStyle(color: Colors.black, fontSize: 18),
                     controller: search.search,
                     cursorHeight: 24,
@@ -54,14 +52,14 @@ import '../utils/constants.dart';
                       border: InputBorder.none,
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: providerColor.primary, width: 1),
+                        borderSide: BorderSide(color: primary, width: 1),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: Colors.white38, width: 1),
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.close_rounded, color: providerColor.primary),
+                        icon: Icon(Icons.close_rounded, color: primary),
                         padding: EdgeInsets.zero,
                         onPressed: () {search.search.clear();}
                       ),
@@ -98,7 +96,6 @@ import '../utils/constants.dart';
     bool loading = false;
     @override
     Widget build(BuildContext context) {
-      final providerColor = Provider.of<ThemeProvider>(context,listen: false);
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState){
           return ElevatedButton(
@@ -124,7 +121,7 @@ import '../utils/constants.dart';
               });
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: providerColor.primary,
+                backgroundColor: primary,
                 fixedSize: const Size(double.maxFinite, 48),
                 shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))),
             child: loading ?
@@ -152,7 +149,6 @@ import '../utils/constants.dart';
     @override
     Widget build(BuildContext context) {
       Size size = MediaQuery.of(context).size;
-      final providerColor = Provider.of<ThemeProvider>(context,listen: false);
       return Container(
         width: size.width * 0.5,
         height: 50,
@@ -183,7 +179,7 @@ import '../utils/constants.dart';
                 color: Colors.black,
                 fontFamily: 'Rubik',
                 fontWeight: FontWeight.w600),
-              fieldSuffixIcon: Icon(Icons.arrow_drop_down_circle_outlined,color: providerColor.primary,size: 20,),
+              fieldSuffixIcon: Icon(Icons.arrow_drop_down_circle_outlined,color: primary,size: 20,),
               onChanged: (w){
                 if(w.contains('Tous')){searchwilaya.searchWilaya.clear();}
               },
@@ -204,7 +200,6 @@ import '../utils/constants.dart';
     @override
     Widget build(BuildContext context) {
       Size size = MediaQuery.of(context).size;
-      final providerColor = Provider.of<ThemeProvider>(context,listen: false);
       return Container(
         height: 50,
         width: size.width * 0.4,
@@ -256,11 +251,11 @@ import '../utils/constants.dart';
                             return Theme(
                               data: Theme.of(context).copyWith(
                                 colorScheme: ColorScheme.light(
-                                  primary: providerColor.primary,
+                                  primary: primary,
                                 ),
                                 textButtonTheme: TextButtonThemeData(
                                   style: TextButton.styleFrom(
-                                    foregroundColor: providerColor.primary, // button text color
+                                    foregroundColor: primary, // button text color
                                   ),
                                 ),
                               ),
@@ -297,7 +292,7 @@ import '../utils/constants.dart';
                     return StatefulBuilder(
                         builder: (BuildContext context, StateSetter setState) {
                           return InkWell(
-                            child: Icon(CupertinoIcons.calendar,color: providerColor.primary),
+                            child: Icon(CupertinoIcons.calendar,color: primary),
                             onTap: () async {
                               DateTime? pickedDate = await showDatePicker(
                                 context: context,
@@ -309,11 +304,11 @@ import '../utils/constants.dart';
                                   return Theme(
                                     data: Theme.of(context).copyWith(
                                       colorScheme: ColorScheme.light(
-                                        primary: providerColor.primary,
+                                        primary: primary,
                                       ),
                                       textButtonTheme: TextButtonThemeData(
                                         style: TextButton.styleFrom(
-                                          foregroundColor: providerColor.primary, // button text color
+                                          foregroundColor: primary, // button text color
                                         ),
                                       ),
                                     ),

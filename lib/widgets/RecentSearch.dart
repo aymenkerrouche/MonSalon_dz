@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/HistouriqueLocal.dart';
-import '../providers/ThemeProvider.dart';
+import '../theme/colors.dart';
 
 class RecentSearch extends StatelessWidget {
   const RecentSearch({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return Consumer<HistoryProvider>(
         builder: (context, history,child) {
           return Column(
@@ -42,15 +41,15 @@ class RecentSearch extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      avatar: Icon(Icons.search_rounded,color: providerColor.primaryPro),
+                      avatar: Icon(Icons.search_rounded,color: primaryPro),
                       labelPadding: EdgeInsets.zero,
-                      deleteIconColor: providerColor.primaryPro,
+                      deleteIconColor: primaryPro,
                       onDeleted: () async {history.deleteHistory(history.searchHistory[index].id!);},
                       elevation: 1,
-                      backgroundColor: providerColor.primary.withOpacity(.03),
+                      backgroundColor: primary.withOpacity(.2),
                       pressElevation: 5,
                       onPressed: (){},
-                      labelStyle: TextStyle(color: providerColor.primaryPro),
+                      labelStyle: TextStyle(color: primaryPro),
                     ),
                   ),
                 ),

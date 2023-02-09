@@ -4,14 +4,12 @@ import 'package:monsalondz/providers/AppSettingsProvider.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/providers/SearchPrivider.dart';
-import 'package:monsalondz/providers/ThemeProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:monsalondz/providers/AuthProvider.dart';
 import 'package:monsalondz/root.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
-import 'providers/GoogleSignIn.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -28,13 +26,11 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => GoogleSignInProvider(),),
         ChangeNotifierProvider(create: (context) => AuthProvider(),),
         ChangeNotifierProvider(create: (context) => SearchProvider(),),
         ChangeNotifierProvider(create: (context) => AppSettingsProvider(),),
         ChangeNotifierProvider(create: (context) => CategoriesProvider()),
         ChangeNotifierProvider(create: (context) => HistoryProvider()),
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -54,8 +50,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Rubik',
         splashFactory: InkRipple.splashFactory,
-        splashColor: Provider.of<ThemeProvider>(context,listen: false).primary,
-        iconTheme: IconThemeData(color: Provider.of<ThemeProvider>(context,listen: false).primary),
+        splashColor: primary,
+        iconTheme: IconThemeData(color: primary),
         useMaterial3: true,
       ),
       home:  const Root(),

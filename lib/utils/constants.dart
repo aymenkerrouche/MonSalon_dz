@@ -5,9 +5,10 @@ import 'package:monsalondz/theme/colors.dart';
 
 snackBar(String txt,Color color){
   return  SnackBar(
-    content: Text(txt, style: TextStyle(color: white,fontWeight: FontWeight.w700,fontSize: 16),),
+    content: Text(txt, style: TextStyle(color: white,fontWeight: FontWeight.w600,fontSize: 16),),
     backgroundColor: color,
     elevation: 10,
+    duration: const Duration(seconds: 2),
     margin: const EdgeInsets.only(bottom: 25,right: 15,left: 15),
     behavior: SnackBarBehavior.floating,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
@@ -35,6 +36,13 @@ OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
       borderRadius: BorderRadius.circular(20),
       borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+      gapPadding: 6);
+}
+
+OutlineInputBorder inputBorder() {
+  return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: BorderSide(color: primary, width: 1.5),
       gapPadding: 6);
 }
 

@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
-import 'package:monsalondz/providers/ThemeProvider.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:monsalondz/screens/favorites.dart';
 import 'package:monsalondz/screens/profile/profile.dart';
@@ -17,6 +16,7 @@ import 'providers/CategoriesProvider.dart';
 import 'providers/HistouriqueLocal.dart';
 import 'screens/home.dart';
 
+TextStyle optionStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: primary);
 
 class Root extends StatefulWidget {
   const Root({Key? key}) : super(key: key);
@@ -59,6 +59,7 @@ class _RootState extends State<Root> {
   getHistory() async {
     await Provider.of<HistoryProvider>(context,listen: false).initLocalDB();
   }
+
   bool testCnx = false;
 
   @override
@@ -81,7 +82,7 @@ class _RootState extends State<Root> {
         colorBehindNavBar: white,
       ),
       popAllScreensOnTapOfSelectedTab: true,
-      popActionScreens: PopActionScreensType.all,
+      popActionScreens: PopActionScreensType.once,
       itemAnimationProperties: const ItemAnimationProperties(
         duration: Duration(milliseconds: 200),
         curve: Curves.ease,
@@ -89,15 +90,13 @@ class _RootState extends State<Root> {
       navBarStyle: NavBarStyle.style13,
     );
   }
-
   List<Widget> buildScreens() {
-    final provider = Provider.of<ThemeProvider>(context,listen: false);
     return [
       GestureDetector(onTap: () {FocusScope.of(context).unfocus();},
         child: Consumer<AuthProvider>(
           builder: (cxt, cnx, child){
             if(AuthProvider.isConnect == true){
-              return const HomeBody();
+              return const HomeScreen();
             }
             else{
               if(AuthProvider.isConnect == false){
@@ -113,7 +112,7 @@ class _RootState extends State<Root> {
                     const SizedBox(height: 20,),
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: provider.primary,
+                            backgroundColor: primary,
                             padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                             shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)))
                         ),
@@ -138,7 +137,7 @@ class _RootState extends State<Root> {
                   ],
                 );
               }
-              return Center(child: SizedBox(width: 40,height: 40,child: CircularProgressIndicator(color: provider.primary,)));
+              return Center(child: SizedBox(width: 40,height: 40,child: CircularProgressIndicator(color: primary,)));
             }
           }
         ),
@@ -156,7 +155,7 @@ class _RootState extends State<Root> {
                 if(snapshot.data!.uid.isNotEmpty) return const Profile();
               }
               if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
-              return Container(color: white,child: Center(child: CircularProgressIndicator(color: provider.primary,),));
+              return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));
             }
         ),
       )
@@ -164,15 +163,14 @@ class _RootState extends State<Root> {
   }
 
   List<PersistentBottomNavBarItem> navBarsItems() {
-
-    final provider = Provider.of<ThemeProvider>(context,listen: false);
     return [
+
       PersistentBottomNavBarItem(
         icon: SvgPicture.asset(
           "assets/icons/home1.svg",
           height: 22,
           width: 22,
-          color: provider.primary,
+          color: primary,
         ),
         inactiveIcon: SvgPicture.asset(
           "assets/icons/home.svg",
@@ -181,11 +179,11 @@ class _RootState extends State<Root> {
           color: const Color(0xFF8E8E93),
         ),
         iconSize: 22,
-        activeColorSecondary: provider.primary,
+        activeColorSecondary: primary,
         title: ("Home"),
         activeColorPrimary: secondary,
         opacity: .9,
-        textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: provider.primary),
+        textStyle: optionStyle,
       ),
 
       PersistentBottomNavBarItem(
@@ -194,9 +192,9 @@ class _RootState extends State<Root> {
         title: ("RDV"),
         inactiveColorPrimary: CupertinoColors.systemGrey,
         activeColorPrimary: secondary,
-        activeColorSecondary: provider.primary,
+        activeColorSecondary: primary,
         opacity: .9,
-        textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: provider.primary),
+        textStyle: optionStyle,
       ),
     
       PersistentBottomNavBarItem(
@@ -205,9 +203,9 @@ class _RootState extends State<Root> {
         title: ("Favoris"),
         inactiveColorPrimary: CupertinoColors.systemGrey,
         activeColorPrimary: secondary,
-        activeColorSecondary: provider.primary,
+        activeColorSecondary: primary,
         opacity: .9,
-        textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: provider.primary),
+        textStyle: optionStyle,
       ),
       
       PersistentBottomNavBarItem(
@@ -216,9 +214,9 @@ class _RootState extends State<Root> {
         title: ("Profile"),
         inactiveColorPrimary: CupertinoColors.systemGrey,
         activeColorPrimary: secondary,
-        activeColorSecondary: provider.primary,
+        activeColorSecondary: primary,
         opacity: .9,
-        textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: provider.primary),
+        textStyle: optionStyle,
 
       ),
     ];

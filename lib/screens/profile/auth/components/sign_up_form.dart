@@ -8,14 +8,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:provider/provider.dart';
-import 'package:monsalondz/providers/GoogleSignIn.dart';
 import 'package:monsalondz/theme/colors.dart';
 import '../../../../providers/AuthProvider.dart';
-import '../../../../providers/ThemeProvider.dart';
 import '../../../../utils/constants.dart';
 import '../../../../utils/keyboard.dart';
 import '../../../../widgets/form_error.dart';
-import '../../../../widgets/PhoneTextField.dart';
+import '../../../../widgets/phone TextField.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -34,16 +32,10 @@ class _SignUpFormState extends State<SignUpForm> {
   bool obscureText = true;
   bool accept = false;
   bool isLoading = false;
-  double height = 60;
+  double height = 55;
   double width = 500;
+  Color color = primary;
   bool login = false;
-  Color? color;
-
-  @override
-  void initState() {
-    color = Provider.of<ThemeProvider>(context,listen: false).primary;
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -71,7 +63,6 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -86,7 +77,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 children: <InlineSpan>[
                   TextSpan(
                     text: login ? "compte" : "vous",
-                    style: TextStyle(color: providerColor.primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
+                    style: TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
                   )
                 ]
             ),
@@ -99,30 +90,23 @@ class _SignUpFormState extends State<SignUpForm> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+
                 buildEmailFormField(),
                 SizedBox(height: size.height * 0.03),
                 buildPasswordFormField(),
                 if (login) Container(height:  size.height * 0.03),
-                if (login) BuildPhoneNumberFormField(phoneController:phoneController),
+                if (login) buildPhoneNumberFormField(phoneController),
                 if (login && errors.isNotEmpty) Container(height:  size.height * 0.01),
                 FormError(errors: errors),
                 SizedBox(height: size.height * 0.05),
-                AnimatedContainer(
-                  width: width,
-                  height: height,
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.fastOutSlowIn,
-                  child: isLoading ?
-                  Container(
-                    width: 70,
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    decoration:  BoxDecoration(shape: BoxShape.circle,color: providerColor.primary,),
-                    child: CircularProgressIndicator(color: white,),
-                  ) :
-                  ElevatedButton(
+
+                Container(
+                  margin: const EdgeInsets.only(bottom: 15),
+                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      backgroundColor: providerColor.primary,
+                      backgroundColor: primary,
+                      fixedSize: Size(size.width, 55)
                     ),
                     onPressed: () async {
                       KeyboardUtil.hideKeyboard(context);
@@ -134,7 +118,7 @@ class _SignUpFormState extends State<SignUpForm> {
                             // Sign Up
                             if (login) {
                               await signUp().then((value) {
-                                if (value) {
+                                if (value == true) {
                                   if (!mounted)return ;
                                   setState(() {width = 100;height = 100;color = white;});
                                 }
@@ -154,27 +138,39 @@ class _SignUpFormState extends State<SignUpForm> {
                         });
                       }
                     },
-                    child: Text("Continue",
+                    child: isLoading ?
+                    SizedBox(width: 40,height: 40,child: Center(child: CircularProgressIndicator(color: white,),),):
+                    Text("Continue",
                       style: TextStyle(fontSize: 22, color: white,fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
+
+                // GOOGLE
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    side: BorderSide(color: providerColor.primary, width: 1),
-                    foregroundColor: providerColor.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),),
+                    side: BorderSide(color: primary, width: 1),
+                    foregroundColor: primary,
+                      fixedSize: const Size(double.infinity, 55)
+                  ),
                   onPressed: () async {
+                    final providerAuth = Provider.of<AuthProvider>(context, listen: false);
                     KeyboardUtil.hideKeyboard(context);
                     try {
-                      final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
-                      final providerAuth = Provider.of<AuthProvider>(context, listen: false);
-                      final credential = await provider.googleLogin();
-                      providerAuth.credential = credential;
+                      UserCredential user  = await providerAuth.signInWithGoogle();
+                      // Photo & email
+                      if(user.user != null  && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 10)))) {
+
+                        if(user.user?.email == null){
+                          try{
+                            await user.user?.updateEmail(FirebaseAuth.instance.currentUser!.providerData.first.email!);
+                          }
+                          catch(ee){
+                            print("eeeeeeeeee$ee");
+                          }
+                        }
+                      }
 
                     }
                     catch (e) {
@@ -189,8 +185,9 @@ class _SignUpFormState extends State<SignUpForm> {
                     }
                   },
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+                      SizedBox(width: size.width * 0.1,),
                       SvgPicture.asset(
                         "assets/icons/google.svg",
                         height: 28,
@@ -198,7 +195,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       ),
                       const SizedBox(width: 15,),
                       Text(
-                        "Se connecter avec google",
+                        "Connecter avec Google",
                         style: TextStyle(
                           fontSize: 18,
                           color: black,
@@ -207,6 +204,66 @@ class _SignUpFormState extends State<SignUpForm> {
                     ],
                   ),
                 ),
+
+                const SizedBox(height: 15,),
+
+                // FACEBOOK
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    side: BorderSide(color: primary, width: 1),
+                    foregroundColor: primary,
+                    fixedSize: const Size(double.infinity, 55)
+                  ),
+                  onPressed: () async {
+                    KeyboardUtil.hideKeyboard(context);
+                    final providerAuth = Provider.of<AuthProvider>(context, listen: false);
+                    try {
+                      UserCredential user = await providerAuth.signInWithFacebook();
+
+                      // Photo & email
+                      if(user.user != null  && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 10)))) {
+
+                        await user.user?.updatePhotoURL(providerAuth.profile?['picture']['data']['url']);
+                        if(user.user?.email == null){
+                          try{
+                            await user.user?.updateEmail(FirebaseAuth.instance.currentUser!.providerData.first.email!);
+                          }
+                          catch(ee){
+                            print("eeeeeeeeee$ee");
+                          }
+                        }
+                      }
+                    }
+                    on FirebaseAuthException catch (e) {
+                      GFToast.showToast(
+                        e.message,
+                        context,
+                        toastDuration: 10,
+                        backgroundColor: red,
+                        textStyle: TextStyle(color: white),
+                        toastPosition: GFToastPosition.BOTTOM,
+                      );
+                    }
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(width: size.width * 0.09,),
+                      const Icon(Icons.facebook_rounded,size: 37,color: Colors.blueAccent,),
+                      const SizedBox(width: 10,),
+                      Text(
+                        "Connecter avec Facebook",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+
                 SizedBox(
                   width: size.width * 0.9,
                   height: 70,
@@ -236,7 +293,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           login ? "Se connecter" : "S'inscrire",
                           style: TextStyle(
                             fontSize: 18,
-                            color: providerColor.primary,
+                            color: primary,
                           ),
                         ),
                       )
@@ -258,7 +315,7 @@ class _SignUpFormState extends State<SignUpForm> {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim());
-      provider.credential = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
+      provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
     } on FirebaseAuthException catch (e) {
       setState(() {
         width = 500;
@@ -285,7 +342,7 @@ class _SignUpFormState extends State<SignUpForm> {
       .then((currentUser) async =>
         await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid).set({"phone": phoneController.text})
       );
-      provider.credential = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
+      provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
       return true;
     }
     on FirebaseAuthException catch (e) {
@@ -305,11 +362,10 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   TextFormField buildPasswordFormField() {
-    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return TextFormField(
       obscureText: obscureText,
       controller: passwordController,
-      cursorColor: providerColor.primary,
+      cursorColor: primary,
       onSaved: (s){FocusScope.of(context).unfocus();},
       onChanged: (value) {
         if (value.isNotEmpty) {
@@ -336,12 +392,12 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         labelText: "Password",
         hintText: "Saisir votre mot de passe",
-        labelStyle: TextStyle(color: providerColor.primary),
+        labelStyle: TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         hintStyle: const TextStyle(fontWeight: FontWeight.w700),
         suffixIcon: IconButton(
             icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility,
-                color: providerColor.primary),
+                color: primary),
             onPressed: () {
               setState(() {
                 obscureText = !obscureText;
@@ -352,10 +408,7 @@ class _SignUpFormState extends State<SignUpForm> {
           vertical: 20,
         ),
         border: outlineInputBorder(),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: providerColor.primary, width: 1.5),
-            gapPadding: 6),
+        focusedBorder: inputBorder(),
         enabledBorder: outlineInputBorder(),
       ),
       style: const TextStyle(fontWeight: FontWeight.w700),
@@ -363,11 +416,10 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   TextFormField buildEmailFormField() {
-    final providerColor = Provider.of<ThemeProvider>(context,listen: false);
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
       controller: emailController,
-      cursorColor: providerColor.primary,
+      cursorColor: primary,
       onSaved: (s){FocusScope.of(context).unfocus();},
       style: const TextStyle(fontWeight: FontWeight.w700),
       onChanged: (value) {
@@ -391,15 +443,12 @@ class _SignUpFormState extends State<SignUpForm> {
       decoration: InputDecoration(
         labelText: "Email",
         hintText: "Saisir votre email",
-        labelStyle: TextStyle(color: providerColor.primary,),
+        labelStyle: TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(Icons.email_rounded, color: providerColor.primary,),
+        suffixIcon: Icon(Icons.email_rounded, color: primary),
         contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         border: outlineInputBorder(),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(color: providerColor.primary, width: 1.5),
-            gapPadding: 6),
+        focusedBorder: inputBorder(),
         enabledBorder: outlineInputBorder(),
         hintStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),

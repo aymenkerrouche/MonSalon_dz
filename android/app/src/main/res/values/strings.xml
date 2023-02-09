@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mon Salon</string>
+    <string name="facebook_app_id">2312742655563519</string>
+    <string name="fb_login_protocol_scheme">2312742655563519</string>
+    <string name="facebook_client_token">60c88c2e1c38c5d2334fc4767f0c9b47</string>
+</resources>
