@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 floating: false,
                 forceElevated: false,
                 elevation: 0,
+                backgroundColor: backgroundColor,
                 title: AnimatedSwitcher(
                   key: const Key("show"),
                   duration: const Duration(milliseconds: 200),
@@ -94,13 +95,13 @@ class HomeBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        color: backgroundColor,
+        color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         child: Column(
           children: [
 
             // SERACH
-            const SerachBar(),
+            const Serach(),
             const SizedBox(height: 25,),
 
             //Categories

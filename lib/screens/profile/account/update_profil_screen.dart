@@ -51,7 +51,10 @@ class UpdateProfileScreen extends StatelessWidget {
                       child: CachedNetworkImage(
                         imageUrl: user!.photoURL!,
                         progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(strokeWidth: 2,color: primary,),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        errorWidget: (context, url, error) => Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: SvgPicture.asset('assets/icons/user1.svg',color: primary,),
+                        ),
                         fit: BoxFit.fill,
                       ),
                     ),

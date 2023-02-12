@@ -55,7 +55,7 @@ class _SignUpState extends State<SignUp> {
               sliver: SliverSafeArea(
                 top: false,
                 sliver: SliverAppBar(
-                  expandedHeight: size.height * 0.25,
+                  expandedHeight: size.height * 0.2,
                   pinned: true,
                   backgroundColor: primary,
                   floating: false,

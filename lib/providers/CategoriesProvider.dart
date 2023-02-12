@@ -14,12 +14,21 @@ class CategoriesProvider extends ChangeNotifier {
   List<Pub> _pubs = [];
   List<Pub> get pubs => _pubs;
 
+  Category _selectedCat = Category('', '', '');
+  Category get selectedCat => _selectedCat;
+
   String categoriesError = '';
   bool done = false;
+
   String pubsError = '';
   bool ads = false;
 
   final storage = FirebaseStorage.instance.ref();
+
+  set selectedCat(Category cat){
+    _selectedCat = cat;
+    notifyListeners();
+  }
 
   Future getCategories() async {
     _categories.clear();
@@ -27,6 +36,7 @@ class CategoriesProvider extends ChangeNotifier {
     await FirebaseFirestore.instance.collection("categories").orderBy('category').get().then((snapshot){
        for (var element in snapshot.docs) {
           Category data = Category.fromJson(element.data());
+          data.id = element.id;
           _categories.add(data);
        }
     })
@@ -43,7 +53,7 @@ class CategoriesProvider extends ChangeNotifier {
     ads = false;
 
     await FirebaseFirestore.instance.collection('pubs').orderBy('index').get().then((snapshot) async {
-
+      print(snapshot.docs.length);
       for (var element in snapshot.docs) {
 
         Pub data = Pub.fromJson(element.data());

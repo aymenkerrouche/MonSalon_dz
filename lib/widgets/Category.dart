@@ -55,7 +55,7 @@ class ListCatigories extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            categories.categories[index].category,
+                            categories.categories[index].category!,
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,

@@ -32,8 +32,6 @@ class _SignUpFormState extends State<SignUpForm> {
   bool obscureText = true;
   bool accept = false;
   bool isLoading = false;
-  double height = 55;
-  double width = 500;
   Color color = primary;
   bool login = false;
 
@@ -67,245 +65,300 @@ class _SignUpFormState extends State<SignUpForm> {
       child: Column(
         children: [
 
-          //titre
-          const SizedBox(height: 20),
-          Text.rich(
-            maxLines:1,
-            TextSpan(
-                text: login ? "Créer un " : "Connectez-",
-                style:  TextStyle(color: black, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
-                children: <InlineSpan>[
-                  TextSpan(
-                    text: login ? "compte" : "vous",
-                    style: TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
-                  )
-                ]
+            //titre
+            const SizedBox(height: 20),
+            Text.rich(
+              maxLines:1,
+              TextSpan(
+                  text: login ? "Créer un " : "Connectez-",
+                  style:  TextStyle(color: black, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
+                  children: <InlineSpan>[
+                    TextSpan(
+                      text: login ? "compte" : "vous",
+                      style: TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
+                    )
+                  ]
+              ),
             ),
-          ),
-          SizedBox(height: size.height * 0.05),
+            SizedBox(height: size.height * 0.05),
 
-          //EMAIL PASSWORD
-          Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            //EMAIL PASSWORD
+            Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
 
-                buildEmailFormField(),
-                SizedBox(height: size.height * 0.03),
-                buildPasswordFormField(),
-                if (login) Container(height:  size.height * 0.03),
-                if (login) buildPhoneNumberFormField(phoneController),
-                if (login && errors.isNotEmpty) Container(height:  size.height * 0.01),
-                FormError(errors: errors),
-                SizedBox(height: size.height * 0.05),
+                  // EMAIL
+                  buildEmailFormField(),
+                  SizedBox(height: size.height * 0.03),
 
-                Container(
-                  margin: const EdgeInsets.only(bottom: 15),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      backgroundColor: primary,
-                      fixedSize: Size(size.width, 55)
+                  // PASSWORD
+                  buildPasswordFormField(),
+
+                  // FORGOT PASSWORD
+                  if(!login) SizedBox(
+                    height: 30,
+                    width: size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed:(){
+                            showModalBottomSheet(
+                              context: context,
+                              useRootNavigator: true,
+                              isScrollControlled: true,
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16))
+                              ),
+                              builder: (context) {
+                                return Padding(
+                                  padding: MediaQuery.of(context).viewInsets,
+                                  child: Container(
+                                    width: size.width,
+                                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children:[
+                                        Container(
+                                         height: 4,
+                                         width: 30,
+                                         margin: const EdgeInsets.only(top: 5,bottom: 30),
+                                         decoration:  BoxDecoration(
+                                           color: primaryPro,
+                                           borderRadius: const BorderRadius.all(Radius.circular(50)),
+                                         ),
+                                       ),
+                                        const Text( "Réinitialiser le mot de passe",
+                                          style: TextStyle(fontSize: 20, color: Colors.black),
+                                        ),
+                                        const SizedBox(height: 25,),
+                                        buildEmailFormField(),
+                                        Container(
+                                          margin: const EdgeInsets.only(top: 20,bottom: 40),
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                              backgroundColor: primary,
+                                              fixedSize: Size(size.width, 50)
+                                            ),
+                                            onPressed: () async {
+                                              KeyboardUtil.hideKeyboard(context);
+                                              await passwordReset();
+                                              Navigator.pop(context);
+                                            },
+                                            child: isLoading ?
+                                            SizedBox(width: 30,height: 30,child: Center(child: CircularProgressIndicator(color: white,),),):
+                                            Text( "Envoyer le code",
+                                              style: TextStyle(fontSize: 20, color: white,fontWeight: FontWeight.w700),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                            );
+                          },
+                          child: Text(
+                              "Mot de passe oublié ?",
+                              style: TextStyle(fontSize: 12,color: primary),
+                            ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (login) SizedBox(height:  size.height * 0.03),
+
+                  //PHONE
+                  if (login) buildPhoneNumberFormField(phoneController),
+                  if (login && errors.isNotEmpty) SizedBox(height:  size.height * 0.01),
+
+
+                  // ERRORS
+                  FormError(errors: errors),
+                  SizedBox(height: login ? size.height * 0.04 : size.height * 0.02 ),
+
+                  // SUBMIT
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: primary,
+                        fixedSize: Size(size.width, 55)
+                      ),
+                      onPressed: () async {
+                        KeyboardUtil.hideKeyboard(context);
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          setState(() {errors.clear();isLoading = true;});
+
+                          // Sign Up
+                          if (login) {
+                            await signUp();
+                          }
+
+                          // Sign In
+                          else {
+                            await signIn();
+                          }
+
+                        }
+                      },
+                      child: isLoading ?
+                      SizedBox(width: 40,height: 40,child: Center(child: CircularProgressIndicator(color: white,),),):
+                      Text( login ? "Continue" : "Se connecter",
+                        style: TextStyle(fontSize: 24, color: white,fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+
+                  // GOOGLE
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      side: BorderSide(color: primary, width: 1),
+                      foregroundColor: primary,
+                        fixedSize: const Size(double.infinity, 55)
+                    ),
+                    onPressed: () async {
+                      final providerAuth = Provider.of<AuthProvider>(context, listen: false);
+                      KeyboardUtil.hideKeyboard(context);
+                      try {
+                        await providerAuth.signInWithGoogle();
+                      }
+                      catch (e) {
+                        GFToast.showToast(
+                          e.toString(),
+                          context,
+                          toastDuration: 3,
+                          backgroundColor: red,
+                          textStyle: TextStyle(color: white),
+                          toastPosition: GFToastPosition.BOTTOM,
+                        );
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(width: size.width * 0.1,),
+                        SvgPicture.asset(
+                          "assets/icons/google.svg",
+                          height: 28,
+                          width: 28,
+                        ),
+                        const SizedBox(width: 15,),
+                        Text(
+                          "Connecter avec Google",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 15,),
+
+                  // FACEBOOK
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      foregroundColor: primary,
+                      fixedSize: const Size(double.infinity, 55),
+                      backgroundColor: Colors.blueAccent
                     ),
                     onPressed: () async {
                       KeyboardUtil.hideKeyboard(context);
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        setState(() {errors.clear();width = 70;});
-                        Timer(const Duration(milliseconds: 200), () {setState(() {isLoading = true;});
-                          Timer(const Duration(milliseconds: 600), () async {
-                            // Sign Up
-                            if (login) {
-                              await signUp().then((value) {
-                                if (value == true) {
-                                  if (!mounted)return ;
-                                  setState(() {width = 100;height = 100;color = white;});
-                                }
-                              });
-                            }
+                      final providerAuth = Provider.of<AuthProvider>(context, listen: false);
+                      try {
+                        UserCredential user = await providerAuth.signInWithFacebook();
 
-                            // Sign In
-                            else {
-                              await signIn().then((value) {
-                                if (value == true) {
-                                  if (!mounted) return;
-                                  setState(() {width = 100;height = 100;color = white;});
-                                }
-                              });
-                            }
-                          });
-                        });
+                        // Photo & email
+                        if(user.user != null  && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
+                          try{
+                            await user.user?.updatePhotoURL(providerAuth.profile?['picture']['data']['url']);
+                          }
+                          catch(ee){
+                            debugPrint(ee.toString());
+                          }
+                        }
+                      }
+                      on FirebaseAuthException catch (e) {
+                        GFToast.showToast(
+                          e.message,
+                          context,
+                          toastDuration: 10,
+                          backgroundColor: red,
+                          textStyle: TextStyle(color: white),
+                          toastPosition: GFToastPosition.BOTTOM,
+                        );
                       }
                     },
-                    child: isLoading ?
-                    SizedBox(width: 40,height: 40,child: Center(child: CircularProgressIndicator(color: white,),),):
-                    Text("Continue",
-                      style: TextStyle(fontSize: 22, color: white,fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-
-                // GOOGLE
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    side: BorderSide(color: primary, width: 1),
-                    foregroundColor: primary,
-                      fixedSize: const Size(double.infinity, 55)
-                  ),
-                  onPressed: () async {
-                    final providerAuth = Provider.of<AuthProvider>(context, listen: false);
-                    KeyboardUtil.hideKeyboard(context);
-                    try {
-                      UserCredential user  = await providerAuth.signInWithGoogle();
-                      // Photo & email
-                      if(user.user != null  && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 10)))) {
-
-                        if(user.user?.email == null){
-                          try{
-                            await user.user?.updateEmail(FirebaseAuth.instance.currentUser!.providerData.first.email!);
-                          }
-                          catch(ee){
-                            print("eeeeeeeeee$ee");
-                          }
-                        }
-                      }
-
-                    }
-                    catch (e) {
-                      GFToast.showToast(
-                        e.toString(),
-                        context,
-                        toastDuration: 3,
-                        backgroundColor: red,
-                        textStyle: TextStyle(color: white),
-                        toastPosition: GFToastPosition.BOTTOM,
-                      );
-                    }
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(width: size.width * 0.1,),
-                      SvgPicture.asset(
-                        "assets/icons/google.svg",
-                        height: 28,
-                        width: 28,
-                      ),
-                      const SizedBox(width: 15,),
-                      Text(
-                        "Connecter avec Google",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 15,),
-
-                // FACEBOOK
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    side: BorderSide(color: primary, width: 1),
-                    foregroundColor: primary,
-                    fixedSize: const Size(double.infinity, 55)
-                  ),
-                  onPressed: () async {
-                    KeyboardUtil.hideKeyboard(context);
-                    final providerAuth = Provider.of<AuthProvider>(context, listen: false);
-                    try {
-                      UserCredential user = await providerAuth.signInWithFacebook();
-
-                      // Photo & email
-                      if(user.user != null  && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 10)))) {
-
-                        await user.user?.updatePhotoURL(providerAuth.profile?['picture']['data']['url']);
-                        if(user.user?.email == null){
-                          try{
-                            await user.user?.updateEmail(FirebaseAuth.instance.currentUser!.providerData.first.email!);
-                          }
-                          catch(ee){
-                            print("eeeeeeeeee$ee");
-                          }
-                        }
-                      }
-                    }
-                    on FirebaseAuthException catch (e) {
-                      GFToast.showToast(
-                        e.message,
-                        context,
-                        toastDuration: 10,
-                        backgroundColor: red,
-                        textStyle: TextStyle(color: white),
-                        toastPosition: GFToastPosition.BOTTOM,
-                      );
-                    }
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(width: size.width * 0.09,),
-                      const Icon(Icons.facebook_rounded,size: 37,color: Colors.blueAccent,),
-                      const SizedBox(width: 10,),
-                      Text(
-                        "Connecter avec Facebook",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-
-                SizedBox(
-                  width: size.width * 0.9,
-                  height: 70,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        login ? "Vous avez un compte ?" : "Vous n’avez pas de compte ?",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: black,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          if (login) {
-                            setState(() {
-                              login = false;
-                            });
-                          } else {
-                            setState(() {
-                              login = true;
-                            });
-                          }
-                        },
-                        child: Text(
-                          login ? "Se connecter" : "S'inscrire",
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(width: size.width * 0.09,),
+                        const Icon(Icons.facebook_rounded,size: 37,color: Colors.white,),
+                        const SizedBox(width: 10,),
+                        const Text(
+                          "Connecter avec Facebook",
                           style: TextStyle(
                             fontSize: 18,
-                            color: primary,
+                            color: Colors.white,
                           ),
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+
+                  // TYPE
+                  SizedBox(
+                    width: size.width * 0.9,
+                    height: 70,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          login ? "Vous avez un compte ?" : "Vous n’avez pas de compte ?",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: black,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            if (login) {
+                              setState(() {
+                                login = false;
+                              });
+                            } else {
+                              setState(() {
+                                login = true;
+                              });
+                            }
+                          },
+                          child: Text(
+                            login ? "Se connecter" : "S'inscrire",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: primary,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: size.height * 0.08),
-        ],
-      ),
+            SizedBox(height: size.height * 0.08),
+          ],
+        ),
     );
   }
 
@@ -316,9 +369,12 @@ class _SignUpFormState extends State<SignUpForm> {
         email: emailController.text.trim(),
         password: passwordController.text.trim());
       provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
-    } on FirebaseAuthException catch (e) {
       setState(() {
-        width = 500;
+        isLoading = false;
+      });
+    }
+    on FirebaseAuthException catch (e) {
+      setState(() {
         isLoading = false;
       });
       GFToast.showToast(
@@ -340,14 +396,16 @@ class _SignUpFormState extends State<SignUpForm> {
         password: passwordController.text,
       )
       .then((currentUser) async =>
-        await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid).set({"phone": phoneController.text})
+        await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid).set({"phone": phoneController.text,"email": emailController.text})
       );
       provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
+      setState(() {
+        isLoading = false;
+      });
       return true;
     }
     on FirebaseAuthException catch (e) {
       setState(() {
-        width = 500;
         isLoading = false;
       });
       GFToast.showToast(
@@ -405,7 +463,7 @@ class _SignUpFormState extends State<SignUpForm> {
             }),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
-          vertical: 20,
+          vertical: 15,
         ),
         border: outlineInputBorder(),
         focusedBorder: inputBorder(),
@@ -446,12 +504,26 @@ class _SignUpFormState extends State<SignUpForm> {
         labelStyle: TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: Icon(Icons.email_rounded, color: primary),
-        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         border: outlineInputBorder(),
         focusedBorder: inputBorder(),
         enabledBorder: outlineInputBorder(),
         hintStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     );
+  }
+
+  Future passwordReset() async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text.trim()).then((v) =>
+        GFToast.showToast("le code a été envoyé", context,backgroundColor: Colors.green.shade700,toastPosition: GFToastPosition.BOTTOM)
+      );
+
+    }
+    on FirebaseException catch (e) {
+      debugPrint(e.message);
+      GFToast.showToast(e.message!, context,backgroundColor: Colors.red.shade700,toastPosition: GFToastPosition.BOTTOM,toastDuration: 4);
+
+    }
   }
 }

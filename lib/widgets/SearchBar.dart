@@ -12,17 +12,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/SearchPrivider.dart';
   import '../utils/constants.dart';
 
-  class SerachBar extends StatelessWidget {
-    const SerachBar({Key? key}) : super(key: key);
-
+  class Serach extends StatelessWidget {
+    const Serach({Key? key}) : super(key: key);
     @override
     Widget build(BuildContext context) {
       Size size = MediaQuery.of(context).size;
       return Container(
         width: size.width,
         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-
-
         child: Column(
           children: [
             Container(
@@ -88,6 +85,8 @@ import '../providers/SearchPrivider.dart';
       );
     }
   }
+
+
 
 
   // BUTTON

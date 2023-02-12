@@ -24,7 +24,7 @@ TextFormField buildPhoneNumberFormField(phoneController) {
       focusedBorder: inputBorder(),
       enabledBorder: outlineInputBorder(),
       contentPadding:
-      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
     ),
   );
 }

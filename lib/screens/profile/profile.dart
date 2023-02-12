@@ -146,11 +146,11 @@ class _ProfileState extends State<Profile> {
                       if (!mounted) return;
                       setState(() {done = true;});
                     });
-                    Timer(const Duration(seconds: 2), () {
+                    Timer(const Duration(milliseconds: 1500), () {
                       if (!mounted) return;
                       setState(() {bye = false;});
                     });
-                    Timer(const Duration(milliseconds: 2000), () async {
+                    Timer(const Duration(milliseconds: 1500), () async {
 
                       final providerAuth = Provider.of<AuthProvider>(context, listen: false);
                       switch(FirebaseAuth.instance.currentUser?.providerData.first.providerId) {

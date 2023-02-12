@@ -3,16 +3,26 @@ import 'package:monsalondz/models/Pub.dart';
 import 'package:monsalondz/theme/colors.dart';
 
 
-snackBar(String txt,Color color){
+snackBar(String txt,Color color, IconData icon,double marginButton){
   return  SnackBar(
-    content: Text(txt, style: TextStyle(color: white,fontWeight: FontWeight.w600,fontSize: 16),),
+    content: SizedBox(
+      height: 20,
+      width: double.infinity,
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(txt, style: TextStyle(color: white,fontSize: 16),),
+          Icon(icon,color: white,)
+        ],
+      ),
+    ),
     backgroundColor: color,
     elevation: 10,
     duration: const Duration(seconds: 2),
-    margin: const EdgeInsets.only(bottom: 25,right: 15,left: 15),
+    margin: EdgeInsets.only(bottom: marginButton,right: 16,left: 16),
     behavior: SnackBarBehavior.floating,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-    action: SnackBarAction(label: 'OK', onPressed: (){},textColor:Colors.white),
   );
 }
 
@@ -34,17 +44,17 @@ final RegExp emailValidatorRegExp = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9-]+\.[a-zA
 
 OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
       gapPadding: 6);
 }
 
 OutlineInputBorder inputBorder() {
   return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide(color: primary, width: 1.5),
       gapPadding: 6);
 }
 
 
-Pub localPub = Pub('0', 0, -1, "MonSalon", "https://monsalon-dz.com/", true, "${DateTime.now()}", "${DateTime.now().add(const Duration(days: 120))}", "assets/images/couverture.jpg");
+Pub localPub = Pub('0',true ,0, -1, "MonSalon", "https://monsalon-dz.com/", true, "${DateTime.now()}", "${DateTime.now().add(const Duration(days: 120))}", "assets/images/couverture.jpg");

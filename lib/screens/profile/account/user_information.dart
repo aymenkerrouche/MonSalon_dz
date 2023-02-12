@@ -250,7 +250,9 @@ class UpdateProfileState extends State<UpdateProfile> {
           'phone': phoneController.text.trim(),
           'name': nameController.text.trim(),
         })
-        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(snackBar("Profil mis à jour",primary.withOpacity(.9))));
+        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(
+            snackBar("Mise à jour du profil réussie", Colors.black87, Icons.done_rounded,25)
+            ));
       }
       on FirebaseAuthException catch (e) {
         GFToast.showToast(e.code, context,toastDuration: 3,backgroundColor: red,textStyle: TextStyle(color: white),toastPosition:GFToastPosition.BOTTOM,);

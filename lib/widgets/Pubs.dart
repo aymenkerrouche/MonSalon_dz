@@ -27,10 +27,10 @@ class Pubs extends StatelessWidget {
               items: List.generate(pubs.pubs.length, (index) =>
                 Material(
                   elevation: 10,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(16),
                     highlightColor: primary.withOpacity(0.2),
                     splashFactory: NoSplash.splashFactory,
                     onTap: () async {
@@ -38,13 +38,11 @@ class Pubs extends StatelessWidget {
                       await launchUrl(url,mode: LaunchMode.externalApplication);
                     },
                     child: pubs.pubs[index].id == '0' ?
-
-                    Ink.image(
-                      image: AssetImage(pubs.pubs[index].photo),
-                      fit: BoxFit.fill,
-                    ):
-
-                    CachedNetworkImage(
+                      Ink.image(
+                        image: AssetImage(pubs.pubs[index].photo),
+                        fit: BoxFit.fill,
+                      ):
+                      CachedNetworkImage(
                       imageUrl: pubs.pubs[index].photo,
                       fit: BoxFit.fill,
                       imageBuilder: (context, imageProvider) => Ink.image(
