@@ -77,7 +77,7 @@ class _ProfileState extends State<Profile> {
                 ),
                 ProfileMenu(
                   text: "Historique",
-                  icon: "assets/icons/apps.svg",
+                  icon: "assets/icons/history.svg",
                   press: () {},
                   width: 30,
                   primary: primary,
