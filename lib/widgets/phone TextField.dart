@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import '../utils/constants.dart';
 
-TextFormField buildPhoneNumberFormField(phoneController) {
+TextFormField buildPhoneNumberFormField(phoneController,label, hint) {
   return TextFormField(
     keyboardType: TextInputType.phone,
     controller: phoneController,
     cursorColor: primary,
     style: const TextStyle(fontWeight: FontWeight.w700),
     decoration: InputDecoration(
-      labelText: "Phone",
-      hintText: "Saisir votre numéro",
+      labelText: label,
+      hintText: hint,
       labelStyle: TextStyle(color: primary),
       floatingLabelBehavior: FloatingLabelBehavior.always,
       suffixIcon: Icon(

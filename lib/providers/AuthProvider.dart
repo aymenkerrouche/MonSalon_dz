@@ -4,9 +4,12 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:http/http.dart' as http;
+
+import '../widgets/Otp.dart';
 
 class AuthProvider extends ChangeNotifier {
 
@@ -17,6 +20,10 @@ class AuthProvider extends ChangeNotifier {
 
   Map? _profile;
   Map? get profile => _profile;
+
+  FirebaseAuthException? error;
+
+  bool sendSMS = false;
 
 
   static bool? _isConnect;
@@ -38,6 +45,46 @@ class AuthProvider extends ChangeNotifier {
       }
     });
   }
+
+  Future<void> phoneSignIn(BuildContext context, String phoneNumber) async {
+    TextEditingController codeController = TextEditingController();
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      },
+
+      verificationFailed: (e) {
+        error = e;
+      },
+
+      codeAutoRetrievalTimeout: (String verificationId) {
+        // Auto-resolution timed out...
+      },
+
+      // Displays a dialog box when OTP is sent
+      codeSent: ((String verificationId, int? resendToken) async {
+        sendSMS = true;
+        showOTPDialog(
+          codeController: codeController,
+          context: context,
+          onPressed: () async {
+            PhoneAuthCredential credential = PhoneAuthProvider.credential(
+              verificationId: verificationId,
+              smsCode: codeController.text.trim(),
+            );
+
+            // !!! Works only on Android, iOS !!!
+            await FirebaseAuth.instance.signInWithCredential(credential);
+            Navigator.of(context).pop(); // Remove the dialog box
+          },
+        );
+      }),
+    );
+}
+
 
   Future<UserCredential> signInWithFacebook() async {
 
@@ -77,21 +124,21 @@ class AuthProvider extends ChangeNotifier {
     return googleUserCredential;
   }
 
-  Future googleLogOut() async {
+  Future<void> googleLogOut() async {
     FirebaseAuth.instance.signOut();
     await GoogleSignIn().disconnect();
     await GoogleSignIn().signOut();
     notifyListeners();
   }
 
-  facebookLogOut() async {
+  Future<void> facebookLogOut() async {
     await FacebookAuth.i.logOut();
     FirebaseAuth.instance.signOut();
     _profile = null;
     notifyListeners();
   }
 
-  Future LogOut() async {
+  Future<void> LogOut() async {
     FirebaseAuth.instance.signOut();
     notifyListeners();
   }

@@ -611,16 +611,16 @@ class Salon extends StatelessWidget {
     return Container(
       height: 150,
       decoration: const BoxDecoration(
-          color:  Colors.white ,
-          borderRadius:  BorderRadius.all(Radius.circular(16)),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black12,
-                offset: Offset(0, 2),
-                blurRadius: 5,
-                spreadRadius: 1
-            )
-          ]
+        color:  Colors.white ,
+        borderRadius:  BorderRadius.all(Radius.circular(16)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black12,
+              offset: Offset(0, 2),
+              blurRadius: 5,
+              spreadRadius: 1
+          )
+        ]
       ),
       margin: const EdgeInsets.only(bottom: 20),
       child: Material(

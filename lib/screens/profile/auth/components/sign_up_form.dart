@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
@@ -12,6 +13,7 @@ import 'package:monsalondz/theme/colors.dart';
 import '../../../../providers/AuthProvider.dart';
 import '../../../../utils/constants.dart';
 import '../../../../utils/keyboard.dart';
+import '../../../../widgets/Otp.dart';
 import '../../../../widgets/form_error.dart';
 import '../../../../widgets/phone TextField.dart';
 
@@ -173,7 +175,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   if (login) SizedBox(height:  size.height * 0.03),
 
                   //PHONE
-                  if (login) buildPhoneNumberFormField(phoneController),
+                  if (login) buildPhoneNumberFormField(phoneController,"Phone","Saisir votre numéro"),
                   if (login && errors.isNotEmpty) SizedBox(height:  size.height * 0.01),
 
 
@@ -312,6 +314,135 @@ class _SignUpFormState extends State<SignUpForm> {
                             color: Colors.white,
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 15,),
+
+                  // OTP
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      foregroundColor: primary,
+                      fixedSize: const Size(double.infinity, 55),
+                      backgroundColor: Colors.greenAccent.shade700
+                    ),
+                    onPressed: () async {
+                      bool waitCode = false;
+                      showModalBottomSheet(
+                        context: context,
+                        useRootNavigator: true,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16))
+                        ),
+                        builder: (context) {
+                          return Padding(
+                            padding: MediaQuery.of(context).viewInsets,
+                            child: Container(
+                              width: size.width,
+                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children:[
+                                  Container(
+                                    height: 4,
+                                    width: 30,
+                                    margin: const EdgeInsets.only(top: 5,bottom: 30),
+                                    decoration:  BoxDecoration(
+                                      color: primaryPro,
+                                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                                    ),
+                                  ),
+                                  Text( waitCode == false ? "Saisir votre numéro télephone" : "Saisir le code",
+                                    style: const TextStyle(fontSize: 20, color: Colors.black),
+                                  ),
+                                  const SizedBox(height: 25,),
+                                  waitCode == false ? buildPhoneNumberFormField(phoneController,"Phone","Saisir votre numéro"):buildPhoneNumberFormField(phoneController,"code","Saisir le code"),
+
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 20,bottom: 40),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                          backgroundColor: Colors.greenAccent.shade700,
+                                          fixedSize: Size(size.width, 50)
+                                      ),
+                                      onPressed: () async {
+                                        KeyboardUtil.hideKeyboard(context);
+                                        EasyLoading.show(status: 'loading...',maskType:EasyLoadingMaskType.black);
+                                        EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.circle;
+
+                                        await FirebaseAuth.instance.verifyPhoneNumber(
+                                          phoneNumber: phoneController.text,
+
+                                          verificationCompleted: (PhoneAuthCredential credential) async {
+                                            EasyLoading.dismiss();
+                                            EasyLoading.showSuccess('Bienvenue');
+                                            await FirebaseAuth.instance.signInWithCredential(credential);
+                                          },
+
+                                          verificationFailed: (e) {
+                                            EasyLoading.dismiss();
+                                            GFToast.showToast(
+                                              Provider.of<AuthProvider>(context,listen: false).error.toString(),
+                                              context,
+                                              toastDuration: 3,
+                                              backgroundColor: red,
+                                              textStyle: TextStyle(color: white),
+                                              toastPosition: GFToastPosition.BOTTOM,
+                                            );
+                                          },
+
+                                          codeAutoRetrievalTimeout: (String verificationId) {
+                                            // Auto-resolution timed out...
+                                          },
+
+                                          // Displays a dialog box when OTP is sent
+                                          codeSent: ((String verificationId, int? resendToken) async {
+
+                                            Navigator.of(context).pop();
+
+
+                                                /*PhoneAuthCredential credential = PhoneAuthProvider.credential(
+                                                  verificationId: verificationId,
+                                                  smsCode: codeController.text.trim(),
+                                                );
+
+                                                // !!! Works only on Android, iOS !!!
+                                                await FirebaseAuth.instance.signInWithCredential(credential);
+                                                Navigator.of(context).pop(); */// Remove the dialog box
+
+                                          }),
+                                        );
+                                      },
+                                      child: Text( "Envoyer le code",
+                                        style: TextStyle(fontSize: 20, color: white,fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: const [
+                         Spacer(),
+                        Icon(Icons.phone_rounded,size: 37,color: Colors.white,),
+                        SizedBox(width: 10,),
+                        Text(
+                          "Numéro téléphone",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Spacer()
                       ],
                     ),
                   ),

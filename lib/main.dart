@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:monsalondz/providers/AppSettingsProvider.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home:  const Root(),
+      builder: EasyLoading.init(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
