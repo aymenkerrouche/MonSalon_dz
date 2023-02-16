@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -153,7 +154,10 @@ class _RootState extends State<Root> {
                 return const SignUp();
               }
               if(snapshot.hasData) {
-                if(snapshot.data!.uid.isNotEmpty) return const Profile();
+                sleep(const Duration(seconds:1));
+                if(snapshot.data!.uid.isNotEmpty) {
+                  return const Profile();
+                }
               }
               if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
               return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));

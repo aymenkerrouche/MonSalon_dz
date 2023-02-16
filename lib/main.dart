@@ -19,10 +19,9 @@ SharedPreferences? prefs;
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
-
   prefs = await SharedPreferences.getInstance();
+  easyConfig();
 
   runApp(
     MultiProvider(
@@ -36,6 +35,11 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
+}
+easyConfig(){
+  EasyLoading.instance
+    ..indicatorType = EasyLoadingIndicatorType.ring
+    ..backgroundColor = primaryPro;
 }
 
 class MyApp extends StatelessWidget {
@@ -68,13 +72,3 @@ class MyApp extends StatelessWidget {
       ],
   );
 }
-/*
-
-class MyBehavior extends ScrollBehavior {
-
-  @override
-  Widget buildOverscrollIndicator(
-    BuildContext context, Widget child, ScrollableDetails details) {
-    return child;
-  }
-}*/
