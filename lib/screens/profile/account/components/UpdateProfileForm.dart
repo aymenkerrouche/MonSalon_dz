@@ -4,16 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/colors/gf_color.dart';
 import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:monsalondz/theme/colors.dart';
-import 'package:provider/provider.dart';
 import '../../../../utils/constants.dart';
-import '../../../providers/AuthProvider.dart';
 
 class UpdateProfile extends StatefulWidget {
+  const UpdateProfile({super.key});
   @override
   UpdateProfileState createState() => UpdateProfileState();
 }
@@ -23,15 +21,15 @@ class UpdateProfileState extends State<UpdateProfile> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  String email = '';
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-
   bool done = false;
   bool loading = false;
 
   fillUser() async {
-    done = await getUser();
-    emailController.text = FirebaseAuth.instance.currentUser?.email ?? FirebaseAuth.instance.currentUser!.providerData.first.email!;
+    done = await getInfos();
+    emailController.text = FirebaseAuth.instance.currentUser?.email ?? FirebaseAuth.instance.currentUser!.providerData.first.email ?? email ;
     nameController.text = FirebaseAuth.instance.currentUser?.displayName ?? '';
 
     if(done == false){
@@ -49,10 +47,11 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   }
 
-  Future<bool> getUser() async {
+  Future<bool> getInfos() async {
     try{
       await firestore.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).get().then((snapshot){
-        phoneController.text = snapshot.data()?.values.first ?? '';
+        phoneController.text = snapshot.data()?['phone'] ?? '';
+        email = snapshot.data()?['email'] ?? '';
       });
       return true;
     }
@@ -77,18 +76,20 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   @override
   Widget build(BuildContext context) {
+    print("=================${FirebaseAuth.instance.currentUser!.phoneNumber}===================");
     Size size = MediaQuery.of(context).size;
-    return done ? Column(
+    return done ?
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        buildEmailFormField(),
-        SizedBox(height: size.height * 0.05),
-        buildNameFormField(),
-        SizedBox(height: size.height * 0.05),
-        buildPhoneNumberFormField(),
-        SizedBox(height: size.height * 0.1),
+        TextFormEmail(emailController: emailController,),
+        const SizedBox(height: 50),
+        SizedBox(height: 60,child: TextFormName(nameController: nameController,)),
+        const SizedBox(height: 50),
+        SizedBox(height: 60,child: TextFormPhone(phoneController: phoneController,)),
+        const  SizedBox(height: 50),
         SizedBox(
-          width: size.width,
-          height: size.height * 0.07,
+          height: 55,
           child: TextButton(
             style: TextButton.styleFrom(
               foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -112,7 +113,7 @@ class UpdateProfileState extends State<UpdateProfile> {
             child: loading ?
               const SizedBox(height: 30,width: 30,child: CircularProgressIndicator(color: Colors.white,)):
               const Text("Confirm", style:  TextStyle(
-                fontSize: 20,
+                fontSize: 25,
                 color: Colors.white,
               ),),
           ),
@@ -137,77 +138,6 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   Widget buildShimmer(){
     return Container(height: 60, width: double.infinity, decoration: const BoxDecoration(color: Colors.white,borderRadius: BorderRadius.all(Radius.circular(20))));
-  }
-
-  TextFormField buildEmailFormField() {
-    return TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      readOnly: true,
-      controller: emailController,
-      cursorColor: primary,
-      style: const TextStyle(fontWeight: FontWeight.w700),
-      decoration: InputDecoration(
-        labelText: "Email",
-        labelStyle: TextStyle(color: primary),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(Icons.email_rounded, color: primary),
-        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
-        enabledBorder: outlineInputBorder(),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-      ),
-    );
-  }
-
-  TextFormField buildNameFormField() {
-    return TextFormField(
-      controller: nameController,
-      cursorColor: primary,
-      style: const TextStyle(fontWeight: FontWeight.w700),
-      decoration: InputDecoration(
-        labelText: "Name",
-        hintText: "Enter your name",
-        labelStyle:  TextStyle(color: primary),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(
-          Icons.person,
-          color: primary,
-        ),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-        border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
-        enabledBorder: outlineInputBorder(),
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      ),
-    );
-  }
-
-  TextFormField buildPhoneNumberFormField() {
-    return TextFormField(
-      keyboardType: TextInputType.phone,
-      controller: phoneController,
-      cursorColor: primary,
-      scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      style: const TextStyle(fontWeight: FontWeight.w700),
-      decoration: InputDecoration(
-        labelText: "Phone",
-        hintText: "Enter your phone number",
-        labelStyle:  TextStyle(color: primary),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(
-          Icons.phone_rounded,
-          color: primary,
-        ),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
-        border: outlineInputBorder(),
-        focusedBorder: inputBorder(),
-        enabledBorder: outlineInputBorder(),
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      ),
-    );
   }
 
   Future<void> updateUser() async {
@@ -249,10 +179,11 @@ class UpdateProfileState extends State<UpdateProfile> {
         await FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
           'phone': phoneController.text.trim(),
           'name': nameController.text.trim(),
+          'email' : emailController.text.trim()
         })
         .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(
-            snackBar("Mise à jour du profil réussie", Colors.black87, Icons.done_rounded,25)
-            ));
+            snackBar("Mise à jour du profil réussie", primary, Icons.done_rounded,25)
+        ));
       }
       on FirebaseAuthException catch (e) {
         GFToast.showToast(e.code, context,toastDuration: 3,backgroundColor: red,textStyle: TextStyle(color: white),toastPosition:GFToastPosition.BOTTOM,);
@@ -261,3 +192,94 @@ class UpdateProfileState extends State<UpdateProfile> {
 
   }
 }
+
+class TextFormEmail extends StatelessWidget {
+  TextFormEmail({Key? key, required this.emailController}) : super(key: key);
+  TextEditingController emailController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    print("=================email===================");
+    return SizedBox(height: 60,child: TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      readOnly: FirebaseAuth.instance.currentUser!.phoneNumber != null ? false : true,
+      controller: emailController,
+      cursorColor: primary,
+      style: const TextStyle(fontWeight: FontWeight.w700),
+      decoration: InputDecoration(
+        labelText: "Email",
+        labelStyle: TextStyle(color: primary),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: Icon(Icons.email_rounded, color: primary),
+        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        border: outlineInputBorder(),
+        focusedBorder: inputBorder(),
+        enabledBorder: outlineInputBorder(),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+      ),
+    ));
+  }
+}
+
+class TextFormName extends StatelessWidget {
+  TextFormName({Key? key, required this.nameController}) : super(key: key);
+  TextEditingController nameController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    print("=================name===================");
+    return SizedBox(height: 60,child: TextFormField(
+      controller: nameController,
+      cursorColor: primary,
+      style: const TextStyle(fontWeight: FontWeight.w700),
+      decoration: InputDecoration(
+        labelText: "Name",
+        hintText: "Enter your name",
+        labelStyle:  TextStyle(color: primary),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: Icon(
+          Icons.person,
+          color: primary,
+        ),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+        border: outlineInputBorder(),
+        focusedBorder: inputBorder(),
+        enabledBorder: outlineInputBorder(),
+        contentPadding:
+        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      ),
+    ));
+  }
+}
+
+class TextFormPhone extends StatelessWidget {
+  TextFormPhone({Key? key, required this.phoneController}) : super(key: key);
+  TextEditingController phoneController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    print("=================phone===================");
+    return SizedBox(height: 60,child: TextFormField(
+      keyboardType: TextInputType.phone,
+      controller: phoneController,
+      readOnly: FirebaseAuth.instance.currentUser!.phoneNumber != null  ? true : false,
+      cursorColor: primary,
+      scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      style: const TextStyle(fontWeight: FontWeight.w700),
+      decoration: InputDecoration(
+        labelText: "Phone",
+        hintText: "Enter your phone number",
+        labelStyle:  TextStyle(color: primary),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: Icon(
+          Icons.phone_rounded,
+          color: primary,
+        ),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w400),
+        border: outlineInputBorder(),
+        focusedBorder: inputBorder(),
+        enabledBorder: outlineInputBorder(),
+        contentPadding:
+        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      ),
+    ));
+  }
+}
+
