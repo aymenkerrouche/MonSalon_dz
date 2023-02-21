@@ -19,7 +19,7 @@ snackBar(String txt,Color color, IconData icon,double marginButton){
     ),
     backgroundColor: color,
     elevation: 10,
-    duration: const Duration(seconds: 2),
+    duration: const Duration(milliseconds: 1500),
     margin: EdgeInsets.only(bottom: marginButton,right: 16,left: 16),
     behavior: SnackBarBehavior.floating,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),

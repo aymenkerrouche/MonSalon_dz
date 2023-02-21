@@ -60,7 +60,7 @@ class PopularOffer extends StatelessWidget {
                         ),
                           Positioned(
                             bottom: 10,right: 10,
-                            child: SmallInfos(info: salon.wilaya ,isIcon: true, color: primary, textColor: Colors.white, icon: Icons.location_on_outlined,),
+                            child: SmallInfos(info: "${salon.wilaya}" ,isIcon: true, color: primary, textColor: Colors.white, icon: Icons.location_on_outlined,),
                           ),
                         ]
                       ),
@@ -86,7 +86,7 @@ class PopularOffer extends StatelessWidget {
 
                             //Titre
                             Text(
-                              salon.nom,
+                              "{$salon.nom}",
                               style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -101,7 +101,8 @@ class PopularOffer extends StatelessWidget {
                                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  children: List.generate(4, (index) => Container(margin: const EdgeInsets.only(right: 5),child: SmallInfos(info: salon.nom, color: primary.withOpacity(.03),textColor: primaryPro,)),),
+                                  children: List.generate(4, (index) => Container(margin: const EdgeInsets.only(right: 5),
+                                      child: SmallInfos(info: "${salon.nom}", color: primary.withOpacity(.03),textColor: primaryPro,)),),
                                 ),
                               ),
                             ),

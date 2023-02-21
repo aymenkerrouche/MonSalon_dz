@@ -47,7 +47,7 @@ class SettingsPage extends StatelessWidget {
               txtOption('Theme'),
               Column(
                 children: [
-                  OptionSetting(txt:'Dark mode',onTap: (v){primary = Colors.black;},),
+                  OptionSetting(txt:'Dark mode',onTap: (v){},),
                   //txt('Dark mode'),
                 ],
               ),

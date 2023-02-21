@@ -154,7 +154,7 @@ class _RootState extends State<Root> {
                 return const SignUp();
               }
               if(snapshot.hasData) {
-                sleep(const Duration(seconds:1));
+                //sleep(const Duration(seconds:1));
                 if(snapshot.data!.uid.isNotEmpty) {
                   return const Profile();
                 }

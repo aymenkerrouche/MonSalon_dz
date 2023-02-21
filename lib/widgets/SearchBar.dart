@@ -1,6 +1,7 @@
   // ignore_for_file: file_names, must_be_immutable, depend_on_referenced_packages
 
   import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
   import 'package:flutter/cupertino.dart';
   import 'package:flutter/material.dart';
   import 'package:monsalondz/theme/colors.dart';
@@ -99,24 +100,22 @@ import '../providers/SearchPrivider.dart';
           return ElevatedButton(
             onPressed: () async {
 
-              setState(() {
-                var provider = Provider.of<HistoryProvider>(context,listen: false);
-                var provider2 = Provider.of<SearchProvider>(context,listen: false);
-                if(loading) {
-                  loading = false;
-                }
-                else {
-                  loading = true;
-                }
-                provider.setSearchHistory(
+              setState(() {loading = true;});
+
+              var provider = Provider.of<HistoryProvider>(context,listen: false);
+              var provider2 = Provider.of<SearchProvider>(context,listen: false);
+
+              provider.setSearchHistory(
                   provider2.search.text.isEmpty ? '' : provider2.search.text,
                   provider2.searchWilaya.text.isEmpty ? '' : provider2.searchWilaya.text,
                   '',
                   provider2.searchDate.text.isEmpty ? '' : provider2.searchDate.text,
                   provider2.day,
                   provider2.hour
-                );
-              });
+              );
+
+              setState(() {loading = false;});
+
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: primary,

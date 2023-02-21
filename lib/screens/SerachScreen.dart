@@ -1,14 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:getwidget/components/toast/gf_toast.dart';
+import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:monsalondz/models/Category.dart';
+import 'package:lottie/lottie.dart';
+import 'package:monsalondz/models/Category.dart' as cat;
+import 'package:monsalondz/models/MiniSalon.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:provider/provider.dart';
 import '../providers/SearchPrivider.dart';
 import '../theme/colors.dart';
 import '../utils/constants.dart';
+import '../utils/keyboard.dart';
 import '../utils/wilaya.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -54,32 +61,8 @@ class SearchScreen extends StatelessWidget {
       body: Container(
         color: backgroundColor,
         padding: const EdgeInsets.symmetric(horizontal: 5),
-        child: SingleChildScrollView(
-          child: Column(
-            children: const [
-              SizedBox(height: 15,),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              Salon(),
-              SizedBox(height: 45,)
-            ]
-          ),
-        ),
+        margin: const EdgeInsets.only(bottom: 55),
+        child: const SalonList(),
       ),
     );
   }
@@ -205,7 +188,7 @@ class FilterCategory extends StatelessWidget {
                                         borderRadius: const BorderRadius.all(Radius.circular(16)),
                                         onTap: (){
                                           if(categories.selectedCat.id == e.id){
-                                            setState((){categories.selectedCat = Category('', '', '');});
+                                            setState((){categories.selectedCat = cat.Category('', '', '');});
                                           }
                                           else{
                                             setState((){categories.selectedCat = e;});
@@ -248,7 +231,7 @@ class FilterCategory extends StatelessWidget {
                           const SizedBox(height: 15,),
                           OutlinedButton(
                             onPressed: (){
-                              categories.selectedCat = Category('', '', '');
+                              categories.selectedCat = cat.Category('', '', '');
                               Navigator.pop(context);
                             },
                             style: OutlinedButton.styleFrom(
@@ -603,7 +586,8 @@ class FilterDate extends StatelessWidget {
 
 
 class Salon extends StatelessWidget {
-  const Salon({Key? key}) : super(key: key);
+  const Salon({Key? key,required this.salon}) : super(key: key);
+  final MiniSalon salon;
 
   @override
   Widget build(BuildContext context) {
@@ -615,14 +599,14 @@ class Salon extends StatelessWidget {
         borderRadius:  BorderRadius.all(Radius.circular(16)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black12,
-              offset: Offset(0, 2),
-              blurRadius: 5,
-              spreadRadius: 1
+            color: Colors.black12,
+            offset: Offset(0, 2),
+            blurRadius: 5,
+            spreadRadius: 1
           )
         ]
       ),
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 15,top: 15),
       child: Material(
         elevation: 10,
         borderRadius: BorderRadius.circular(16),
@@ -657,7 +641,7 @@ class Salon extends StatelessWidget {
                     children:  [
 
                       // TITRE
-                      const Text("Salon de beauté lux bon", style: TextStyle(fontWeight: FontWeight.w600,fontSize: 20),maxLines: 2,overflow: TextOverflow.ellipsis,),
+                      Text("${salon.nom}", style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 20),maxLines: 2,overflow: TextOverflow.ellipsis,),
                       const SizedBox(height: 5,),
 
                       // LOCATION
@@ -665,7 +649,7 @@ class Salon extends StatelessWidget {
                         children: [
                           SvgPicture.asset("assets/icons/location.svg", width: 16, color: primary,),
                           const SizedBox(width: 3,),
-                          const Text("25 Constantine", style: TextStyle(fontSize: 16),maxLines: 2,overflow: TextOverflow.ellipsis,),
+                          Text("${salon.wilaya}", style: const TextStyle(fontSize: 16),maxLines: 2,overflow: TextOverflow.ellipsis,),
                         ],
                       ),
 
@@ -681,4 +665,115 @@ class Salon extends StatelessWidget {
     );
   }
 }
+
+
+
+class SalonList extends StatefulWidget {
+  const SalonList({Key? key}) : super(key: key);
+
+  @override
+  State<SalonList> createState() => _SalonListState();
+}
+
+class _SalonListState extends State<SalonList> {
+  bool showMore = false;
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSalons();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        if(Provider.of<SearchProvider>(context,listen: false).hasMore){
+          setState(() {
+            showMore = true;
+            KeyboardUtil.hideKeyboard(context);
+            try {
+              fetchSalons();
+            }
+            catch (e) {
+              GFToast.showToast(
+                e.toString(),
+                context,
+                toastDuration: 3,
+                backgroundColor: red,
+                textStyle: TextStyle(color: white),
+                toastPosition: GFToastPosition.BOTTOM,
+              );
+            }
+          });
+        }
+      }
+      else{
+        if(showMore == true){
+          print("================33333333333333333333=================");
+          setState(() {showMore = false;});
+        }
+      }
+    });
+  }
+
+  Future<void> fetchSalons() async {
+    await Provider.of<SearchProvider>(context,listen: false).fetchSalons();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Consumer<SearchProvider>(
+        builder: (context, salons, child) {
+
+          if(salons.lastDocument == null){
+            return Center(child: SizedBox(height: 40,width: 40,child: CircularProgressIndicator(color: primary,)),
+            );
+          }
+
+          if(salons.listSalon.isEmpty ){
+            return Center(
+              child: Lottie.asset("assets/animation/empty.json"),
+            );
+          }
+
+          return Column(
+            children: [
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: (){return fetchSalons();},
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: salons.listSalon.length,
+                    itemBuilder: (context, index) {
+                      return Salon(salon: salons.listSalon[index],);
+                    },
+                  ),
+                ),
+              ),
+              if(salons.isLoading)Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.all(5),
+                color: Colors.yellowAccent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: const [
+                    Text(
+                      'Loading',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20,width: 20,child: CircularProgressIndicator(color: Colors.black,strokeWidth: 2,)),
+                  ],
+                ),
+              ),
+            ]
+          );
+        }
+      ),
+    );
+  }
+}
+
+
 

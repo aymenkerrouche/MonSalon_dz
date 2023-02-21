@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:monsalondz/models/MiniSalon.dart';
 
 class SearchProvider extends ChangeNotifier {
 
@@ -101,6 +103,73 @@ class SearchProvider extends ChangeNotifier {
     _prix = _rangeValues.start;
     _prixFin = _rangeValues.end;
     notifyListeners();
+  }
+
+
+
+
+
+
+
+  // SALONS LIST
+
+  List<MiniSalon> _listSalon = [];
+  List<MiniSalon> get listSalon => _listSalon;
+
+  final int _limit = 7;
+  bool isLoading = false;
+  String searchError = '';
+  bool hasMore = true;
+  DocumentSnapshot? lastDocument;
+
+
+  Future fetchSalons() async {
+    QuerySnapshot? documentList;
+    if(!hasMore) {
+      notifyListeners();
+      return;
+    }
+    else{
+      isLoading = true;
+      print("============================ fat ===================");
+      if (_listSalon.isEmpty){
+        await FirebaseFirestore.instance.collection("salon").orderBy('nom').limit(_limit).get().then((snapshot){
+          documentList = snapshot;
+          for (var element in snapshot.docs) {
+            MiniSalon data = MiniSalon.fromJson(element.data());
+            data.id = element.id;
+            _listSalon.add(data);
+          }
+        })
+            .catchError((e){
+          isLoading = false;
+          searchError = e.toString();
+        });
+      }
+      else {
+        await FirebaseFirestore.instance.collection("salon").orderBy('nom').startAfterDocument(lastDocument!).limit(_limit).get().then((snapshot){
+          documentList = snapshot;
+          for (var element in snapshot.docs) {
+            MiniSalon data = MiniSalon.fromJson(element.data());
+            data.id = element.id;
+            _listSalon.add(data);
+          }
+        })
+            .catchError((e){
+          isLoading = false;
+          searchError = e.toString();
+        });
+      }
+
+      if(documentList != null){
+        lastDocument = documentList!.docs[documentList!.docs.length - 1];
+        if (documentList!.docs.length < _limit) {
+          hasMore = false;
+        }
+      }
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
 }

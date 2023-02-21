@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../theme/colors.dart';
 import '../../../widgets/Photo_Profil.dart';
-import 'user_information.dart';
+import 'components/UpdateProfileForm.dart';
 
 class UpdateProfileScreen extends StatelessWidget {
   const UpdateProfileScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    print("*********************************************");
     return Scaffold(
       appBar: AppBar(
         title: const Text("update profile",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,letterSpacing: 1),),
@@ -41,7 +40,7 @@ class BodyUpdateProfil extends StatelessWidget {
             children: const [
               PhotoProfil(),
               SizedBox(height: 80),
-              UpdateProfile(),
+              UpdateProfileForm(),
             ],
           ),
         ),

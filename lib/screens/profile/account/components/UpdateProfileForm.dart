@@ -8,15 +8,15 @@ import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:monsalondz/theme/colors.dart';
-import '../../../../utils/constants.dart';
+import '../../../../../utils/constants.dart';
 
-class UpdateProfile extends StatefulWidget {
-  const UpdateProfile({super.key});
+class UpdateProfileForm extends StatefulWidget {
+  const UpdateProfileForm({super.key});
   @override
-  UpdateProfileState createState() => UpdateProfileState();
+  UpdateProfileFormState createState() => UpdateProfileFormState();
 }
 
-class UpdateProfileState extends State<UpdateProfile> {
+class UpdateProfileFormState extends State<UpdateProfileForm> {
 
   TextEditingController phoneController = TextEditingController();
   TextEditingController nameController = TextEditingController();

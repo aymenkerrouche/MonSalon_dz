@@ -4,22 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../theme/colors.dart';
 import 'components/sign_up_form.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
-
-  @override
-  State<SignUp> createState() => _SignUpState();
-}
-
-class _SignUpState extends State<SignUp> {
-  ScrollController? _scrollController;
-
-
-  @override
-  void dispose() {
-    _scrollController?.dispose();
-    super.dispose();
-  }
+class SignUp extends StatelessWidget {
+  const SignUp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +31,11 @@ class _SignUpState extends State<SignUp> {
           titlePadding: EdgeInsets.zero,
         ),
       ),
-        body: Container(
-          color: white,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: const SignUpForm(),
-        ),
-      );
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: const SignUpForm(),
+      ),
+    );
   }
 }
+

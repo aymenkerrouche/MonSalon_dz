@@ -1,13 +1,13 @@
 // ignore_for_file: file_names
 
 class MiniSalon {
-  late String id;
-  late String nom;
-  late String wilaya;
-  late bool best;
-  late String photo;
-  late bool promo;
-  late double rate;
+  String? id;
+  String? nom;
+  String? wilaya;
+  bool? best;
+  String photo = '';
+  bool? promo;
+  double rate = 5;
 
   MiniSalon(this.nom, this.wilaya, this.best, this.promo,this.rate,this.photo, this.id);
 
@@ -15,7 +15,7 @@ class MiniSalon {
     id= json['id'] ?? '';
     nom = json['nom'] ?? '';
     wilaya = json['wilaya'] ?? '';
-    best = json['best'] ?? '';
-    promo = json['promo'] ?? '';
+    best = json['best'] ?? false;
+    promo = json['promo'] ?? false;
   }
 }

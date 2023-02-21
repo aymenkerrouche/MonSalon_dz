@@ -7,7 +7,7 @@ import 'package:monsalondz/theme/colors.dart';
 import '../../providers/AuthProvider.dart';
 import '../../widgets/profile_menu.dart';
 import '../settings.dart';
-import 'account/update_profil_screen.dart';
+import 'account/UpdateProfileScreen.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -42,7 +42,6 @@ class _ProfileState extends State<Profile> {
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-
           height: size.height,
           child: SingleChildScrollView(
             child: Column(
@@ -172,6 +171,7 @@ class _ProfileState extends State<Profile> {
                 ),
 
                 const SizedBox(height: 25,),
+
                 //VERSION
                 const Align(
                   alignment: Alignment.center,

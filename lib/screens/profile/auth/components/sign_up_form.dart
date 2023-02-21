@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,7 +13,6 @@ import 'package:monsalondz/theme/colors.dart';
 import '../../../../providers/AuthProvider.dart';
 import '../../../../utils/constants.dart';
 import '../../../../utils/keyboard.dart';
-import '../../../../widgets/form_error.dart';
 import '../../../../widgets/phone TextField.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -26,7 +24,7 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
 
-  final List<String?> errors = [];
+  List<String?> errors = [];
   TextEditingController phoneController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -68,11 +66,6 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
-
-    EasyLoading.instance
-      ..indicatorType = EasyLoadingIndicatorType.ring
-      ..backgroundColor = primaryPro;
-
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       child: Column(
@@ -228,7 +221,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       if (login && auth) SizedBox(height:  size.height * 0.03),
 
                       //PHONE
-                      if (login  && auth) buildPhoneNumberFormField(phoneController,"phone","Saisir votre numéro"),
+                      if (login  && auth) buildPhoneNumberFormField(phoneController,"phone","+213 ..."),
                       if (login &&  auth) SizedBox(height:  size.height * 0.01),
 
                      if(auth)SizedBox(height: login ? size.height * 0.04 : size.height * 0.02 ),
@@ -247,6 +240,15 @@ class _SignUpFormState extends State<SignUpForm> {
 
                             // Sign Up
                             if (login) {
+                              if(phoneController.text.startsWith("0")){
+                                phoneController.text = "+213 ${phoneController.text.substring(1,phoneController.text.length)}";
+                              }
+                              if(phoneController.text.startsWith("5") || phoneController.text.startsWith("6") ||phoneController.text.startsWith("7")){
+                                phoneController.text = "+213 ${phoneController.text}";
+                              }
+                              if(phoneController.text.startsWith("213")){
+                                phoneController.text = "+${phoneController.text.substring(1,phoneController.text.length)}";
+                              }
                               await signUp();
                             }
 
@@ -315,6 +317,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   ),
                 ),
 
+                // OR
                 Container(
                   margin: const EdgeInsets.only(bottom: 20),
                   child: Row(children: <Widget>[
@@ -476,9 +479,9 @@ class _SignUpFormState extends State<SignUpForm> {
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16))
                       ),
-                      builder: (context) {
+                      builder: (cxt) {
                         return Padding(
-                          padding: MediaQuery.of(context).viewInsets,
+                          padding: MediaQuery.of(cxt).viewInsets,
                           child: Container(
                             width: size.width,
                             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -508,10 +511,21 @@ class _SignUpFormState extends State<SignUpForm> {
                                         fixedSize: Size(size.width, 50)
                                     ),
                                     onPressed: () async {
-                                      setState(() {sms = false;});
 
-                                      KeyboardUtil.hideKeyboard(context);
-                                      EasyLoading.show(status: 'loading...');
+                                      setState(() {sms = false;});
+                                      KeyboardUtil.hideKeyboard(cxt);
+
+                                      if(phoneController.text.startsWith("0")){
+                                        phoneController.text = "+213 ${phoneController.text.substring(1,phoneController.text.length)}";
+                                      }
+                                      if(phoneController.text.startsWith("5") || phoneController.text.startsWith("6") ||phoneController.text.startsWith("7")){
+                                        phoneController.text = "+213 ${phoneController.text}";
+                                      }
+                                      if(phoneController.text.startsWith("213")){
+                                        phoneController.text = "+${phoneController.text.substring(1,phoneController.text.length)}";
+                                      }
+
+                                      EasyLoading.show(status: 'En cours...');
 
                                       await FirebaseAuth.instance.verifyPhoneNumber(
                                         phoneNumber: phoneController.text,
@@ -523,14 +537,8 @@ class _SignUpFormState extends State<SignUpForm> {
 
                                         verificationFailed: (e) {
                                           EasyLoading.dismiss();
-                                          GFToast.showToast(
-                                            "${e.message}",
-                                            context,
-                                            toastDuration: 4,
-                                            backgroundColor: red,
-                                            textStyle: TextStyle(color: white),
-                                            toastPosition: GFToastPosition.BOTTOM,
-                                          );
+                                          Navigator.of(cxt).pop();
+                                          GFToast.showToast("${e.message}", context, toastDuration: 4, backgroundColor: red, textStyle: TextStyle(color: white), toastPosition: GFToastPosition.BOTTOM,);
                                         },
 
                                         codeAutoRetrievalTimeout: (String verificationId) {},
@@ -538,7 +546,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                         codeSent: ((String verificationId, int? resendToken) async {
                                           idController.text = verificationId;
                                           EasyLoading.dismiss();
-                                          Navigator.of(context).pop();
+                                          Navigator.of(cxt).pop();
                                           setState(() {sms = true;});
                                         }),
                                       );
@@ -560,14 +568,12 @@ class _SignUpFormState extends State<SignUpForm> {
                           context: context,
                           useRootNavigator: true,
                           isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16))
-                          ),
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16))),
                           isDismissible: false,
                           enableDrag: false,
-                          builder: (context) {
+                          builder: (cnxt) {
                             return Padding(
-                              padding: MediaQuery.of(context).viewInsets,
+                              padding: MediaQuery.of(cnxt).viewInsets,
                               child: Container(
                                 width: size.width,
                                 padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -597,25 +603,30 @@ class _SignUpFormState extends State<SignUpForm> {
                                           fixedSize: Size(size.width, 50),
                                         ),
                                         onPressed: () async {
-
-                                          KeyboardUtil.hideKeyboard(context);
+                                          KeyboardUtil.hideKeyboard(cnxt);
                                           if(codeController.text.isNotEmpty){
                                             PhoneAuthCredential credential = PhoneAuthProvider.credential(
                                               verificationId: idController.text,
                                               smsCode: codeController.text,
                                             );
                                             String tlpn = phoneController.text;
-
+                                            Navigator.of(cnxt).pop();
                                             await FirebaseAuth.instance.signInWithCredential(credential)
                                               .then((value) async {
-                                              Navigator.of(context).pop();
+                                              setState(() {sms = false;});
                                                 EasyLoading.showSuccess('Bienvenue');
-                                                await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).set({"phone": tlpn});
+                                                try{
+                                                  await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).set({"phone": tlpn});
+                                                }
+                                                catch(e){
+                                                  print(e.toString());
+                                                }
                                               })
-                                              .whenComplete(() => setState(() {sms = false;}));
-
+                                            .catchError((erreur){
+                                              setState(() {sms = false;});
+                                              GFToast.showToast("${erreur.message}", context, toastDuration: 4, backgroundColor: red, textStyle: TextStyle(color: white), toastPosition: GFToastPosition.BOTTOM,);
+                                            });
                                           }
-
                                         },
                                         child: Text( "Envoyer le code",
                                           style: TextStyle(fontSize: 20, color: white,fontWeight: FontWeight.w700),
@@ -690,12 +701,11 @@ class _SignUpFormState extends State<SignUpForm> {
         email: emailController.text,
         password: passwordController.text,
       )
-      .then((currentUser) async =>
-        await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid).set({"phone": phoneController.text,"email": emailController.text})
-      );
-      provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
-      setState(() {
-        isLoading = false;
+      .then((currentUser) async {
+        await FirebaseFirestore.instance.collection("users").doc(
+            currentUser.user?.uid).set(
+            {"phone": phoneController.text, "email": emailController.text});
+            provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
       });
       return true;
     }
