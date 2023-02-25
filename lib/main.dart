@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:monsalondz/providers/AppSettingsProvider.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
+import 'package:monsalondz/providers/SalonProvider.dart';
 import 'package:monsalondz/providers/SearchPrivider.dart';
 import 'package:provider/provider.dart';
 import 'package:monsalondz/providers/AuthProvider.dart';
@@ -31,6 +32,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => AppSettingsProvider(),),
         ChangeNotifierProvider(create: (context) => CategoriesProvider()),
         ChangeNotifierProvider(create: (context) => HistoryProvider()),
+        ChangeNotifierProvider(create: (context) => SalonProvider()),
       ],
       child: const MyApp(),
     ),
@@ -58,6 +60,9 @@ class MyApp extends StatelessWidget {
         splashColor: primary,
         iconTheme: IconThemeData(color: primary),
         useMaterial3: true,
+        scrollbarTheme: const ScrollbarThemeData().copyWith(
+          thumbColor: MaterialStateProperty.all(primary),
+        ),
       ),
       home:  const Root(),
       builder: EasyLoading.init(),

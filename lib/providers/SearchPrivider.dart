@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/MiniSalon.dart';
@@ -76,7 +78,16 @@ class SearchProvider extends ChangeNotifier {
 
 
 
-
+clearAll(){
+  _searchWilaya.clear();
+  _search.clear();
+  _day = '';
+  _searchDate.clear();
+  _hour = '';
+  _prixFin = 0;
+  _prix = 0;
+  notifyListeners();
+}
 
 
 
@@ -89,12 +100,14 @@ class SearchProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
   static double _prixFin = 0;
   double get prixFin => _prixFin;
   set prixFin(double newPrix){
     _prixFin = newPrix;
     notifyListeners();
   }
+
 
   static RangeValues _rangeValues = const RangeValues(0, 0);
   RangeValues get rangeValues => _rangeValues;
@@ -116,60 +129,527 @@ class SearchProvider extends ChangeNotifier {
   List<MiniSalon> _listSalon = [];
   List<MiniSalon> get listSalon => _listSalon;
 
-  final int _limit = 7;
+  static const int _limit = 15;
   bool isLoading = false;
   String searchError = '';
   bool hasMore = true;
   DocumentSnapshot? lastDocument;
+  bool isSearching = false;
 
 
   Future fetchSalons() async {
     QuerySnapshot? documentList;
-    if(!hasMore) {
-      notifyListeners();
-      return;
+    isLoading = true;
+
+    if (_listSalon.isEmpty){
+      isSearching= true;
+      await FirebaseFirestore.instance.collection("salon").orderBy('nom').limit(_limit).get().then((snapshot){
+        documentList = snapshot;
+        for (var element in snapshot.docs) {
+          MiniSalon data = MiniSalon.fromJson(element.data());
+          data.id = element.id;
+          _listSalon.add(data);
+        }
+      })
+      .catchError((e){
+        isLoading = false;
+        searchError = e.toString();
+      });
+      isSearching= false;
     }
-    else{
-      isLoading = true;
-      print("============================ fat ===================");
-      if (_listSalon.isEmpty){
-        await FirebaseFirestore.instance.collection("salon").orderBy('nom').limit(_limit).get().then((snapshot){
-          documentList = snapshot;
-          for (var element in snapshot.docs) {
-            MiniSalon data = MiniSalon.fromJson(element.data());
-            data.id = element.id;
-            _listSalon.add(data);
-          }
-        })
-            .catchError((e){
-          isLoading = false;
-          searchError = e.toString();
-        });
+
+    else {
+      await FirebaseFirestore.instance.collection("salon").orderBy('nom').startAfterDocument(lastDocument!).limit(_limit).get().then((snapshot){
+        documentList = snapshot;
+        for (var element in snapshot.docs) {
+          MiniSalon data = MiniSalon.fromJson(element.data());
+          data.id = element.id;
+          _listSalon.add(data);
+        }
+      })
+      .catchError((e){
+        isLoading = false;
+        searchError = e.toString();
+      });
+    }
+
+    if(documentList != null && documentList!.docs.isNotEmpty){
+      lastDocument = documentList!.docs[documentList!.docs.length - 1];
+      if (documentList!.docs.length < _limit) {
+        hasMore = false;
       }
-      else {
-        await FirebaseFirestore.instance.collection("salon").orderBy('nom').startAfterDocument(lastDocument!).limit(_limit).get().then((snapshot){
-          documentList = snapshot;
-          for (var element in snapshot.docs) {
-            MiniSalon data = MiniSalon.fromJson(element.data());
-            data.id = element.id;
-            _listSalon.add(data);
+    }
+    notifyListeners();
+
+    Timer(const Duration(seconds: 1), () {isLoading = false;notifyListeners(); });
+  }
+
+
+  // FILTER CATEGORY
+  Future<void> filterSalons(dynamic category,dynamic wilaya,dynamic price,dynamic date) async {
+
+    isSearching= true;
+    _listSalon.clear();
+    notifyListeners();
+
+    if(category != null ){
+
+      if(wilaya != null){
+
+        if(price != null){
+
+          if(date != null){
+
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("category", isEqualTo: category )
+                .where("days", arrayContains: date )
+                .where("prix", isLessThanOrEqualTo: price )
+                .where("prix", isGreaterThanOrEqualTo: _prix )
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
           }
-        })
-            .catchError((e){
-          isLoading = false;
-          searchError = e.toString();
-        });
+
+          else{
+
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("category", isEqualTo: category )
+                .where("prix", isLessThanOrEqualTo: price )
+                .where("prix", isGreaterThanOrEqualTo: _prix )
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+        }
+
+        else{
+
+          if(date != null){
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("category", isEqualTo: category )
+                .where("days", arrayContains: date )
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+          else{
+
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("category", isEqualTo: category )
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+        }
+
       }
 
-      if(documentList != null){
-        lastDocument = documentList!.docs[documentList!.docs.length - 1];
-        if (documentList!.docs.length < _limit) {
-          hasMore = false;
+      // IF WILAYA NULL
+      else{
+
+        if(price != null){
+
+          if(date != null){
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("category", isEqualTo: category )
+                .where("days", arrayContains: date )
+                .where("prix", isLessThanOrEqualTo: price )
+                .where("prix", isGreaterThanOrEqualTo: _prix )
+                .get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+          else{
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("category", isEqualTo: category )
+                .where("prix", isLessThanOrEqualTo: price )
+                .where("prix", isGreaterThanOrEqualTo: _prix )
+                .get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+        }
+
+        else{
+
+          if(date != null){
+
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("category", isEqualTo: category )
+                .where("days", arrayContains: date )
+                .get()
+            .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+          else{
+            await FirebaseFirestore.instance.collection("salonsSearch")
+            .where("category", isEqualTo: category )
+            .get()
+            .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                  .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+            });
+          }
+
+        }
+
+      }
+    }
+
+    else{
+
+      if(wilaya != null){
+
+        if(price != null){
+
+          if(date != null){
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("days", arrayContains: date )
+                .where("prix", isLessThanOrEqualTo: price )
+                .where("prix", isGreaterThanOrEqualTo: _prix )
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+          else{
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("prix", isLessThanOrEqualTo: price )
+                .where("prix", isGreaterThanOrEqualTo: _prix )
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+        }
+
+        else{
+
+          if(date != null){
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("days", arrayContains: date )
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+          else{
+            await FirebaseFirestore.instance.collection("salon")
+                .where("wilaya", isEqualTo: wilaya ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+                  MiniSalon data = MiniSalon.fromJson(element.data() );
+                  data.id = element.id;
+                  _listSalon.add(data);
+                    notifyListeners();
+                });
+              }
+            });
+          }
+        }
+
+      }
+
+      // IF WILAYA NULL
+      else{
+
+        if(price != null){
+
+          if(date != null){
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("days", arrayContains: date )
+                .where("prix", isLessThanOrEqualTo: price ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+          else{
+
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("prix", isLessThanOrEqualTo: price ).get()
+                .then((value) async {
+
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+        }
+
+        else{
+
+          if(date != null){
+
+            await FirebaseFirestore.instance.collection("salonsSearch")
+                .where("days", arrayContains: date ).get()
+                .then((value) async {
+              if(value.docs.isNotEmpty){
+
+                value.docs.forEach((element) async {
+
+                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
+                      .then((salons){
+
+                    if(salons.exists){
+                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      data.id = salons.id;
+                      _listSalon.add(data);
+                    }
+                    notifyListeners();
+                  });
+                });
+              }
+
+            });
+          }
+
+          //IF DATE NULL
+          else{
+            await fetchSalons();
+          }
         }
       }
-      isLoading = false;
-      notifyListeners();
     }
+
+    Timer(const Duration(seconds: 1), () {isSearching= false;notifyListeners(); });
+
+    notifyListeners();
+
   }
+
 
 }

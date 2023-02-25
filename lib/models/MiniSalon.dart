@@ -5,7 +5,7 @@ class MiniSalon {
   String? nom;
   String? wilaya;
   bool? best;
-  String photo = '';
+  String? photo;
   bool? promo;
   double rate = 5;
 
@@ -17,5 +17,6 @@ class MiniSalon {
     wilaya = json['wilaya'] ?? '';
     best = json['best'] ?? false;
     promo = json['promo'] ?? false;
+    photo = json['lien'] ?? '';
   }
 }

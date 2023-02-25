@@ -100,7 +100,30 @@ import '../providers/SearchPrivider.dart';
           return ElevatedButton(
             onPressed: () async {
 
-              setState(() {loading = true;});
+              await FirebaseFirestore.instance.collection("salon").get().then((value){
+                value.docs.forEach((element) async {
+                  await FirebaseFirestore.instance.collection("salonsSearch").
+                   add({
+                    "salonID": element.id,
+                    "categoryID": "46XoQOUNKbXCRZVa36AP",
+
+                    "wilaya" : "Constantine",
+                    "category": "Epilation",
+
+                    "dimanche": false,
+                    "lundi": true,
+                    "mardi": true,
+                    "mercredi": false,
+                    "jeudi": true,
+                    "samedi": true,
+                    "vendredi": true,
+
+                  });
+                });
+              });
+
+
+              /*setState(() {loading = true;});
 
               var provider = Provider.of<HistoryProvider>(context,listen: false);
               var provider2 = Provider.of<SearchProvider>(context,listen: false);
@@ -114,7 +137,7 @@ import '../providers/SearchPrivider.dart';
                   provider2.hour
               );
 
-              setState(() {loading = false;});
+              setState(() {loading = false;});*/
 
             },
             style: ElevatedButton.styleFrom(

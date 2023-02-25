@@ -26,8 +26,8 @@ class _PopularsState extends State<Populars> {
 
   bool getBest = true;
   dynamic popularSalons = FirebaseFirestore.instance.collection('salon').where('best', isEqualTo: true).get();
-
   List<MiniSalon> offers= [];
+
   @override
   Widget build(BuildContext context) {
 
@@ -42,10 +42,13 @@ class _PopularsState extends State<Populars> {
           if(snapshot.data!.docs.isEmpty && getBest == true){
             Timer(const Duration(seconds: 5), () {
               WidgetsBinding.instance.addPostFrameCallback((_){
-                setState(() {
-                  popularSalons =  FirebaseFirestore.instance.collection('salon').get();
-                  getBest =  false;
-                });
+                if (mounted) {
+                  setState(() {
+                    popularSalons =  FirebaseFirestore.instance.collection('salon').get();
+                    getBest =  false;
+                  });
+                }
+
               });
             });
 

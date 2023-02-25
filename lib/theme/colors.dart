@@ -16,3 +16,6 @@ Color primaryPro = const Color(0xFF2C3333);
 Color primary = const Color(0xFF395B64);
 Color clr3 = const Color(0xFFA5C9CA);
 Color  clr4 = const Color(0x52A5C9CA);
+
+
+//ac42cf  6d20b0  7a5c69
