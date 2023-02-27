@@ -11,11 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:monsalondz/models/Category.dart' as cat;
-import 'package:monsalondz/models/MiniSalon.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/screens/salon/SalonScreen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
+import '../models/Salon.dart';
 import '../providers/SalonProvider.dart';
 import '../providers/SearchPrivider.dart';
 import '../theme/colors.dart';
@@ -665,9 +665,9 @@ class FilterDate extends StatelessWidget {
 }
 
 
-class Salon extends StatelessWidget {
-  const Salon({Key? key,required this.salon}) : super(key: key);
-  final MiniSalon salon;
+class SalonWidget extends StatelessWidget {
+  const SalonWidget({Key? key,required this.salon}) : super(key: key);
+  final Salon salon;
 
   @override
   Widget build(BuildContext context) {
@@ -755,7 +755,7 @@ class Salon extends StatelessWidget {
 
                       // RATE
                       RatingBar(
-                        initialRating: 3,
+                        initialRating: salon.rate ?? 5 ,
                         direction: Axis.horizontal,
                         allowHalfRating: true,
                         itemCount: 5,
@@ -881,7 +881,7 @@ class _SalonListState extends State<SalonList> {
                       itemCount: salons.listSalon.length,
                       itemBuilder: (context, index) {
                         if(salons.listSalon.length > index){
-                          return Salon(salon: salons.listSalon.elementAt(index));
+                          return SalonWidget(salon: salons.listSalon.elementAt(index));
                         }
                         else {
                           return const SizedBox();
