@@ -265,7 +265,7 @@ class FilterCategory extends StatelessWidget {
                     var serarchedWilaya;
                     if(provider.searchWilaya.text.isNotEmpty) serarchedWilaya = wilaya.where((element) => provider.searchWilaya.text.contains(element["name"]!)).first;
                     provider.filterSalons(
-                        categories.selectedCat.id == '' ? null:categories.selectedCat.category,
+                        categories.selectedCat.id == '' ? null:categories.selectedCat.id,
                         serarchedWilaya != null ? serarchedWilaya["name"]:null,
                         provider.prixFin == 0 ? null : provider.prixFin,
                         provider.day == ''? null : provider.day
@@ -403,7 +403,7 @@ class FilterPrix extends StatelessWidget {
                     if(prix.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => prix.searchWilaya.text.contains(element["name"]!)).first;
 
                     prix.filterSalons(
-                        provider.selectedCat.id == '' ? null:provider.selectedCat.category,
+                        provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                         serarchedWilaya != null ? serarchedWilaya["name"]:null,
                         prix.prixFin == 0 ? null : prix.prixFin,
                         prix.day == ''? null:prix.day
@@ -561,7 +561,7 @@ class FilterWilaya extends StatelessWidget {
                       if(wilayas.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => wilayas.searchWilaya.text.contains(element["name"]!)).first;
 
                       wilayas.filterSalons(
-                          provider.selectedCat.id == '' ? null:provider.selectedCat.category,
+                          provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                           serarchedWilaya != null ? serarchedWilaya["name"]:null,
                           wilayas.prixFin == 0 ? null : wilayas.prixFin,
                           wilayas.day == ''? null:wilayas.day
@@ -636,7 +636,7 @@ class FilterDate extends StatelessWidget {
                   if(date.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => date.searchWilaya.text.contains(element["name"]!)).first;
 
                   date.filterSalons(
-                      provider.selectedCat.id == '' ? null:provider.selectedCat.category,
+                      provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                       serarchedWilaya != null ? serarchedWilaya["name"]:null,
                       date.prixFin == 0 ? null : date.prixFin,
                       date.day == ''? null:date.day
@@ -650,7 +650,7 @@ class FilterDate extends StatelessWidget {
                 if(date.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => date.searchWilaya.text.contains(element["name"]!)).first;
 
                 date.filterSalons(
-                    provider.selectedCat.id == '' ? null:provider.selectedCat.category,
+                    provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                     serarchedWilaya != null ? serarchedWilaya["name"]:null,
                     date.prixFin == 0 ? null : date.prixFin,
                     null
@@ -694,16 +694,30 @@ class SalonWidget extends StatelessWidget {
           splashColor: clr4.withOpacity(.1),
           highlightColor: Colors.transparent,
           borderRadius: const BorderRadius.all(Radius.circular(12)),
-          onTap: (){
-            Provider.of<SalonProvider>(context,listen: false).clearImages();
+          onTap: () async {
+
+            final provider = Provider.of<SalonProvider>(context,listen: false);
+
+            /*if(provider.salon != null){
+              if(provider.salon?.id != salon.id){
+                provider.clearSalon();
+                await provider.setSalon(salon);
+
+              }
+            }*/
+
+            provider.clearSalon();
+            await provider.setSalon(salon);
+
             Timer(const Duration(milliseconds: 200),(){
               PersistentNavBarNavigator.pushNewScreen(context,
-                screen: SalonScreen(salon: salon,),
+                screen: const SalonScreen(),
                 withNavBar: false,
                 pageTransitionAnimation: PageTransitionAnimation.cupertino,
               );
             });
           },
+
           child: Row(
             children: [
               Container(

@@ -2,7 +2,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../models/MiniSalon.dart';
+import '../models/Salon.dart';
 import '../theme/colors.dart';
 import 'BlankImageWidget.dart';
 import 'More_Infos.dart';
@@ -10,7 +10,7 @@ import 'More_Infos.dart';
 
 class PopularOffer extends StatelessWidget {
   PopularOffer({Key? key, required this.salon}) : super(key: key);
-  MiniSalon salon;
+  Salon salon;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class PopularOffer extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
                     child: CachedNetworkImage(
-                      imageUrl: "https://firebasestorage.googleapis.com/v0/b/monsalon-dz.appspot.com/o/salon%2FaqTP5g8ZulPgKdhCZr7J%2Fsalon2.jpg?alt=media&token=6db491b2-6fe8-4341-9a53-1f09f1515e41",
+                      imageUrl: "https://firebasestorage.googleapis.com/v0/b/monsalon-dz.appspot.com/o/salons%2FZAoUYwsrjqpVXCDbqqRM%2Fsalon1.jpg?alt=media&token=b9b6bf88-2a49-4e26-b86c-ce21f351973a",
                       //offer.photo,
                       placeholder: (context, url) => const BlankImageWidget(),
                       errorWidget: (context, url, error) => const BlankImageWidget(error: true,),
@@ -86,7 +86,7 @@ class PopularOffer extends StatelessWidget {
 
                             //Titre
                             Text(
-                              "{$salon.nom}",
+                              "${salon.nom}",
                               style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

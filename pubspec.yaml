@@ -42,6 +42,7 @@ dependencies:
   http: ^0.13.5
   flutter_easyloading: ^3.0.5
   flutter_rating_bar: ^4.0.1
+  readmore: ^2.2.0
 
 dev_dependencies:
   flutter_test:

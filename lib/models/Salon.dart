@@ -1,4 +1,9 @@
 // ignore_for_file: file_names
+import 'package:monsalondz/models/Service.dart';
+
+import 'Category.dart';
+import 'Hours.dart';
+import 'Team.dart';
 
 class Salon {
   String? id;
@@ -7,18 +12,20 @@ class Salon {
   bool? best;
   String? photo;
   bool? promo;
-  double rate = 5;
+  double? rate;
   double? latitude;
   double? longitude;
   String? location;
+  String? commune;
   String? description;
+  String? phone;
+  Hours? hours;
+  List<String> categories = [];
+  List<Service> service = [];
+  bool team = false;
+  List<Team> teams = [];
 
-  Salon(
-      this.nom, this.wilaya, this.best, this.promo,this.rate,this.photo, this.id,
-      this.description,
-      this.latitude,
-      this.longitude,this.location
-  );
+  Salon(this.nom, this.wilaya, this.hours,this.best, this.teams,this.promo,this.rate,this.photo, this.id, this.description, this.team,this.latitude, this.longitude,this.location,this.phone,this.commune,this.categories, this.service);
 
   Salon.fromJson(Map<String, dynamic> json){
     id= json['id'] ?? '';
@@ -31,6 +38,9 @@ class Salon {
     latitude = json['latitude'] ?? 0;
     longitude = json['longitude'] ?? 0;
     location  = json['location'] ?? '';
-    //  = json[''] ?? ;
+    phone = json['phone'] ?? '';
+    commune = json['commune'] ?? '';
+    rate = double.parse(json['rate'] ?? '5');
+    team = json['team'] ??  false;
   }
 }

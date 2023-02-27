@@ -4,10 +4,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:monsalondz/providers/AppSettingsProvider.dart';
 import 'package:monsalondz/widgets/PopularOffer.dart';
-import 'package:provider/provider.dart';
-import '../models/MiniSalon.dart';
+
+import '../models/Salon.dart';
 
 class Populars extends StatefulWidget {
   const Populars({Key? key}) : super(key: key);
@@ -26,7 +25,7 @@ class _PopularsState extends State<Populars> {
 
   bool getBest = true;
   dynamic popularSalons = FirebaseFirestore.instance.collection('salon').where('best', isEqualTo: true).get();
-  List<MiniSalon> offers= [];
+  List<Salon> offers= [];
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +62,8 @@ class _PopularsState extends State<Populars> {
                       viewportFraction: .95,
                     ),
                     items: List.generate(
-                      Provider.of<AppSettingsProvider>(context,listen: false).bestSalonNumber, (index) =>
-                        PopularOffer(salon: MiniSalon.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>),),
+                      snapshot.data!.docs.length, (index) =>
+                        PopularOffer(salon: Salon.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>),),
                     )
                 );
               }

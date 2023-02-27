@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:monsalondz/providers/AppSettingsProvider.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/providers/SalonProvider.dart';
@@ -29,7 +28,6 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider(),),
         ChangeNotifierProvider(create: (context) => SearchProvider(),),
-        ChangeNotifierProvider(create: (context) => AppSettingsProvider(),),
         ChangeNotifierProvider(create: (context) => CategoriesProvider()),
         ChangeNotifierProvider(create: (context) => HistoryProvider()),
         ChangeNotifierProvider(create: (context) => SalonProvider()),

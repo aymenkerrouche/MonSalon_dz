@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/History.dart';
-import 'package:monsalondz/models/MiniSalon.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import '../main.dart';
+import '../models/Salon.dart';
 
 class HistoryProvider extends ChangeNotifier {
 
   List<History> _searchHistory = [];
   List<History> get searchHistory => _searchHistory;
 
-  List<MiniSalon> _salonsHistory = [];
-  List<MiniSalon> get salonsHistory => _salonsHistory;
+  List<Salon> _salonsHistory = [];
+  List<Salon> get salonsHistory => _salonsHistory;
 
   late Database _localDB ;
   Database get localDB => _localDB;
@@ -55,7 +55,7 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setSalonsHistory(MiniSalon salon) {
+  setSalonsHistory(Salon salon) {
     if(_salonsHistory.length > 10){
       _salonsHistory.removeAt(9);
       _salonsHistory.insert(0, salon);

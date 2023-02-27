@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:monsalondz/models/MiniSalon.dart';
+import 'package:monsalondz/models/Salon.dart';
 
 class SearchProvider extends ChangeNotifier {
 
@@ -126,8 +126,8 @@ clearAll(){
 
   // SALONS LIST
 
-  List<MiniSalon> _listSalon = [];
-  List<MiniSalon> get listSalon => _listSalon;
+  List<Salon> _listSalon = [];
+  List<Salon> get listSalon => _listSalon;
 
   static const int _limit = 15;
   bool isLoading = false;
@@ -146,7 +146,7 @@ clearAll(){
       await FirebaseFirestore.instance.collection("salon").orderBy('nom').limit(_limit).get().then((snapshot){
         documentList = snapshot;
         for (var element in snapshot.docs) {
-          MiniSalon data = MiniSalon.fromJson(element.data());
+          Salon data = Salon.fromJson(element.data());
           data.id = element.id;
           _listSalon.add(data);
         }
@@ -162,7 +162,7 @@ clearAll(){
       await FirebaseFirestore.instance.collection("salon").orderBy('nom').startAfterDocument(lastDocument!).limit(_limit).get().then((snapshot){
         documentList = snapshot;
         for (var element in snapshot.docs) {
-          MiniSalon data = MiniSalon.fromJson(element.data());
+          Salon data = Salon.fromJson(element.data());
           data.id = element.id;
           _listSalon.add(data);
         }
@@ -185,7 +185,7 @@ clearAll(){
   }
 
 
-  // FILTER CATEGORY
+  // FILTER
   Future<void> filterSalons(dynamic category,dynamic wilaya,dynamic price,dynamic date) async {
 
     isSearching= true;
@@ -201,8 +201,8 @@ clearAll(){
           if(date != null){
 
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", isEqualTo: category )
-                .where("days", arrayContains: date )
+                .where("category", arrayContains: category )
+                .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price )
                 .where("prix", isGreaterThanOrEqualTo: _prix )
                 .where("wilaya", isEqualTo: wilaya ).get()
@@ -216,7 +216,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -231,7 +231,7 @@ clearAll(){
           else{
 
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", isEqualTo: category )
+                .where("category", arrayContains: category )
                 .where("prix", isLessThanOrEqualTo: price )
                 .where("prix", isGreaterThanOrEqualTo: _prix )
                 .where("wilaya", isEqualTo: wilaya ).get()
@@ -245,7 +245,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -263,8 +263,8 @@ clearAll(){
 
           if(date != null){
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", isEqualTo: category )
-                .where("days", arrayContains: date )
+                .where("category", arrayContains: category )
+                .where("days.$date", isEqualTo: true )
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
@@ -276,7 +276,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -291,7 +291,7 @@ clearAll(){
           else{
 
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", isEqualTo: category )
+                .where("category", arrayContains: category )
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
@@ -303,7 +303,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -326,8 +326,8 @@ clearAll(){
 
           if(date != null){
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", isEqualTo: category )
-                .where("days", arrayContains: date )
+                .where("category", arrayContains: category )
+                .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price )
                 .where("prix", isGreaterThanOrEqualTo: _prix )
                 .get()
@@ -341,7 +341,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -355,7 +355,7 @@ clearAll(){
 
           else{
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", isEqualTo: category )
+                .where("category", arrayContains: category )
                 .where("prix", isLessThanOrEqualTo: price )
                 .where("prix", isGreaterThanOrEqualTo: _prix )
                 .get()
@@ -369,7 +369,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -387,8 +387,8 @@ clearAll(){
           if(date != null){
 
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", isEqualTo: category )
-                .where("days", arrayContains: date )
+                .where("category", arrayContains: category )
+                .where("days.$date", isEqualTo: true )
                 .get()
             .then((value) async {
 
@@ -400,7 +400,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -414,7 +414,7 @@ clearAll(){
 
           else{
             await FirebaseFirestore.instance.collection("salonsSearch")
-            .where("category", isEqualTo: category )
+            .where("category", arrayContains: category )
             .get()
             .then((value) async {
 
@@ -426,7 +426,7 @@ clearAll(){
                   .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -450,7 +450,7 @@ clearAll(){
 
           if(date != null){
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days", arrayContains: date )
+                .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price )
                 .where("prix", isGreaterThanOrEqualTo: _prix )
                 .where("wilaya", isEqualTo: wilaya ).get()
@@ -464,7 +464,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -491,7 +491,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -508,7 +508,7 @@ clearAll(){
 
           if(date != null){
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days", arrayContains: date )
+                .where("days.$date", isEqualTo: true )
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
@@ -520,7 +520,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -540,7 +540,7 @@ clearAll(){
               if(value.docs.isNotEmpty){
 
                 value.docs.forEach((element) async {
-                  MiniSalon data = MiniSalon.fromJson(element.data() );
+                  Salon data = Salon.fromJson(element.data() );
                   data.id = element.id;
                   _listSalon.add(data);
                     notifyListeners();
@@ -559,7 +559,7 @@ clearAll(){
 
           if(date != null){
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days", arrayContains: date )
+                .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price ).get()
                 .then((value) async {
 
@@ -571,7 +571,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -597,7 +597,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }
@@ -615,7 +615,7 @@ clearAll(){
           if(date != null){
 
             await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days", arrayContains: date ).get()
+                .where("days.$date", isEqualTo: true ).get()
                 .then((value) async {
               if(value.docs.isNotEmpty){
 
@@ -625,7 +625,7 @@ clearAll(){
                       .then((salons){
 
                     if(salons.exists){
-                      MiniSalon data = MiniSalon.fromJson(salons.data() as Map<String, dynamic> );
+                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
                       _listSalon.add(data);
                     }

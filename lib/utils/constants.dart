@@ -57,4 +57,4 @@ OutlineInputBorder inputBorder() {
 }
 
 
-Pub localPub = Pub('0',true ,0, -1, "MonSalon", "https://monsalon-dz.com/", true, "${DateTime.now()}", "${DateTime.now().add(const Duration(days: 120))}", "assets/images/couverture.jpg");
+Pub localPub = Pub('0',true ,0, -1, "MonSalon", "https://monsalon-dz.com/", true, "${DateTime.now()}", "${DateTime.now().add(const Duration(days: 120))}", "assets/images/vide.jpg");
