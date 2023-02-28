@@ -696,22 +696,12 @@ class SalonWidget extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           onTap: () async {
 
-            final provider = Provider.of<SalonProvider>(context,listen: false);
-
-            /*if(provider.salon != null){
-              if(provider.salon?.id != salon.id){
-                provider.clearSalon();
-                await provider.setSalon(salon);
-
-              }
-            }*/
-
-            provider.clearSalon();
-            await provider.setSalon(salon);
+            Provider.of<SalonProvider>(context,listen: false).search = true;
+            Provider.of<SalonProvider>(context,listen: false).clearSalon();
 
             Timer(const Duration(milliseconds: 200),(){
               PersistentNavBarNavigator.pushNewScreen(context,
-                screen: const SalonScreen(),
+                screen: SalonScreen(salon: salon,),
                 withNavBar: false,
                 pageTransitionAnimation: PageTransitionAnimation.cupertino,
               );

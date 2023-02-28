@@ -11,9 +11,23 @@ import '../../models/Salon.dart';
 import '../../providers/SalonProvider.dart';
 import '../../theme/colors.dart';
 
+class SalonScreen extends StatefulWidget {
+  const SalonScreen({Key? key, required this.salon}) : super(key: key);
+  final Salon salon;
+  @override
+  State<SalonScreen> createState() => _SalonScreenState();
+}
 
-class SalonScreen extends StatelessWidget {
-  const SalonScreen({Key? key}) : super(key: key);
+class _SalonScreenState extends State<SalonScreen> {
+  @override
+  void initState() {
+    super.initState();
+    getSalon();
+  }
+
+  getSalon() async {
+    await Provider.of<SalonProvider>(context,listen: false).setSalon(widget.salon);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +67,11 @@ class SalonScreen extends StatelessWidget {
                                 ),
                             placeholder: (context, s) =>
                                 GFShimmer(
-                                  mainColor: Colors.grey.shade50,
+                                  mainColor: clr4,
                                   child: Container(
                                     decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.all(
-                                          Radius.circular(14),),
-                                        color: Colors.grey.shade50
+                                      borderRadius: const BorderRadius.all(Radius.circular(14),),
+                                      color: clr4
                                     ),
                                   ),
                                 ),
@@ -75,7 +88,7 @@ class SalonScreen extends StatelessWidget {
               ),
             ),
             Consumer<SalonProvider>(builder: (context, salon, child){
-              if(salon.salon != null && salon.salon?.id != ''){
+              if(salon.search == false ){
                 return DetailScreen(salon: salon.salon!,);
               }
               return Center(child: CircularProgressIndicator(color: primary,),);
@@ -193,7 +206,7 @@ class DetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 15.0),
                       ReadMoreText(
-                        "${salon.nom} Cléopatre se trouve au coeur de chéraga pas loin du centre commerciale el quods Equipe cléopatre une équipe jeune et dynamique et surtout à l'écoute de nos cliente pour rentre toute prestation une expérience géniale. Nos coup de coeur une décoration moderne contemporaine et des coin cosy dans tout l'établissement.",
+                        "${salon.description}",
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -347,67 +360,25 @@ class ListPrestation extends StatelessWidget {
 
          Consumer<SalonProvider>(builder: (context, salon, child){
            if(salon.salon!.service.isNotEmpty){
+             print(salon.salon!.service.where((service) => service.category == "Epilation"));
              return Column(
-               children: [
-                 ExpansionTile(
-                   title: Text('Coiffure'.toUpperCase()),
+               children: salon.salon!.categories.map((e) => ExpansionTile(
+                   title: Text(e.toUpperCase()),
                    iconColor: Colors.cyan,
                    textColor: Colors.cyan,
                    backgroundColor: primaryLite.withOpacity(.02),
-                   children: const[
-                     ListTile(
-                       title: Text('Barbier et rasage homme',overflow: TextOverflow.ellipsis, maxLines: 2,),
-                       trailing: Text('1 000 - 1 200 DA'),
-                     ),
-                     ListTile(
-                       title: Text('Coupe homme'),
-                       trailing: Text('1 000 - 1 200 DA'),
-                     ),
-                     ListTile(
-                       title: Text('Barbier'),
-                       trailing: Text('300 DA'),
-                     ),
-                     ListTile(
-                       title: Text('Soin cheveux homme'),
-                       trailing: Text('2 000 - 3 000 DA'),
-                     ),
-                   ],
-                 ),
+                   children:salon.salon!.service.where((element) => element.category == e).map((service) =>
+                       ListTile(
+                         title: Text(service.service!,overflow: TextOverflow.ellipsis, maxLines: 2,),
+                         trailing: Text('${service.prix} - ${service.prixFin} DA'),
+                       ),
+                   ).toList()
 
-                 ExpansionTile(
-                   title: Text('Corps'.toUpperCase()),
-                   iconColor: Colors.cyan,
-                   textColor: Colors.cyan,
-                   backgroundColor: primaryLite.withOpacity(.02),
-                   children: const[
-                     ListTile(
-                       title: Text('Hammam',overflow: TextOverflow.ellipsis, maxLines: 2,),
-                       trailing: Text('2 000 - 4 000 DA'),
-                     ),
-                     ListTile(
-                       title: Text('Sauna',overflow: TextOverflow.ellipsis, maxLines: 2,),
-                       trailing: Text('2 000 - 4 000 DA'),
-                     ),
-                   ],
-                 ),
 
-                 ExpansionTile(
-                   title: Text('Visage'.toUpperCase()),
-                   iconColor: Colors.cyan,
-                   textColor: Colors.cyan,
-                   backgroundColor: primaryLite.withOpacity(.02),
-                   children: const[
-                     ListTile(
-                       title: Text('Extention de cils',overflow: TextOverflow.ellipsis, maxLines: 2,),
-                       trailing: Text('3 000 - 7 000 DA'),
-                     ),
-                     ListTile(
-                       title: Text('Nettoyage de peau',overflow: TextOverflow.ellipsis, maxLines: 2,),
-                       trailing: Text('3 000 - 4 000 DA'),
-                     ),
-                   ],
-                 ),
-               ],
+
+
+                 )).toList(),
+
              );
            }
            return GFShimmer(

@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
   import 'package:monsalondz/utils/wilaya.dart';
   import 'package:intl/intl.dart';
   import 'package:provider/provider.dart';
-  import '../providers/HistouriqueLocal.dart';
+import '../providers/HistouriqueLocal.dart';
 import '../providers/SearchPrivider.dart';
   import '../utils/constants.dart';
 
@@ -100,30 +100,30 @@ import '../providers/SearchPrivider.dart';
           return ElevatedButton(
             onPressed: () async {
 
-              await FirebaseFirestore.instance.collection("salon").get().then((value){
+             /* await FirebaseFirestore.instance.collection("services").get().then((value){
                 value.docs.forEach((element) async {
-                  await FirebaseFirestore.instance.collection("salonsSearch").
+                  await FirebaseFirestore.instance.collection("services").doc(element.id).update({
+                    "parDefault": true
+                  });
                    add({
                     "salonID": element.id,
-                    "categoryID": "46XoQOUNKbXCRZVa36AP",
-
                     "wilaya" : "Constantine",
-                    "category": "Epilation",
-
-                    "dimanche": false,
-                    "lundi": true,
-                    "mardi": true,
-                    "mercredi": false,
-                    "jeudi": true,
-                    "samedi": true,
-                    "vendredi": true,
-
+                    "prix" : 2500,
+                    "category":['46XoQOUNKbXCRZVa36AP','C06db7GlOhttWIanjQtu','LJDdkLR4zqbYWvM0U862','r2rsez6Kpxv8hLGLBScV'],
+                    "days":{
+                      "dimanche":true,
+                      "lundi": true,
+                      "mardi": true,
+                      "mercredi": true,
+                      "jeudi": true,
+                      "vendredi": true,
+                      "samedi": true,
+                    },
                   });
                 });
-              });
+              });*/
 
-
-              /*setState(() {loading = true;});
+              setState(() {loading = true;});
 
               var provider = Provider.of<HistoryProvider>(context,listen: false);
               var provider2 = Provider.of<SearchProvider>(context,listen: false);
@@ -137,7 +137,7 @@ import '../providers/SearchPrivider.dart';
                   provider2.hour
               );
 
-              setState(() {loading = false;});*/
+              setState(() {loading = false;});
 
             },
             style: ElevatedButton.styleFrom(

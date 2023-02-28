@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:monsalondz/models/Category.dart';
 import 'package:monsalondz/models/Salon.dart';
 import 'package:monsalondz/models/Service.dart';
 import '../models/Hours.dart';
@@ -27,28 +26,28 @@ class SalonProvider extends ChangeNotifier {
     catch(e){print(e);}
     notifyListeners();
   }
-  clearImages(){
-    images.clear();
-    notifyListeners();
-  }
 
   Salon? salon;
-  bool done = false;
+  bool search = false;
 
   Future<void> setSalon(Salon newSalon) async {
+    salon = null;
+    search = true;
     salon = newSalon ;
-    notifyListeners();
     await getSalonImages(salon!.id!);
-    await getCategories();
     await getHours();
     await getServices();
     if(newSalon.team == true)await getTeam();
+    search = false;
     notifyListeners();
   }
 
   clearSalon(){
+    salon?.service.clear();
+    salon?.categories.clear();
+    salon?.teams.clear();
     salon = null;
-    clearImages();
+    images.clear();
     notifyListeners();
   }
 
@@ -66,70 +65,26 @@ class SalonProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getCategories() async {
+  Future<void> getServices() async {
     try{
-      await FirebaseFirestore.instance.collection("salonsSearch").where("salonID", isEqualTo: salon?.id ).limit(1).get()
+      await FirebaseFirestore.instance.collection("services")
+      //.where("categoryID", whereIn: salon!.categories)
+          .where("salonID", isEqualTo: salon?.id)
+          .get()
       .then((snapshot) async {
         if(snapshot.docs.isNotEmpty){
-          for (var element in snapshot.docs.first.data()["category"]) {
-            salon?.categories.add(element);
+          for (var element in snapshot.docs) {
+            print(element.data());
+            Service service =  Service.fromJson(element.data());
+            salon?.service.add(service);
+            if(!salon!.categories.contains(service.category)){
+              salon?.categories.add(service.category!);
+            }
           }
         }
       });
     }
     catch(e){print(e);}
-    notifyListeners();
-  }
-
-  Future<void> getServices() async {
-    if(salon!.categories.isNotEmpty){
-
-      try{
-        await FirebaseFirestore.instance.collection("services").where("categoryID", whereIn: salon!.categories).get()
-            .then((snapshot) async {
-          if(snapshot.docs.isNotEmpty){
-            for (var element in snapshot.docs) {
-              Service service =  Service.fromJson(element.data());
-              salon?.service.add(service);
-            }
-          }
-        });
-      }
-      catch(e){print(e);}
-
-
-      try{
-        await FirebaseFirestore.instance.collection("services")
-            .where("salonID", isEqualTo: salon?.id)
-            .where("categoryID", whereNotIn: salon!.categories)
-            .get()
-            .then((snapshot) async {
-          if(snapshot.docs.isNotEmpty){
-            for (var element in snapshot.docs) {
-              Service service =  Service.fromJson(element.data());
-              salon?.service.add(service);
-            }
-          }
-        });
-      }
-      catch(e){print(e);}
-    }
-    else{
-      try{
-        await FirebaseFirestore.instance.collection("services")
-            .where("salonID", isEqualTo: salon?.id)
-            .get()
-            .then((snapshot) async {
-          if(snapshot.docs.isNotEmpty){
-            for (var element in snapshot.docs) {
-              Service service =  Service.fromJson(element.data());
-              salon?.service.add(service);
-            }
-          }
-        });
-      }
-      catch(e){print(e);}
-    }
     notifyListeners();
   }
 
