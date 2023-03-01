@@ -1,7 +1,6 @@
   // ignore_for_file: file_names, must_be_immutable, depend_on_referenced_packages
 
   import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
   import 'package:flutter/cupertino.dart';
   import 'package:flutter/material.dart';
   import 'package:monsalondz/theme/colors.dart';
@@ -70,9 +69,9 @@ import '../providers/SearchPrivider.dart';
               height: 10,
             ),
             Row(
-              children : [
-                const SerachWilaya(),
-                const Spacer(),
+              children : const [
+                SerachWilaya(),
+                Spacer(),
                 SearchTime(),
               ],
             ),
@@ -100,25 +99,19 @@ import '../providers/SearchPrivider.dart';
           return ElevatedButton(
             onPressed: () async {
 
-             /* await FirebaseFirestore.instance.collection("services").get().then((value){
+             /* await FirebaseFirestore.instance.collection("salon").orderBy("wilaya").limit(10).get().then((value){
                 value.docs.forEach((element) async {
-                  await FirebaseFirestore.instance.collection("services").doc(element.id).update({
-                    "parDefault": true
-                  });
+                  //Salon data = Salon.fromJson(element.data());
+                  await FirebaseFirestore.instance.collection("services").
                    add({
                     "salonID": element.id,
-                    "wilaya" : "Constantine",
-                    "prix" : 2500,
-                    "category":['46XoQOUNKbXCRZVa36AP','C06db7GlOhttWIanjQtu','LJDdkLR4zqbYWvM0U862','r2rsez6Kpxv8hLGLBScV'],
-                    "days":{
-                      "dimanche":true,
-                      "lundi": true,
-                      "mardi": true,
-                      "mercredi": true,
-                      "jeudi": true,
-                      "vendredi": true,
-                      "samedi": true,
-                    },
+                    "category" : "Homme",
+                    "categoryID" : "hOMbj6KeiLOsw8DqqiKu",
+                    "parDefault": false,
+                    "prix": 500,
+                    "prixFin": 2000,
+                    "service": "Coupe homme",
+                    "serviceID":"8jPoMf6DFJvuqjVogJoC",
                   });
                 });
               });*/
@@ -128,7 +121,7 @@ import '../providers/SearchPrivider.dart';
               var provider = Provider.of<HistoryProvider>(context,listen: false);
               var provider2 = Provider.of<SearchProvider>(context,listen: false);
 
-              provider.setSearchHistory(
+              await provider.setSearchHistory(
                   provider2.search.text.isEmpty ? '' : provider2.search.text,
                   provider2.searchWilaya.text.isEmpty ? '' : provider2.searchWilaya.text,
                   '',
@@ -143,7 +136,8 @@ import '../providers/SearchPrivider.dart';
             style: ElevatedButton.styleFrom(
                 backgroundColor: primary,
                 fixedSize: const Size(double.maxFinite, 48),
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))),
+                elevation: 6,
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12)))),
             child: loading ?
             SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: white,strokeWidth: 3,),):
             Row(
@@ -214,7 +208,7 @@ import '../providers/SearchPrivider.dart';
 
   //DAY
   class SearchTime extends StatelessWidget {
-    SearchTime({super.key});
+    const SearchTime({super.key});
     @override
     Widget build(BuildContext context) {
       Size size = MediaQuery.of(context).size;

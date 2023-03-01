@@ -4,12 +4,17 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import '../models/Category.dart';
 import '../models/Pub.dart';
+import '../models/Salon.dart';
+import '../models/Service.dart';
 import '../utils/constants.dart';
 
 class CategoriesProvider extends ChangeNotifier {
 
   List<Category> _categories = [];
   List<Category> get categories => _categories;
+
+  List<Salon> _populars = [];
+  List<Salon> get populars => _populars;
 
   List<Pub> _pubs = [];
   List<Pub> get pubs => _pubs;
@@ -53,7 +58,6 @@ class CategoriesProvider extends ChangeNotifier {
     ads = false;
 
     await FirebaseFirestore.instance.collection('pubs').orderBy('index').get().then((snapshot) async {
-      print(snapshot.docs.length);
       for (var element in snapshot.docs) {
 
         Pub data = Pub.fromJson(element.data());
@@ -96,6 +100,68 @@ class CategoriesProvider extends ChangeNotifier {
       }
     }
     done = true;
+    notifyListeners();
+  }
+
+
+
+
+
+
+
+
+
+  Future getPopularSalons() async {
+
+    _populars.clear();
+
+    await FirebaseFirestore.instance.collection('salon').where('best', isEqualTo: true).limit(10).get().then((snapshot) async {
+      for (var element in snapshot.docs) {
+        Salon data = Salon.fromJson(element.data());
+        data.id = element.id;
+        _populars.add(data);
+      }
+    })
+    .catchError((e){
+      pubsError = e.toString();
+    });
+
+    if(_populars.isEmpty){
+      await FirebaseFirestore.instance.collection('salon').orderBy("rate").limit(5).get().then((snapshot) async {
+        for (var element in snapshot.docs) {
+
+          Salon data = Salon.fromJson(element.data());
+          data.id = element.id;
+          _populars.add(data);
+
+        }
+      })
+      .catchError((e){
+        pubsError = e.toString();
+      });
+    }
+
+    List<String> listID = [];
+    _populars.forEach((element) {
+      listID.add(element.id!);
+    });
+
+    try{
+      await FirebaseFirestore.instance.collection("services")
+          .where("salonID", whereIn: listID)
+          .get()
+          .then((snapshot) async {
+
+        if(snapshot.docs.isNotEmpty){
+          for (var element in snapshot.docs) {
+            Service service =  Service.fromJson(element.data());
+            _populars.where((element) => element.id == service.salonID).first.service.add(service);
+          }
+        }
+      });
+    }
+    catch(e){print(e);}
+
     notifyListeners();
   }
 }

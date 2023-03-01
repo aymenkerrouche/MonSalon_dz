@@ -14,14 +14,14 @@ class SalonProvider extends ChangeNotifier {
   Future<void> getSalonImages(String id) async {
     try{
       ListResult listResult = await FirebaseStorage.instance.ref().child('salons/$id').listAll();
-      listResult.items.forEach((element) async {
+      for (var element in listResult.items){
         try{
           String image = await FirebaseStorage.instance.ref().child(element.fullPath).getDownloadURL();
           images.add(image);
-          notifyListeners();
+          //notifyListeners();
         }
-        catch(ee){print(ee);}
-      });
+        catch(ee){print("===================== $ee ==========================");}
+      }
     }
     catch(e){print(e);}
     notifyListeners();
@@ -74,7 +74,6 @@ class SalonProvider extends ChangeNotifier {
       .then((snapshot) async {
         if(snapshot.docs.isNotEmpty){
           for (var element in snapshot.docs) {
-            print(element.data());
             Service service =  Service.fromJson(element.data());
             salon?.service.add(service);
             if(!salon!.categories.contains(service.category)){

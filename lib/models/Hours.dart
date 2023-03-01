@@ -14,7 +14,7 @@ class Hours {
   Hours(this.dimanche, this.lundi, this.mardi, this.mercredi,this.jeudi,this.vendredi, this.id, this.samedi,);
 
   Hours.fromJson(Map<String, dynamic> json){
-    id= json['id'] ?? '';
+    id= json['salonID'] ?? '';
     dimanche = json['dimanche'] ?? {};
     lundi = json['lundi'] ?? {};
     mardi = json['mardi'] ?? {};

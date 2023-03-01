@@ -30,7 +30,10 @@ snackBar(String txt,Color color, IconData icon,double marginButton){
 // DAYS
 const Map<int, String> weekdayName = {1: "lundi", 2: "mardi", 3: "mercredi", 4: "jeudi", 5: "vendredi", 6: "samedi", 7: "dimanche"};
 
-
+extension StringCasingExtension on String {
+  String toCapitalized() => length > 0 ?'${this[0].toUpperCase()}${substring(1).toLowerCase()}':'';
+  String toTitleCase() => replaceAll(RegExp(' +'), ' ').split(' ').map((str) => str.toCapitalized()).join(' ');
+}
 
 // Form Error
 const String kEmailNullError = "Veuillez saisir votre email";

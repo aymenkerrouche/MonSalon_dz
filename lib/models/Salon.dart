@@ -1,7 +1,5 @@
 // ignore_for_file: file_names
 import 'package:monsalondz/models/Service.dart';
-
-import 'Category.dart';
 import 'Hours.dart';
 import 'Team.dart';
 
@@ -40,7 +38,7 @@ class Salon {
     location  = json['location'] ?? '';
     phone = json['phone'] ?? '';
     commune = json['commune'] ?? '';
-    rate = double.parse(json['rate'] ?? '5');
+    rate = json['rate'] == null ? 5.0 : json['rate'].toDouble();
     team = json['team'] ??  false;
   }
 }

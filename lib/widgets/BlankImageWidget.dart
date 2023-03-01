@@ -25,7 +25,7 @@ class BlankImageWidget extends StatelessWidget {
               width: 80,
             ),
           ):
-          GFShimmer(child: Container(color: Colors.white10,))
+          GFShimmer(child: Container(color: Colors.grey.shade50,))
       ),
     );
   }

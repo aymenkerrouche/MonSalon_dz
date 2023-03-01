@@ -12,9 +12,9 @@ Color pink = const Color(0xFFFF007F);
 Color pinkPro = const Color(0xFFAB0054);
 
 
-Color primaryPro = const Color(0xFF2C3333);
-Color primary = const Color(0xFF395B64);
-Color primaryLite = const Color(0xFF4F7F8D);
+Color primaryPro = const Color(0xFF2A3636);
+Color primary = const Color(0xFF3C6069);
+Color primaryLite = const Color(0xFF537C85);
 Color clr3 = const Color(0xFFA5C9CA);
 Color clr4 = const Color(0x52A5C9CA);
 Color clr5 = const Color(0x52FAFFFF);

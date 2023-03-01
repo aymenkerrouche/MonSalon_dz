@@ -112,7 +112,8 @@ class _SignUpFormState extends State<SignUpForm> {
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             backgroundColor: primary,
-                            fixedSize: Size(size.width, 55)
+                            fixedSize: Size(size.width, 55),
+                            elevation: 6
                           ),
                           onPressed: () async {
                             setState(() {
@@ -229,9 +230,10 @@ class _SignUpFormState extends State<SignUpForm> {
                       // SUBMIT
                       if(auth)ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            backgroundColor: primary,
-                            fixedSize: Size(size.width, 55)
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          backgroundColor: primary,
+                          fixedSize: Size(size.width, 55),
+                          elevation: 6
                         ),
                         onPressed: () async {
                           KeyboardUtil.hideKeyboard(context);
@@ -367,7 +369,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     side: BorderSide(color: primary, width: 1),
                     foregroundColor: primary,
-                      fixedSize: const Size(double.infinity, 55)
+                    fixedSize: const Size(double.infinity, 55),elevation: 6
                   ),
                   onPressed: () async {
                     final providerAuth = Provider.of<AuthProvider>(context, listen: false);
@@ -415,7 +417,8 @@ class _SignUpFormState extends State<SignUpForm> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     foregroundColor: primary,
                     fixedSize: const Size(double.infinity, 55),
-                    backgroundColor: Colors.blueAccent
+                    backgroundColor: Colors.blueAccent,
+                      elevation: 6
                   ),
                   onPressed: () async {
                     KeyboardUtil.hideKeyboard(context);
@@ -469,7 +472,8 @@ class _SignUpFormState extends State<SignUpForm> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     foregroundColor: primary,
                     fixedSize: const Size(double.infinity, 55),
-                    backgroundColor: Colors.greenAccent.shade700
+                    backgroundColor: Colors.greenAccent.shade700,
+                      elevation: 6
                   ),
                   onPressed: () async {
                     showModalBottomSheet(

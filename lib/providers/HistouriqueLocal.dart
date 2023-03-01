@@ -81,11 +81,10 @@ class HistoryProvider extends ChangeNotifier {
 
   // Load from DB
   Future<void> loadLocalData() async {
-    List<Map> history = await _localDB.rawQuery("SELECT * FROM history");
+    List<Map> history = await _localDB.rawQuery("SELECT * FROM history ORDER BY id");
     if(history.isNotEmpty){
       _searchHistory.clear();
       for(Map hist in history){
-        print(hist);
         _searchHistory.add(History.fromJson(hist));
       }
     }

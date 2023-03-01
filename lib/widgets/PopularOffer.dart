@@ -9,8 +9,8 @@ import 'More_Infos.dart';
 
 
 class PopularOffer extends StatelessWidget {
-  PopularOffer({Key? key, required this.salon}) : super(key: key);
-  Salon salon;
+  const PopularOffer({Key? key, required this.salon}) : super(key: key);
+  final Salon salon;
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +46,7 @@ class PopularOffer extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
                     child: CachedNetworkImage(
-                      imageUrl: "https://firebasestorage.googleapis.com/v0/b/monsalon-dz.appspot.com/o/salons%2FZAoUYwsrjqpVXCDbqqRM%2Fsalon1.jpg?alt=media&token=b9b6bf88-2a49-4e26-b86c-ce21f351973a",
-                      //offer.photo,
+                      imageUrl: "${salon.photo}",
                       placeholder: (context, url) => const BlankImageWidget(),
                       errorWidget: (context, url, error) => const BlankImageWidget(error: true,),
                       imageBuilder: (context, imageProvider) => Stack(
@@ -101,8 +100,8 @@ class PopularOffer extends StatelessWidget {
                                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
-                                  children: List.generate(4, (index) => Container(margin: const EdgeInsets.only(right: 5),
-                                      child: SmallInfos(info: "${salon.nom}", color: primary.withOpacity(.03),textColor: primaryPro,)),),
+                                  children: List.generate(salon.service.length > 4 ? 4 : salon.service.length, (index) => Container(margin: const EdgeInsets.only(right: 5),
+                                      child: SmallInfos(info: "${salon.service[index].service}", color: primary.withOpacity(.03),textColor: primaryPro,)),),
                                 ),
                               ),
                             ),
@@ -122,7 +121,7 @@ class PopularOffer extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Flexible(flex: 1,child: Image.asset("assets/icons/rate.png",color: primaryPro,width: 35,)),
-                          Flexible(flex: 1,child: Text("4,6",style: TextStyle(color: primaryPro,fontWeight: FontWeight.w700,fontSize: 18),))
+                          Flexible(flex: 1,child: Text("${salon.rate}",style: TextStyle(color: primaryPro,fontWeight: FontWeight.w700,fontSize: 18),))
                         ],
                       ),
                     )
