@@ -121,13 +121,17 @@ import '../providers/SearchPrivider.dart';
               var provider = Provider.of<HistoryProvider>(context,listen: false);
               var provider2 = Provider.of<SearchProvider>(context,listen: false);
 
+              var serarchedWilaya = wilaya.where((element) => provider2.searchWilaya.text.contains(element["name"]!)).first;
+             // provider2.setWilaya(serarchedWilaya["name"]!);
+
               await provider.setSearchHistory(
                   provider2.search.text.isEmpty ? '' : provider2.search.text,
-                  provider2.searchWilaya.text.isEmpty ? '' : provider2.searchWilaya.text,
+                  provider2.searchWilaya.text.isEmpty ? '' : serarchedWilaya["name"]!,
                   '',
                   provider2.searchDate.text.isEmpty ? '' : provider2.searchDate.text,
                   provider2.day,
-                  provider2.hour
+                  provider2.hour,
+                  provider2.prixFin,
               );
 
               setState(() {loading = false;});

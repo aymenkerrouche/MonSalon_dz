@@ -52,7 +52,7 @@ class ProfileMenu extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             Expanded(child: Text(text)),
-            bye ? SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: primary,)) :const Icon(Icons.arrow_forward_ios),
+            bye ? SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: primary,strokeWidth: 3,)) :const Icon(Icons.arrow_forward_ios),
           ],
         ),
       ),

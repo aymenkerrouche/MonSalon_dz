@@ -176,7 +176,7 @@ class UpdateProfileFormState extends State<UpdateProfileForm> {
     if(nameController.text.isNotEmpty && phoneController.text.isNotEmpty){
       try{
         await FirebaseAuth.instance.currentUser?.updateDisplayName(nameController.text);
-        await FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
+        await FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
           'phone': phoneController.text.trim(),
           'name': nameController.text.trim(),
           'email' : emailController.text.trim()

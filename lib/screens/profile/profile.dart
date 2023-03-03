@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:monsalondz/providers/FavoriteProvider.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:monsalondz/theme/colors.dart';
@@ -150,6 +151,7 @@ class _ProfileState extends State<Profile> {
                       setState(() {bye = false;});
                     });
                     Timer(const Duration(milliseconds: 1500), () async {
+                      Provider.of<FavoriteProvider>(context, listen: false).clear();
 
                       final providerAuth = Provider.of<AuthProvider>(context, listen: false);
                       switch(FirebaseAuth.instance.currentUser?.providerData.first.providerId) {

@@ -8,8 +8,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:http/http.dart' as http;
 
-import '../widgets/Otp.dart';
-
 class AuthProvider extends ChangeNotifier {
 
   AuthCredential ? credentialAuth;
@@ -44,45 +42,6 @@ class AuthProvider extends ChangeNotifier {
       }
     });
   }
-
-  Future<void> phoneSignIn(BuildContext context, String phoneNumber) async {
-    TextEditingController codeController = TextEditingController();
-
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await FirebaseAuth.instance.signInWithCredential(credential);
-      },
-
-      verificationFailed: (e) {
-        error = e;
-      },
-
-      codeAutoRetrievalTimeout: (String verificationId) {
-        // Auto-resolution timed out...
-      },
-
-      // Displays a dialog box when OTP is sent
-      codeSent: ((String verificationId, int? resendToken) async {
-        sendSMS = true;
-        showOTPDialog(
-          codeController: codeController,
-          context: context,
-          onPressed: () async {
-            PhoneAuthCredential credential = PhoneAuthProvider.credential(
-              verificationId: verificationId,
-              smsCode: codeController.text.trim(),
-            );
-
-            // !!! Works only on Android, iOS !!!
-            await FirebaseAuth.instance.signInWithCredential(credential);
-            Navigator.of(context).pop(); // Remove the dialog box
-          },
-        );
-      }),
-    );
-}
 
 
   Future<UserCredential> signInWithFacebook() async {

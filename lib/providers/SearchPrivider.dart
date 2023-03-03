@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/Salon.dart';
@@ -10,6 +9,15 @@ class SearchProvider extends ChangeNotifier {
   // SEARCH
   TextEditingController _search = TextEditingController();
   TextEditingController get search => _search;
+
+  clearSearch(){
+    _search.clear();
+    notifyListeners();
+  }
+
+  refreshSearch(){
+    notifyListeners();
+  }
 
 
  // DATE
@@ -78,43 +86,21 @@ class SearchProvider extends ChangeNotifier {
 
 
 
-clearAll(){
+  clearAll(){
   _searchWilaya.clear();
   _search.clear();
   _day = '';
   _searchDate.clear();
   _hour = '';
   _prixFin = 0;
-  _prix = 0;
   notifyListeners();
 }
 
 
-
-
-  // PRIX
-  static double _prix = 0;
-  double get prix => _prix;
-  set prix(double newPrix){
-    _prix = newPrix;
-    notifyListeners();
-  }
-
-
-  static double _prixFin = 0;
-  double get prixFin => _prixFin;
-  set prixFin(double newPrix){
+  static int _prixFin = 0;
+  int get prixFin => _prixFin;
+  set prixFin(int newPrix){
     _prixFin = newPrix;
-    notifyListeners();
-  }
-
-
-  static RangeValues _rangeValues = const RangeValues(0, 0);
-  RangeValues get rangeValues => _rangeValues;
-  set rangeValues(RangeValues newRangeValues){
-    _rangeValues = newRangeValues;
-    _prix = _rangeValues.start;
-    _prixFin = _rangeValues.end;
     notifyListeners();
   }
 
@@ -129,7 +115,7 @@ clearAll(){
   List<Salon> _listSalon = [];
   List<Salon> get listSalon => _listSalon;
 
-  static const int _limit = 15;
+  static const int _limit = 50;
   bool isLoading = false;
   String searchError = '';
   bool hasMore = true;
@@ -138,6 +124,7 @@ clearAll(){
 
 
   Future fetchSalons() async {
+
     QuerySnapshot? documentList;
     isLoading = true;
 
@@ -204,13 +191,13 @@ clearAll(){
                 .where("category", arrayContains: category )
                 .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price )
-                .where("prix", isGreaterThanOrEqualTo: _prix )
+
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -218,11 +205,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -233,13 +221,13 @@ clearAll(){
             await FirebaseFirestore.instance.collection("salonsSearch")
                 .where("category", arrayContains: category )
                 .where("prix", isLessThanOrEqualTo: price )
-                .where("prix", isGreaterThanOrEqualTo: _prix )
+
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -247,11 +235,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -270,7 +259,7 @@ clearAll(){
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs) {
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -278,17 +267,20 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
           }
 
           else{
+
+
 
             await FirebaseFirestore.instance.collection("salonsSearch")
                 .where("category", arrayContains: category )
@@ -297,7 +289,7 @@ clearAll(){
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -305,11 +297,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -329,13 +322,13 @@ clearAll(){
                 .where("category", arrayContains: category )
                 .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price )
-                .where("prix", isGreaterThanOrEqualTo: _prix )
+
                 .get()
                 .then((value) async {
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -343,11 +336,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -357,13 +351,13 @@ clearAll(){
             await FirebaseFirestore.instance.collection("salonsSearch")
                 .where("category", arrayContains: category )
                 .where("prix", isLessThanOrEqualTo: price )
-                .where("prix", isGreaterThanOrEqualTo: _prix )
+
                 .get()
                 .then((value) async {
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -371,11 +365,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -394,7 +389,7 @@ clearAll(){
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -402,25 +397,28 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
           }
 
           else{
+            print("======************=====");
             await FirebaseFirestore.instance.collection("salonsSearch")
             .where("category", arrayContains: category )
+            //.where("parDefault", isNotEqualTo: true)
             .get()
             .then((value) async {
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                   .then((salons){
@@ -428,11 +426,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
             });
           }
@@ -452,13 +451,12 @@ clearAll(){
             await FirebaseFirestore.instance.collection("salonsSearch")
                 .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price )
-                .where("prix", isGreaterThanOrEqualTo: _prix )
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs) {
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -466,11 +464,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -479,13 +478,12 @@ clearAll(){
           else{
             await FirebaseFirestore.instance.collection("salonsSearch")
                 .where("prix", isLessThanOrEqualTo: price )
-                .where("prix", isGreaterThanOrEqualTo: _prix )
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs) {
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -493,11 +491,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -514,7 +513,7 @@ clearAll(){
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs) {
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -522,11 +521,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -539,12 +539,12 @@ clearAll(){
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs) {
                   Salon data = Salon.fromJson(element.data() );
                   data.id = element.id;
                   _listSalon.add(data);
                     notifyListeners();
-                });
+                }
               }
             });
           }
@@ -565,7 +565,7 @@ clearAll(){
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs) {
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -573,11 +573,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -591,7 +592,7 @@ clearAll(){
 
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs) {
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -599,11 +600,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -619,7 +621,7 @@ clearAll(){
                 .then((value) async {
               if(value.docs.isNotEmpty){
 
-                value.docs.forEach((element) async {
+                for (var element in value.docs){
 
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                       .then((salons){
@@ -627,11 +629,12 @@ clearAll(){
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;
+                      data.prix = element["prix"] ?? 0;
                       _listSalon.add(data);
                     }
                     notifyListeners();
                   });
-                });
+                }
               }
 
             });
@@ -651,5 +654,25 @@ clearAll(){
 
   }
 
+/*  Future<void> searchByWord() async{
+
+
+
+    await FirebaseFirestore.instance.collection("salon")
+        .orderBy("nom")
+        //.startAt([_search.text]).endAt(["${_search.text}\uf8ff"])
+        .where("nom", isGreaterThanOrEqualTo: _search.text)
+        .where("nom", isLessThanOrEqualTo: "${_search.text}\uf8ff")
+        .get().then((value){
+          if(value.docs.isNotEmpty){
+            for (var element in value.docs) {
+              print(element.data());
+            }
+          }
+          else{
+            print(value.docs);
+          }
+    });
+  }*/
 
 }

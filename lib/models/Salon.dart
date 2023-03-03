@@ -1,4 +1,5 @@
 // ignore_for_file: file_names
+import 'package:monsalondz/models/Comment.dart';
 import 'package:monsalondz/models/Service.dart';
 import 'Hours.dart';
 import 'Team.dart';
@@ -22,8 +23,11 @@ class Salon {
   List<Service> service = [];
   bool team = false;
   List<Team> teams = [];
+  List<Comment> comments = [];
+  int? prix;
+  Map<String,dynamic> isFavorite = {"id":"", "like":false,};
 
-  Salon(this.nom, this.wilaya, this.hours,this.best, this.teams,this.promo,this.rate,this.photo, this.id, this.description, this.team,this.latitude, this.longitude,this.location,this.phone,this.commune,this.categories, this.service);
+  Salon(this.nom, this.wilaya, this.isFavorite,this.prix,this.hours,this.best, this.comments ,this.teams,this.promo,this.rate,this.photo, this.id, this.description, this.team,this.latitude, this.longitude,this.location,this.phone,this.commune,this.categories, this.service);
 
   Salon.fromJson(Map<String, dynamic> json){
     id= json['id'] ?? '';

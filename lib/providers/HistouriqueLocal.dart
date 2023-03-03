@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/History.dart';
 import 'package:sqflite/sqflite.dart';
@@ -23,7 +24,7 @@ class HistoryProvider extends ChangeNotifier {
 
   Future<bool> databaseExists(String path) => databaseFactory.databaseExists(path);
 
-  Future<void> setSearchHistory(String search, String wilaya, String category, String date, String jour, String hour) async {
+  Future<void> setSearchHistory(String search, String wilaya, String category, String date, String jour, String hour, int prix) async {
 
     _searchHistory.clear();
     int count = Sqflite.firstIntValue(await _localDB.rawQuery('SELECT COUNT(*) FROM history')) ?? 0;
@@ -36,8 +37,8 @@ class HistoryProvider extends ChangeNotifier {
           await txn.rawUpdate("UPDATE history SET id = id-1");
         }
         await txn.rawInsert(
-          'INSERT INTO history(id,search, wilaya, category, date, day, hour) VALUES(?,?,?,?,?,?,?)',
-          [count > 8 ? count : count + 1 , search, wilaya, category, date, jour, hour],
+          'INSERT INTO history(id,search, wilaya, category, date, day, hour, prix) VALUES(?,?,?,?,?,?,?,?)',
+          [count > 8 ? count : count + 1 , search, wilaya, category, date, jour, hour, prix],
         );
       });
 
@@ -46,7 +47,7 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  deleteHistory(int id) async {
+  Future<void> deleteHistory(int id) async {
     await _localDB.transaction((txn) async {
       await txn.rawQuery("Delete FROM history where id = '$id'");
       await txn.rawUpdate("UPDATE history SET id = id-1 where id > '$id'");
@@ -55,19 +56,42 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setSalonsHistory(Salon salon) {
-    if(_salonsHistory.length > 10){
-      _salonsHistory.removeAt(9);
-      _salonsHistory.insert(0, salon);
-    }
-    else{
-      _salonsHistory.insert(0, salon);
+  Future<void> setSalonsHistory(Salon salon) async {
+
+    int count = Sqflite.firstIntValue(await _localDB.rawQuery('SELECT COUNT(*) FROM salons')) ?? 0;
+
+    if(salon.id != ''){
+
+      await _localDB.transaction((txn) async {
+        if(count > 8) {
+          await txn.rawQuery('Delete FROM salons where id IN (Select id from salons limit 1)');
+          await txn.rawUpdate("UPDATE salons SET id = id-1");
+        }
+        await txn.rawInsert(
+          'INSERT INTO salons(salonID, id, nom, wilaya, lien) ''VALUES(?,?,?,?,?)',
+          [count > 8 ? count : count + 1 , salon.id, salon.nom, salon.wilaya, salon.photo],
+        );
+      });
+      await loadLocalData();
     }
     notifyListeners();
   }
 
+  Future<Salon?> getSalon(String id) async {
+    Salon? salon;
+    await FirebaseFirestore.instance.collection("salon").doc(id).get().then((snapshot){
+      if(snapshot.data() != null){
+        salon = Salon.fromJson(snapshot.data()!);
+        salon?.id = id;
+      }
+    }).catchError((e){
+      print(e);
+    });
+    return salon;
+  }
+
   // InitDB
-  initLocalDB() async {
+  Future<void> initLocalDB() async {
     if(prefs?.getString('path') != null) {
       _localDB = await createOrOpenLocalDB(prefs?.getString('db_database')).catchError((e){print(e);});
       await loadLocalData();
@@ -81,13 +105,22 @@ class HistoryProvider extends ChangeNotifier {
 
   // Load from DB
   Future<void> loadLocalData() async {
-    List<Map> history = await _localDB.rawQuery("SELECT * FROM history ORDER BY id");
+    List<Map> history = await _localDB.rawQuery("SELECT * FROM history ORDER BY id DESC");
     if(history.isNotEmpty){
       _searchHistory.clear();
       for(Map hist in history){
         _searchHistory.add(History.fromJson(hist));
       }
     }
+
+    List<Map> salons = await _localDB.rawQuery("SELECT * FROM salons ORDER BY salonID DESC");
+    if(salons.isNotEmpty){
+      _salonsHistory.clear();
+      for(Map salon in salons){
+        _salonsHistory.add(Salon.fromJson(salon as Map<String, dynamic>));
+      }
+    }
+
     notifyListeners();
   }
 
@@ -109,9 +142,9 @@ class HistoryProvider extends ChangeNotifier {
       Database dtb = await openDatabase('$path.db', version: 1,
         onCreate: (Database db, int version) async {
           await db.execute(
-            'CREATE TABLE salons (id varchar(50) PRIMARY KEY, nom varchar(255), wilaya varchar(50), photo TEXT)');
+            'CREATE TABLE salons (salonID varchar(50) PRIMARY KEY, id varchar(50), nom varchar(255), wilaya varchar(50), lien TEXT)');
           await db.execute(
-            'CREATE TABLE history (id INTEGER PRIMARY KEY AUTOINCREMENT, search varchar(255), wilaya varchar(50), category varchar(50), date varchar(50), day varchar(20), hour varchar(20))');
+            'CREATE TABLE history (id INTEGER PRIMARY KEY AUTOINCREMENT, search varchar(255), wilaya varchar(50), category varchar(50), date varchar(50), day varchar(20), hour varchar(20), prix INTEGER)');
         });
       notifyListeners();
       return dtb;

@@ -1,13 +1,10 @@
 // ignore_for_file: file_names
-import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:monsalondz/widgets/PopularOffer.dart';
 import 'package:provider/provider.dart';
-
-import '../models/Salon.dart';
 import '../providers/CategoriesProvider.dart';
 
 class Populars extends StatefulWidget {

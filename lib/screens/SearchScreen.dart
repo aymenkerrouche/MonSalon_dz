@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
-
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
@@ -12,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:monsalondz/models/Category.dart' as cat;
 import 'package:monsalondz/providers/CategoriesProvider.dart';
+import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/screens/salon/SalonScreen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
@@ -29,45 +28,47 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120.0),
-        child: AppBar(
-          backgroundColor: clr4,
-          flexibleSpace: SafeArea(
-            top: true,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const SearchBar(),
-                SizedBox(
-                  width: size.width,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: const [
-                        SizedBox(width: 16,),
-                        FilterCategory(),
-                        FilterWilaya(),
-                        FilterPrix(),
-                        FilterDate(),
-                      ],
+    return GestureDetector(onTap: () {FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);},
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(120.0),
+          child: AppBar(
+            backgroundColor: clr4,
+            flexibleSpace: SafeArea(
+              top: true,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const SearchBar(),
+                  SizedBox(
+                    width: size.width,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: const [
+                          SizedBox(width: 16,),
+                          FilterCategory(),
+                          FilterWilaya(),
+                          FilterPrix(),
+                          FilterDate(),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: Container(
-        color: backgroundColor,
-        padding: const EdgeInsets.symmetric(horizontal: 5),
-        margin: const EdgeInsets.only(bottom: 55),
-        child: const SalonList(),
+        body: Container(
+          color: backgroundColor,
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          margin: const EdgeInsets.only(bottom: 55),
+          child: const SalonList(),
+        ),
       ),
     );
   }
@@ -100,6 +101,23 @@ class SearchBar extends StatelessWidget {
             style: const TextStyle(color: Colors.black, fontSize: 18),
             controller: search.search,
             cursorHeight: 24,
+            textCapitalization: TextCapitalization.sentences,
+            keyboardType: TextInputType.text,
+            autofocus: false,
+            onChanged: (v){ search.refreshSearch();},
+            onSubmitted: (v) async {FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
+            var provider = Provider.of<HistoryProvider>(context,listen: false);
+            var provider2 = Provider.of<CategoriesProvider>(context,listen: false);
+            await provider.setSearchHistory(
+              search.search.text,
+              search.searchWilaya.text,
+              provider2.selectedCat.category ?? '',
+              search.searchDate.text,
+              search.day,
+              search.hour,
+              search.prixFin
+            );
+            },
             cursorRadius: const Radius.circular(20),
             decoration: InputDecoration(
               hintText: "Prestation ...",
@@ -108,7 +126,7 @@ class SearchBar extends StatelessWidget {
               suffixIcon: IconButton(
                   icon: Icon(Icons.close_rounded, color: primary),
                   padding: EdgeInsets.zero,
-                  onPressed: () {search.search.clear();}
+                  onPressed: () {search.clearSearch();}
               ),
               icon: Padding(
                 padding: const EdgeInsets.only(left:10),
@@ -147,6 +165,7 @@ class FilterCategory extends StatelessWidget {
               showCheckmark: false,
               selectedColor: primary,
               onPressed: (){
+                FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
                 String searchEntry = categories.selectedCat.category ?? "";
                 showModalBottomSheet(
                   context: context,
@@ -256,7 +275,7 @@ class FilterCategory extends StatelessWidget {
                       ),
                     );
                   }
-                ).whenComplete((){
+                ).whenComplete(() async {
 
                   final provider = Provider.of<SearchProvider>(context,listen: false);
                   String searchSortie = categories.selectedCat.category ?? "";
@@ -269,6 +288,18 @@ class FilterCategory extends StatelessWidget {
                         serarchedWilaya != null ? serarchedWilaya["name"]:null,
                         provider.prixFin == 0 ? null : provider.prixFin,
                         provider.day == ''? null : provider.day
+                    );
+
+                    var provider2 = Provider.of<HistoryProvider>(context,listen: false);
+
+                    await provider2.setSearchHistory(
+                        provider.search.text,
+                        provider.searchWilaya.text,
+                        categories.selectedCat.category ?? '',
+                        provider.searchDate.text,
+                        provider.day,
+                        provider.hour,
+                        provider.prixFin
                     );
                   }
                 });
@@ -291,128 +322,142 @@ class FilterPrix extends StatelessWidget {
       height: 50,
       margin: const EdgeInsets.only(right: 15),
       child:Consumer<SearchProvider>(
-          builder: (cxt, prix, child){
-            return RawChip(
-              label: Text( prix.prixFin == 0 ? "Prix" : "${prix.prix} - ${prix.prixFin} DA",style: TextStyle(color: prix.prixFin == 0 ? primary : white ),),
-              avatar: Container(
-                margin: const EdgeInsets.only(left: 6),
-                child: prix.prixFin == 0 ?
-                SvgPicture.asset("assets/icons/money.svg", width: 16, color: primary,):
-                Icon(Icons.check_rounded, color: white,),
-              ),
-              backgroundColor: Colors.white,
-              selected: prix.prixFin == 0 ? false: true ,
-              showCheckmark: false,
-              selectedColor: primary,
-              onPressed: (){
-                double searchEntry = prix.prixFin;
-                showModalBottomSheet(
-                  context: context,
-                  useRootNavigator: true,
-                  isScrollControlled: true,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
-                  ),
-                  builder: (context) {
-                    return Container(
-                      width: size.width,
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children:[
-                          Container(
-                            height: 4,
-                            width: 30,
-                            margin: const EdgeInsets.only(top: 5,bottom: 30),
-                            decoration:  BoxDecoration(
-                              color: primaryPro,
-                              borderRadius: const BorderRadius.all(Radius.circular(50)),
-                            ),
+        builder: (cxt, prix, child){
+          return RawChip(
+            label: Text( prix.prixFin == 0 ? "Prix" : " max ${prix.prixFin} DA",style: TextStyle(color: prix.prixFin == 0 ? primary : white ),),
+            avatar: Container(
+              margin: const EdgeInsets.only(left: 6),
+              child: prix.prixFin == 0 ?
+              SvgPicture.asset("assets/icons/money.svg", width: 16, color: primary,):
+              Icon(Icons.check_rounded, color: white,),
+            ),
+            backgroundColor: Colors.white,
+            selected: prix.prixFin == 0 ? false: true ,
+            showCheckmark: false,
+            selectedColor: primary,
+            onPressed: (){
+              FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
+              int searchEntry = prix.prixFin;
+              showModalBottomSheet(
+                context: context,
+                useRootNavigator: true,
+                isScrollControlled: true,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
+                ),
+                builder: (context) {
+                  return Container(
+                    width: size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children:[
+                        Container(
+                          height: 4,
+                          width: 30,
+                          margin: const EdgeInsets.only(top: 5,bottom: 30),
+                          decoration:  BoxDecoration(
+                            color: primaryPro,
+                            borderRadius: const BorderRadius.all(Radius.circular(50)),
                           ),
-                          const Text( "Saisir le prix", maxLines: 2,style: TextStyle(fontSize: 20, color: Colors.black),),
-                          const SizedBox(height: 35,),
-                          SingleChildScrollView(
-                            child: StatefulBuilder(
-                              builder: (BuildContext context, StateSetter setState) =>
-                                SliderTheme(
-                                  data: SliderThemeData(
-                                      valueIndicatorColor: primary,
-                                      rangeValueIndicatorShape:  const PaddleRangeSliderValueIndicatorShape(),
-                                    ),
-                                  child: RangeSlider(
-                                    values: prix.rangeValues,
-                                    min: 0,
-                                    max: 10000,
-                                    divisions: 10,
-                                    activeColor: primary,
-                                    inactiveColor: clr3,
-                                    onChanged: (RangeValues values) {
-                                      setState(() {
-                                        prix.rangeValues = RangeValues(values.start, values.end);
-                                      });
-                                    },
-                                    labels: RangeLabels("${prix.rangeValues.start} DA", "${prix.rangeValues.end} DA"),
+                        ),
+                        const Text( "Saisir le prix maximum", maxLines: 2,style: TextStyle(fontSize: 20, color: Colors.black),),
+                        const SizedBox(height: 35,),
+                        SingleChildScrollView(
+                          child: StatefulBuilder(
+                            builder: (BuildContext context, StateSetter setState) =>
+                              SliderTheme(
+                                data: SliderThemeData(
+                                    valueIndicatorColor: primary,
+                                    rangeValueIndicatorShape:  const PaddleRangeSliderValueIndicatorShape(),
                                   ),
-                                )
-                            ),
+                                child: Slider(
+                                  value: prix.prixFin.toDouble(),
+                                  min: 0,
+                                  max: 10000,
+                                  divisions: 10,
+                                  activeColor: primary,
+                                  inactiveColor: clr3,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      prix.prixFin = value.toInt();
+                                    });
+                                  },
+                                  label: "${prix.prixFin} DA",
+                                ),
+                              )
                           ),
-                          const SizedBox(height: 35,),
-                          ElevatedButton(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primary,
-                              fixedSize: const Size(double.maxFinite, 45),
-                              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Text('Appliquer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
-                                SizedBox(width: 15,),
-                                Icon(CupertinoIcons.search,color: Colors.white)
-                              ],
-                            ),
+                        ),
+                        const SizedBox(height: 35,),
+                        ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primary,
+                            fixedSize: const Size(double.maxFinite, 45),
+                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Text('Appliquer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
+                              SizedBox(width: 15,),
+                              Icon(CupertinoIcons.search,color: Colors.white)
+                            ],
+                          ),
 
+                        ),
+                        const SizedBox(height: 15,),
+                        OutlinedButton(
+                          onPressed: (){
+                            prix.prixFin = 0;
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+                            side: BorderSide(color: Colors.red.shade800, width: 1),
+                            foregroundColor: Colors.red.shade800,
+                            fixedSize: const Size(double.maxFinite, 45),
                           ),
-                          const SizedBox(height: 15,),
-                          OutlinedButton(
-                            onPressed: (){
-                              prix.rangeValues = const RangeValues(0, 0);
-                              Navigator.pop(context);
-                            },
-                            style: OutlinedButton.styleFrom(
-                              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
-                              side: BorderSide(color: Colors.red.shade800, width: 1),
-                              foregroundColor: Colors.red.shade800,
-                              fixedSize: const Size(double.maxFinite, 45),
-                            ),
-                            child: Text("Effacer le prix", style: TextStyle(color: Colors.red.shade800,fontWeight: FontWeight.w600,fontSize: 20),
-                            ),
+                          child: Text("Effacer le prix", style: TextStyle(color: Colors.red.shade800,fontWeight: FontWeight.w600,fontSize: 20),
                           ),
-                          const SizedBox(height:10,),
-                        ],
-                      ),
-                    );
-                  }
-                ).whenComplete((){
-                  double searchSortie = prix.prixFin;
-                  if(searchSortie != searchEntry){
-                    final provider = Provider.of<CategoriesProvider>(context,listen: false);
-                    var serarchedWilaya;
-                    if(prix.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => prix.searchWilaya.text.contains(element["name"]!)).first;
+                        ),
+                        const SizedBox(height:10,),
+                      ],
+                    ),
+                  );
+                }
+              ).whenComplete(() async {
+                int searchSortie = prix.prixFin;
+                if(searchSortie != searchEntry){
+                  final provider = Provider.of<CategoriesProvider>(context,listen: false);
+                  var serarchedWilaya;
+                  if(prix.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => prix.searchWilaya.text.contains(element["name"]!)).first;
 
-                    prix.filterSalons(
-                        provider.selectedCat.id == '' ? null:provider.selectedCat.id,
-                        serarchedWilaya != null ? serarchedWilaya["name"]:null,
-                        prix.prixFin == 0 ? null : prix.prixFin,
-                        prix.day == ''? null:prix.day
-                    );
-                  }
-                });
-              },
-            );
-          }
+                  prix.filterSalons(
+                      provider.selectedCat.id == '' ? null:provider.selectedCat.id,
+                      serarchedWilaya != null ? serarchedWilaya["name"]:null,
+                      prix.prixFin == 0 ? null : prix.prixFin,
+                      prix.day == ''? null:prix.day
+                  );
+
+
+                  var provider2 = Provider.of<HistoryProvider>(context,listen: false);
+
+                  await provider2.setSearchHistory(
+                      prix.search.text,
+                    prix.searchWilaya.text,
+                      provider.selectedCat.category ?? '',
+                      prix.searchDate.text,
+                      prix.day,
+                      prix.hour,
+                      prix.prixFin,
+                  );
+                }
+              });
+            },
+          );
+        }
       ),
     );
   }
@@ -443,6 +488,7 @@ class FilterWilaya extends StatelessWidget {
               showCheckmark: false,
               selectedColor: primary,
               onPressed: (){
+                FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
                 String searchEntry = wilayas.searchWilaya.text;
                 showModalBottomSheet(
                   context: context,
@@ -553,19 +599,33 @@ class FilterWilaya extends StatelessWidget {
                     );
                   }
                 )
-                .whenComplete(() {
+                .whenComplete(() async {
                   String searchSortie = wilayas.searchWilaya.text;
                   if(searchSortie != searchEntry){
-                      final provider = Provider.of<CategoriesProvider>(context,listen: false);
-                      var serarchedWilaya;
-                      if(wilayas.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => wilayas.searchWilaya.text.contains(element["name"]!)).first;
+                    final provider = Provider.of<CategoriesProvider>(context,listen: false);
+                    var serarchedWilaya;
+                    print("=======${wilayas.searchWilaya.text}");
+                    if(wilayas.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => wilayas.searchWilaya.text.contains(element["name"]!)).first;
 
-                      wilayas.filterSalons(
-                          provider.selectedCat.id == '' ? null:provider.selectedCat.id,
-                          serarchedWilaya != null ? serarchedWilaya["name"]:null,
-                          wilayas.prixFin == 0 ? null : wilayas.prixFin,
-                          wilayas.day == ''? null:wilayas.day
-                      );
+                    wilayas.filterSalons(
+                        provider.selectedCat.id == '' ? null:provider.selectedCat.id,
+                        serarchedWilaya != null ? serarchedWilaya["name"]:null,
+                        wilayas.prixFin == 0 ? null : wilayas.prixFin,
+                        wilayas.day == ''? null:wilayas.day
+                    );
+
+
+                    var provider2 = Provider.of<HistoryProvider>(context,listen: false);
+
+                    await provider2.setSearchHistory(
+                        wilayas.search.text,
+                        wilayas.searchWilaya.text,
+                        provider.selectedCat.category ?? '',
+                        wilayas.searchDate.text,
+                        wilayas.day,
+                        wilayas.hour,
+                        wilayas.prixFin,
+                    );
                   }
                 });
               },
@@ -600,8 +660,11 @@ class FilterDate extends StatelessWidget {
             showCheckmark: false,
             selectedColor: primary,
             onPressed: () async {
+              var provider2 = Provider.of<HistoryProvider>(context,listen: false);
+              FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
               String searchEntry = date.day;
               final provider = Provider.of<CategoriesProvider>(context,listen: false);
+
               DateTime? pickedDate = await showDatePicker(
                 context: context,
                 locale: const Locale("fr", "FR"),
@@ -624,6 +687,8 @@ class FilterDate extends StatelessWidget {
                   );
                 },
               );
+              var serarchedWilaya;
+              if(date.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => date.searchWilaya.text.contains(element["name"]!)).first;
               if (pickedDate != null) {
 
                 date.setDate(DateFormat('yyyy-MM-dd').format(pickedDate));
@@ -632,8 +697,7 @@ class FilterDate extends StatelessWidget {
 
                 if(searchSortie != searchEntry){
 
-                  var serarchedWilaya;
-                  if(date.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => date.searchWilaya.text.contains(element["name"]!)).first;
+
 
                   date.filterSalons(
                       provider.selectedCat.id == '' ? null:provider.selectedCat.id,
@@ -656,6 +720,17 @@ class FilterDate extends StatelessWidget {
                     null
                 );
               }
+
+
+              await provider2.setSearchHistory(
+                  date.search.text,
+                date.searchWilaya.text,
+                  provider.selectedCat.category ?? '',
+                  date.searchDate.text,
+                  date.day,
+                  date.hour,
+                  date.prixFin,
+              );
             },
           );
         }
@@ -668,7 +743,6 @@ class FilterDate extends StatelessWidget {
 class SalonWidget extends StatelessWidget {
   const SalonWidget({Key? key,required this.salon}) : super(key: key);
   final Salon salon;
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -691,10 +765,13 @@ class SalonWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         clipBehavior: Clip.antiAliasWithSaveLayer,
         child: InkWell(
-          splashColor: clr4.withOpacity(.1),
+          splashColor: primary.withOpacity(.2),
           highlightColor: Colors.transparent,
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           onTap: () async {
+            FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
+
+            Provider.of<HistoryProvider>(context,listen: false).setSalonsHistory(salon);
 
             Provider.of<SalonProvider>(context,listen: false).search = true;
             Provider.of<SalonProvider>(context,listen: false).clearSalon();
@@ -703,7 +780,7 @@ class SalonWidget extends StatelessWidget {
               PersistentNavBarNavigator.pushNewScreen(context,
                 screen: SalonScreen(salon: salon,),
                 withNavBar: false,
-                pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                pageTransitionAnimation: PageTransitionAnimation.slideUp,
               );
             });
           },
@@ -736,44 +813,36 @@ class SalonWidget extends StatelessWidget {
               Expanded(
                 child: Container(
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    //color: Colors.white,
                     borderRadius:  BorderRadius.only(topRight: Radius.circular(12),bottomRight: Radius.circular(12)),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                  height: 150,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children:  [
 
                       // TITRE
-                      Text("${salon.nom}", style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 20),maxLines: 2,overflow: TextOverflow.ellipsis,),
+                      Text("${salon.nom}", style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 22),maxLines: 2,overflow: TextOverflow.ellipsis,),
 
                       // LOCATION
-                      Row(
-                        children: [
-                          SvgPicture.asset("assets/icons/location.svg", width: 16, color: primary,),
-                          const SizedBox(width: 3,),
-                          Text("${salon.wilaya}", style: const TextStyle(fontSize: 16),maxLines: 1,overflow: TextOverflow.ellipsis,),
-                        ],
+                      Flexible(
+                        child: Row( 
+                          children: [
+                            SvgPicture.asset("assets/icons/location.svg", width: 16, color: primary,),
+                            const SizedBox(width: 3,),
+                            Flexible(
+                              child: Text("${salon.wilaya}, ${salon.commune}", style: const TextStyle(fontSize: 16),maxLines: 2 ,overflow: TextOverflow.ellipsis,),
+                            ),
+                          ],
+                        ),
                       ),
 
                       // RATE
-                      RatingBar(
-                        initialRating: salon.rate ?? 5 ,
-                        direction: Axis.horizontal,
-                        allowHalfRating: true,
-                        itemCount: 5,
-                        itemSize: 20,
-                        ignoreGestures: true,
-                        ratingWidget: RatingWidget(
-                          full: Icon(Icons.star_rate_rounded,color: clr3,),
-                          half: Icon(Icons.star_half_rounded,color: clr3,),
-                          empty: Icon(Icons.star_border_rounded,color: clr3,),
-                        ),
-                        onRatingUpdate: (rating) {},
-                      ),
+                      Rate(rate: salon.rate ?? 5,withText: false,),
 
-                      const Text("Salon de Coiffure",style: TextStyle(fontSize: 16),maxLines: 1,overflow: TextOverflow.ellipsis,),
+                      if(salon.prix != 0 && salon.prix != null)Text("A partir de ${salon.prix} DA",style: const TextStyle(fontSize: 16),maxLines: 1,overflow: TextOverflow.ellipsis,),
 
                     ],
                   ),
@@ -800,7 +869,6 @@ class _SalonListState extends State<SalonList> {
   bool showMore = false;
   ScrollController _scrollController = ScrollController();
 
-
   @override
   void initState() {
     super.initState();
@@ -822,14 +890,7 @@ class _SalonListState extends State<SalonList> {
             fetchSalons();
           }
           catch (e) {
-            GFToast.showToast(
-              e.toString(),
-              context,
-              toastDuration: 3,
-              backgroundColor: red,
-              textStyle: TextStyle(color: white),
-              toastPosition: GFToastPosition.BOTTOM,
-            );
+            GFToast.showToast(e.toString(), context, toastDuration: 3, backgroundColor: red, textStyle: TextStyle(color: white), toastPosition: GFToastPosition.BOTTOM,);
           }
         }
         }
@@ -845,6 +906,7 @@ class _SalonListState extends State<SalonList> {
   Future<void> fetchSalons() async {
     await Provider.of<SearchProvider>(context,listen: false).fetchSalons();
   }
+  List<Salon> salonsTemps = [];
 
   @override
   Widget build(BuildContext context) {
@@ -859,8 +921,20 @@ class _SalonListState extends State<SalonList> {
 
           else if(salons.listSalon.isEmpty ){
               return Center(child: Lottie.asset("assets/animation/empty.json"),);
+          }
 
-
+          if(salons.search.text.isNotEmpty){
+            salonsTemps = salons.listSalon.where((element) =>
+              element.nom!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
+              element.wilaya!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
+              element.commune!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
+              element.description!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
+              element.categories.contains(salons.search.text.toUpperCase()) ||
+              element.service.map((e) => e.service).contains(salons.search.text.toUpperCase())
+            ).toList();
+          }
+          else{
+            salonsTemps = salons.listSalon;
           }
 
           return Column(
@@ -870,6 +944,9 @@ class _SalonListState extends State<SalonList> {
                   color: Colors.white,
                   backgroundColor: primary,
                   onRefresh: () async {
+                    KeyboardUtil.hideKeyboard(context);
+                    if(salons.listSalon.isNotEmpty)Provider.of<SearchProvider>(context,listen: false).clearAll();
+                    if(Provider.of<CategoriesProvider>(context,listen: false).selectedCat.id != '')Provider.of<CategoriesProvider>(context,listen: false).selectedCat = cat.Category("", "", "");
                     salons.listSalon.clear();
                     salons.lastDocument = null;
                     salons.fetchSalons();
@@ -880,17 +957,17 @@ class _SalonListState extends State<SalonList> {
                     trackVisibility: true,
                     controller: ScrollController(),
                     radius: const Radius.circular(25),
-                    child: ListView.builder(
+                    child: ListView(
                       controller: _scrollController,
-                      itemCount: salons.listSalon.length,
-                      itemBuilder: (context, index) {
-                        if(salons.listSalon.length > index){
-                          return SalonWidget(salon: salons.listSalon.elementAt(index));
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: List.generate(salonsTemps.length, (index){
+                        if(salonsTemps.length > index){
+                          return SalonWidget(salon: salonsTemps.elementAt(index));
                         }
                         else {
                           return const SizedBox();
                         }
-                      },
+                      }),
                     ),
                   ),
                 ),
@@ -909,20 +986,19 @@ class _SalonListState extends State<SalonList> {
                   borderRadius: const BorderRadius.all(Radius.circular(6))
                 ),
                 child: Row(
-
-                    children: const [
-                      SizedBox(width: 25,),
-                      Text(
-                        'Loading',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold,),
-                      ),
-                      Spacer(),
-                      SizedBox(height: 15,width: 15,child: CircularProgressIndicator(color: Colors.black,strokeWidth: 2,)),
-                      SizedBox(width: 25,),
-                    ],
-                  ),
+                  children: const [
+                    SizedBox(width: 25,),
+                    Text(
+                      'Loading',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold,),
+                    ),
+                    Spacer(),
+                    SizedBox(height: 15,width: 15,child: CircularProgressIndicator(color: Colors.black,strokeWidth: 2,)),
+                    SizedBox(width: 25,),
+                  ],
                 ),
+              ),
             ]
           );
         }

@@ -4,9 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
+import 'package:monsalondz/providers/FavoriteProvider.dart';
 import 'package:monsalondz/screens/SearchScreen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:monsalondz/screens/favorites.dart';
+import 'package:monsalondz/screens/Favorites.dart';
 import 'package:monsalondz/screens/profile/profile.dart';
 import 'package:monsalondz/screens/profile/auth/auth.dart';
 import 'package:monsalondz/theme/colors.dart';
@@ -17,6 +18,7 @@ import 'providers/HistouriqueLocal.dart';
 import 'screens/home.dart';
 
 TextStyle optionStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: primary);
+PersistentTabController controller = PersistentTabController(initialIndex: 0);
 
 class Root extends StatefulWidget {
   const Root({Key? key}) : super(key: key);
@@ -105,7 +107,7 @@ class _RootState extends State<Root> {
                     const SizedBox(height: 150,),
                     SizedBox(
                       height: 300,
-                      child: Lottie.asset("assets/animation/404.json"),
+                      child: Lottie.asset("assets/animation/404.json",reverse: true),
                     ),
                     const SizedBox(height: 50,),
                     const Text("veuillez vérifier votre connexion",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 22),),
@@ -143,23 +145,59 @@ class _RootState extends State<Root> {
         ),
       ),
       const SearchScreen(),
-      const FavoriteScreen(),
+      StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if(!snapshot.hasData) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 150,),
+                  SizedBox(
+                    height: 300,
+                    child: Lottie.asset("assets/animation/auth.json",reverse: true),
+                  ),
+                  const SizedBox(height: 50,),
+                  const Text("Connecter-vous à votre compte pour voir vos salons préférés",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w600,fontSize: 22),),
+                  const SizedBox(height: 20,),
+                  CupertinoButton(
+                    onPressed: (){
+                      controller.jumpToTab(3);
+                    },
+                    color: primary,
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    child: Text("Se connecter".toUpperCase(),style: const TextStyle(fontWeight: FontWeight.w700,fontSize: 20,letterSpacing: .8,color: Colors.white,fontFamily: 'Rubik',),),
+                  ),
+                ],
+              ),
+            );
+          }
+          if(snapshot.hasData) {
+            if(snapshot.data!.uid.isNotEmpty) {
+              return const FavoriteScreen();
+            }
+          }
+          if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
+          return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));
+        }
+      ),
       GestureDetector(onTap: () {FocusScope.of(context).unfocus();},
         child: StreamBuilder<User?>(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              if(!snapshot.hasData) {
-                return const SignUp();
-              }
-              if(snapshot.hasData) {
-                //sleep(const Duration(seconds:1));
-                if(snapshot.data!.uid.isNotEmpty) {
-                  return const Profile();
-                }
-              }
-              if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
-              return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if(!snapshot.hasData) {
+              return const SignUp();
             }
+            if(snapshot.hasData) {
+              if(snapshot.data!.uid.isNotEmpty) {
+                return const Profile();
+              }
+            }
+            if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
+            return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));
+          }
         ),
       )
     ];
@@ -225,7 +263,6 @@ class _RootState extends State<Root> {
     ];
   }
 
-  PersistentTabController controller = PersistentTabController(initialIndex: 0);
 }
 
 

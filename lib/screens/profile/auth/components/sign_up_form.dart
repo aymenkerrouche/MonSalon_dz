@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -103,6 +104,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     //mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
 
                       // AUTH
@@ -228,53 +230,61 @@ class _SignUpFormState extends State<SignUpForm> {
                      if(auth)SizedBox(height: login ? size.height * 0.04 : size.height * 0.02 ),
 
                       // SUBMIT
-                      if(auth)ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          backgroundColor: primary,
-                          fixedSize: Size(size.width, 55),
-                          elevation: 6
+                      if(auth) Container(
+                        decoration: const BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                offset: Offset(0, 3),
+                                blurRadius: 10,
+                                spreadRadius: 4
+                              )
+                            ]
                         ),
-                        onPressed: () async {
-                          KeyboardUtil.hideKeyboard(context);
-                          if (errors.isEmpty) {
-                            setState(() {isLoading = true;});
+                        child: CupertinoButton(
+                          onPressed: () async {
+                            KeyboardUtil.hideKeyboard(context);
+                            if (errors.isEmpty) {
+                              setState(() {isLoading = true;});
 
-                            // Sign Up
-                            if (login) {
-                              if(phoneController.text.startsWith("0")){
-                                phoneController.text = "+213 ${phoneController.text.substring(1,phoneController.text.length)}";
+                              // Sign Up
+                              if (login) {
+                                if(phoneController.text.startsWith("0")){
+                                  phoneController.text = "+213 ${phoneController.text.substring(1,phoneController.text.length)}";
+                                }
+                                if(phoneController.text.startsWith("5") || phoneController.text.startsWith("6") ||phoneController.text.startsWith("7")){
+                                  phoneController.text = "+213 ${phoneController.text}";
+                                }
+                                if(phoneController.text.startsWith("213")){
+                                  phoneController.text = "+${phoneController.text.substring(1,phoneController.text.length)}";
+                                }
+                                await signUp();
                               }
-                              if(phoneController.text.startsWith("5") || phoneController.text.startsWith("6") ||phoneController.text.startsWith("7")){
-                                phoneController.text = "+213 ${phoneController.text}";
+
+                              // Sign In
+                              else {
+                                await signIn();
                               }
-                              if(phoneController.text.startsWith("213")){
-                                phoneController.text = "+${phoneController.text.substring(1,phoneController.text.length)}";
-                              }
-                              await signUp();
+
                             }
-
-                            // Sign In
-                            else {
-                              await signIn();
+                            else{
+                              GFToast.showToast(
+                                errors.toString(),
+                                context,
+                                toastDuration: 3,
+                                backgroundColor: red,
+                                textStyle: TextStyle(color: white),
+                                toastPosition: GFToastPosition.BOTTOM,
+                              );
                             }
-
-                          }
-                          else{
-                            GFToast.showToast(
-                              errors.toString(),
-                              context,
-                              toastDuration: 3,
-                              backgroundColor: red,
-                              textStyle: TextStyle(color: white),
-                              toastPosition: GFToastPosition.BOTTOM,
-                            );
-                          }
-                        },
-                        child: isLoading ?
-                        SizedBox(width: 40,height: 40,child: Center(child: CircularProgressIndicator(color: white,),),):
-                        Text( login ? "Continue" : "Se connecter",
-                          style: TextStyle(fontSize: 24, color: white,fontWeight: FontWeight.w700),
+                          },
+                          color: primary,
+                          borderRadius: const BorderRadius.all(Radius.circular(16)),
+                          child: isLoading ?
+                          SizedBox(width: 25,height: 25,child: Center(child: CircularProgressIndicator(color: white,strokeWidth: 3,),),):
+                          Text( login ? "Continue".toUpperCase() : "Se connecter".toUpperCase(),
+                            style: const TextStyle(fontSize: 20, letterSpacing: .8,color: Colors.white,fontFamily: 'Rubik',fontWeight: FontWeight.w700),
+                          ),
                         ),
                       ),
 
@@ -620,7 +630,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                               setState(() {sms = false;});
                                                 EasyLoading.showSuccess('Bienvenue');
                                                 try{
-                                                  await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).set({"phone": tlpn});
+                                                  await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).update({"phone": tlpn});
                                                 }
                                                 catch(e){
                                                   print(e.toString());
@@ -632,7 +642,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                             });
                                           }
                                         },
-                                        child: Text( "Envoyer le code",
+                                        child: Text( "Entrez le code",
                                           style: TextStyle(fontSize: 20, color: white,fontWeight: FontWeight.w700),
                                         ),
                                       ),
@@ -706,10 +716,9 @@ class _SignUpFormState extends State<SignUpForm> {
         password: passwordController.text,
       )
       .then((currentUser) async {
-        await FirebaseFirestore.instance.collection("users").doc(
-            currentUser.user?.uid).set(
-            {"phone": phoneController.text, "email": emailController.text});
-            provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
+        await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid)
+            .set({"phone": phoneController.text, "email": emailController.text});
+        provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
       });
       return true;
     }

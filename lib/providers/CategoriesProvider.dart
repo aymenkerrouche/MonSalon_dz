@@ -115,7 +115,7 @@ class CategoriesProvider extends ChangeNotifier {
 
     _populars.clear();
 
-    await FirebaseFirestore.instance.collection('salon').where('best', isEqualTo: true).limit(10).get().then((snapshot) async {
+    await FirebaseFirestore.instance.collection('salon').where('best', isEqualTo: true).limit(8).get().then((snapshot) async {
       for (var element in snapshot.docs) {
         Salon data = Salon.fromJson(element.data());
         data.id = element.id;

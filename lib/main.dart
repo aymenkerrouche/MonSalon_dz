@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
+import 'package:monsalondz/providers/FavoriteProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/providers/SalonProvider.dart';
 import 'package:monsalondz/providers/SearchPrivider.dart';
@@ -31,6 +32,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => CategoriesProvider()),
         ChangeNotifierProvider(create: (context) => HistoryProvider()),
         ChangeNotifierProvider(create: (context) => SalonProvider()),
+        ChangeNotifierProvider(create: (context) => FavoriteProvider()),
       ],
       child: const MyApp(),
     ),

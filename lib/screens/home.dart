@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
             sliver:  SliverSafeArea(
               top: false,
               sliver: SliverAppBar(
-                expandedHeight: 170,
+                expandedHeight: 200,
                 pinned: true,
                 floating: false,
                 forceElevated: false,
@@ -144,21 +144,7 @@ class HomeBody extends StatelessWidget {
             const SizedBox(height: 25,),
 
             //Recent
-            /*Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  margin: const EdgeInsets.only(left: 12,bottom: 10),
-                  child: const Text(
-                    "Salons récents",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
-              ),*/
-            //const RecentItem(),
+            const RecentItem(),
             const SizedBox(height: 25,),
 
             //Search History
