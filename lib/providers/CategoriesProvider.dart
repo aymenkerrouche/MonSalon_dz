@@ -103,15 +103,9 @@ class CategoriesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
-
-
-
-
-
-
   Future getPopularSalons() async {
+
+    print("===== dkhol ===== *****");
 
     _populars.clear();
 

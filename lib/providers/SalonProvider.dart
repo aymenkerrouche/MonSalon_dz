@@ -2,11 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/components/toast/gf_toast.dart';
-import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:monsalondz/models/Salon.dart';
 import 'package:monsalondz/models/Service.dart';
-import 'package:monsalondz/theme/colors.dart';
 import '../models/Comment.dart';
 import '../models/Hours.dart';
 import '../models/Team.dart';
@@ -27,7 +24,7 @@ class SalonProvider extends ChangeNotifier {
           images.add(image);
           //notifyListeners();
         }
-        catch(ee){print("===================== $ee ==========================");}
+        catch(ee){print("====== $ee =======");}
       }
     }
     catch(e){print(e);}
@@ -36,7 +33,6 @@ class SalonProvider extends ChangeNotifier {
 
   Future<void> setSalon(Salon newSalon) async {
     search = true;
-    salon = null;
     salon = newSalon ;
     await getSalonImages(salon!.id!);
     await getHours();
@@ -49,7 +45,6 @@ class SalonProvider extends ChangeNotifier {
   }
 
   clearSalon(){
-    salon?.service.clear();
     salon?.categories.clear();
     salon?.teams.clear();
     salon?.comments.clear();
@@ -60,12 +55,13 @@ class SalonProvider extends ChangeNotifier {
   }
 
   Future<void> getHours() async {
+    //salon?.hours?.jours.clear();
     try{
       await FirebaseFirestore.instance.collection("hours").where("salonID", isEqualTo: salon?.id ).limit(1).get()
       .then((snapshot) async {
         if(snapshot.docs.isNotEmpty){
-          Hours data = Hours.fromJson(snapshot.docs.first.data());
-          salon?.hours = data;
+          Hours hour = Hours.fromJson(snapshot.docs.first.data());
+          salon?.hours = hour;
         }
       });
     }
@@ -77,7 +73,6 @@ class SalonProvider extends ChangeNotifier {
     salon!.service.clear();
     try{
       await FirebaseFirestore.instance.collection("services")
-      //.where("categoryID", whereIn: salon!.categories)
           .where("salonID", isEqualTo: salon?.id)
           .get()
       .then((snapshot) async {

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import '../models/Salon.dart';
+import '../providers/HistouriqueLocal.dart';
 import '../providers/SalonProvider.dart';
 import '../screens/salon/SalonScreen.dart';
 import '../theme/colors.dart';
@@ -51,9 +52,13 @@ class PopularOffer extends StatelessWidget {
                 highlightColor: Colors.transparent,
                 borderRadius: const BorderRadius.all(Radius.circular(12)),
                 onTap: () async {
+                  final provider =  Provider.of<SalonProvider>(context,listen: false);
 
-                  Provider.of<SalonProvider>(context,listen: false).search = true;
-                  Provider.of<SalonProvider>(context,listen: false).clearSalon();
+                  provider.search = true;
+
+                  Provider.of<HistoryProvider>(context,listen: false).setSalonsHistory(salon);
+
+                  print(salon.service.map((e) => e.service).toList());
 
                   Timer(const Duration(milliseconds: 200),(){
                     PersistentNavBarNavigator.pushNewScreen(context,
@@ -63,6 +68,7 @@ class PopularOffer extends StatelessWidget {
                     );
                   });
                 },
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -127,8 +133,8 @@ class PopularOffer extends StatelessWidget {
                                     physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                      children: List.generate(salon.service.length > 4 ? 4 : salon.service.length, (index) => Container(margin: const EdgeInsets.only(right: 5),
-                                          child: SmallInfos(info: "${salon.service[index].service}", color: primary.withOpacity(.03),textColor: primaryPro,)),),
+                                      children: List.generate(salon.service.length, (index) => Container(margin: const EdgeInsets.only(right: 5),
+                                        child: SmallInfos(info: "${salon.service[index].service}", color: primary.withOpacity(.03),textColor: primaryPro,)),),
                                     ),
                                   ),
                                 ),

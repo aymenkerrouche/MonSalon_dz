@@ -7,30 +7,12 @@ import 'package:monsalondz/widgets/PopularOffer.dart';
 import 'package:provider/provider.dart';
 import '../providers/CategoriesProvider.dart';
 
-class Populars extends StatefulWidget {
+
+class Populars extends StatelessWidget {
   const Populars({Key? key}) : super(key: key);
 
   @override
-  State<Populars> createState() => _PopularsState();
-}
-
-class _PopularsState extends State<Populars> {
-
-  @override
-  void didChangeDependencies() {
-    precacheImage(const AssetImage('assets/images/vide.jpg'), context);
-    super.didChangeDependencies();
-  }
-
-  @override
-  void initState() {
-    Provider.of<CategoriesProvider>(context,listen: false).getPopularSalons();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-
     return Consumer<CategoriesProvider>(
         builder: (context, populars, child){
           if(populars.populars.isEmpty){
@@ -65,4 +47,5 @@ class _PopularsState extends State<Populars> {
     );
   }
 }
+
 

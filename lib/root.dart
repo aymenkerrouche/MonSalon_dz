@@ -34,13 +34,23 @@ class _RootState extends State<Root> {
     super.initState();
     checkCnx();
     getCategories();
+    getHistory();
+    getPopulars();
+    final prvdr =  Provider.of<CategoriesProvider>(context,listen: false);
     Timer.periodic(const Duration(seconds: 30), (timer) {
-      final prvdr = Provider.of<CategoriesProvider>(context,listen: false);
       if(prvdr.categories.isNotEmpty && prvdr.done == true){
         timer.cancel();
       }
       else{
         getCategories();
+      }
+    });
+    Timer.periodic(const Duration(seconds: 30), (timer) {
+      if(prvdr.populars.isNotEmpty){
+        timer.cancel();
+      }
+      else{
+        getPopulars();
       }
     });
   }
@@ -54,12 +64,15 @@ class _RootState extends State<Root> {
     await prv.getPubs();
     await prv.getCategories().then((value) async {
       await prv.getCategoriesPhotos();
-      getHistory();
     });
   }
 
   getHistory() async {
     await Provider.of<HistoryProvider>(context,listen: false).initLocalDB();
+  }
+
+  getPopulars() async {
+    await Provider.of<CategoriesProvider>(context,listen: false).getPopularSalons();
   }
 
   bool testCnx = false;

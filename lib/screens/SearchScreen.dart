@@ -48,12 +48,30 @@ class SearchScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
-                        children: const [
-                          SizedBox(width: 16,),
-                          FilterCategory(),
-                          FilterWilaya(),
-                          FilterPrix(),
-                          FilterDate(),
+                        children: [
+                          const SizedBox(width: 16,),
+                          const FilterCategory(),
+                          const FilterWilaya(),
+                          const FilterPrix(),
+                          const FilterDate(),
+                          InkWell(
+                            splashColor: clr3,
+                            borderRadius: const BorderRadius.all(Radius.circular(50)),
+                            onTap:() async {
+
+                              final search = Provider.of<SearchProvider>(context,listen: false);
+                              final category = Provider.of<CategoriesProvider>(context,listen: false);
+
+                              if(search.searchWilaya.text.isNotEmpty || search.day != '' || category.selectedCat.id != '' || search.prixFin != 0){
+                                search.clearAll();
+                                search.listSalon.clear();
+                                category.selectedCat = cat.Category("","","");
+                                await search.fetchSalons();
+                              }
+                            },
+                            child: const Icon(Icons.close_rounded),
+                          ),
+                          const SizedBox(width: 15,)
                         ],
                       ),
                     ),
@@ -130,7 +148,7 @@ class SearchBar extends StatelessWidget {
               ),
               icon: Padding(
                 padding: const EdgeInsets.only(left:10),
-                child: Icon(Icons.search, color: primaryPro,),
+                child: Icon(Icons.search, color: primary,),
               ),
             ),
           );

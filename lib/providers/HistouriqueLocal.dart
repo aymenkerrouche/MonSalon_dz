@@ -60,8 +60,7 @@ class HistoryProvider extends ChangeNotifier {
 
     int count = Sqflite.firstIntValue(await _localDB.rawQuery('SELECT COUNT(*) FROM salons')) ?? 0;
 
-    if(salon.id != ''){
-
+    if(salon.id != '' && salonsHistory.where((element) => element.id == salon.id).isEmpty){
       await _localDB.transaction((txn) async {
         if(count > 8) {
           await txn.rawQuery('Delete FROM salons where id IN (Select id from salons limit 1)');
@@ -77,18 +76,6 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Salon?> getSalon(String id) async {
-    Salon? salon;
-    await FirebaseFirestore.instance.collection("salon").doc(id).get().then((snapshot){
-      if(snapshot.data() != null){
-        salon = Salon.fromJson(snapshot.data()!);
-        salon?.id = id;
-      }
-    }).catchError((e){
-      print(e);
-    });
-    return salon;
-  }
 
   // InitDB
   Future<void> initLocalDB() async {

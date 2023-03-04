@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Rubik',
         splashFactory: InkRipple.splashFactory,
-        splashColor: primary,
+        splashColor: primaryLite,
         iconTheme: IconThemeData(color: primary),
         useMaterial3: true,
         scrollbarTheme: const ScrollbarThemeData().copyWith(

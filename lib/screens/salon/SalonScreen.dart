@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,11 +13,14 @@ import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:maps_launcher/maps_launcher.dart';
+import 'package:monsalondz/screens/RendezVous.dart';
 import 'package:monsalondz/widgets/BlankImageWidget.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/Salon.dart';
+import '../../models/Team.dart';
 import '../../providers/SalonProvider.dart';
 import '../../theme/colors.dart';
 import '../../utils/constants.dart';
@@ -41,6 +46,7 @@ class _SalonScreenState extends State<SalonScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+     extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       body: SizedBox(
         child: Stack(
@@ -156,6 +162,7 @@ class _SalonScreenState extends State<SalonScreen> {
                 ),
               ),
             ),
+            
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -266,44 +273,11 @@ class DetailScreen extends StatelessWidget {
 
 
                       //HEURES  DE TRAVAIL
-                      const WorkHours(),
+                     const WorkHours(),
 
-                      Row(
-                        children: [
-                          Icon(CupertinoIcons.group,color: primaryLite,),
-                          const SizedBox(width: 10,),
-                          Text("Nos Experts", style: TextStyle(
-                            fontSize: size.width * 0.06,
-                            fontWeight: FontWeight.w700,
-                          ),),
-                        ],
-                      ),
-                      Container(
-                        height: 50,
-                        width: size.width,
-                        margin: const EdgeInsets.only(top: 10),
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: List.generate(salon.teams.length, (index) =>
-                            Container(
-                              margin: const EdgeInsets.only(right: 20),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 35,
-                                    child: CircleAvatar(
-                                      backgroundColor: clr4,
-                                      child: Text("${salon.teams[index].name?.substring(0,1)}".toUpperCase(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 20),),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10,),
-                                  Text("${salon.teams[index].name}"),
-                                ],
-                              ),
-                            )
-                          ),
-                        ),
-                      ),
+                      const SizedBox(height: 20,),
+
+                      if(salon.team)Experts(teams: salon.teams,),
 
                       // DIVIDER
                       Container(
@@ -335,12 +309,32 @@ class DetailScreen extends StatelessWidget {
 
                       // BOOK
                       ElevatedButton(
-                        onPressed:(){},
+                        onPressed:(){
+                          if(FirebaseAuth.instance.currentUser != null){
+                            if(salon.team){
+                              Team anyOne = Team("N'importe qui", salon.id, "");
+                              if(salon.teams.where((element) => element.userID == "").isEmpty)salon.teams.insert(0,anyOne);
+                            }
+                            Timer(const Duration(milliseconds: 100), () {
+                              PersistentNavBarNavigator.pushNewScreen(context,
+                                screen: RendezVous(salon: salon),
+                                withNavBar: false,
+                                pageTransitionAnimation: PageTransitionAnimation.slideUp,
+                              );
+                              //Navigator.push(context, MaterialPageRoute(builder: (context) => RendezVous(salon: salon,)),);
+                            });
+                          }
+                          else{
+                            GFToast.showToast("Connecter-vous à votre compte pour prende un rendez-vous", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
+                          }
+
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryLite,
-                          fixedSize: const Size(double.maxFinite, 55),
+                          fixedSize: const Size(double.maxFinite, 56),
                           elevation: 6,
-                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)))),
+                          splashFactory: InkRipple.splashFactory,
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -350,7 +344,6 @@ class DetailScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-
 
                       const SizedBox(height: kToolbarHeight,)
                     ],
@@ -365,6 +358,57 @@ class DetailScreen extends StatelessWidget {
     );
   }
 }
+
+class Experts extends StatelessWidget {
+  const Experts({Key? key,required this.teams}) : super(key: key);
+  final List<Team> teams;
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Column(
+      children: [
+        Row(
+          children: [
+            Icon(CupertinoIcons.group,color: primaryLite,),
+            const SizedBox(width: 10,),
+            Text("Nos Experts", style: TextStyle(
+              fontSize: size.width * 0.06,
+              fontWeight: FontWeight.w700,
+            ),),
+          ],
+        ),
+        Container(
+          height: 50,
+          width: size.width,
+          margin: const EdgeInsets.only(top: 20),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: List.generate(teams.length, (index) =>
+                Container(
+                  margin: const EdgeInsets.only(right: 20),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 35,
+                        child: CircleAvatar(
+                          backgroundColor: clr4,
+                          child: Text("${teams[index].name?.substring(0,1)}".toUpperCase(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 20),),
+                        ),
+                      ),
+                      const SizedBox(width: 10,),
+                      Text("${teams[index].name}"),
+                    ],
+                  ),
+                )
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 
 class Rate extends StatelessWidget {
   const Rate({Key? key, required this.rate,this.withText = true}) : super(key: key);
@@ -569,158 +613,25 @@ class HeuresDeTravail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<SalonProvider>(builder: (context, salon, child) {
-      if (salon.salon?.hours?.id != '') {
+      if (salon.salon?.hours != null) {
         return Column(
-            children: [
-              SizedBox(
-                height: 40,
-                child: ListTile(
-                  title: Text(
-                    today == 'Dimanche' ? "Dimanche (aujourd'hui)" : "Dimanche",
-                    overflow: TextOverflow.ellipsis, maxLines: 2,
-                    style: TextStyle(
-                        color: today == 'Dimanche' ? primaryLite : Colors
-                            .black),
-                  ),
-                  trailing: Text(
-                    salon.salon?.hours?.dimanche?["active"] == true ?
-                    "${salon.salon?.hours?.dimanche?["start"]} - ${salon.salon
-                        ?.hours?.dimanche?["fin"]}" : 'Fermé',
-                    style: TextStyle(
-                        color: salon.salon?.hours?.dimanche?["active"] == true
-                            ? Colors.black
-                            : Colors.red),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 16.0),
-                ),
+          children: salon.salon!.hours!.jours.keys.map((e) => SizedBox(
+            height: 40,
+            child: ListTile(
+              title: Text(
+                today == e.toTitleCase() ? "${e.toTitleCase()} (aujourd'hui)" : e.toTitleCase(),
+                overflow: TextOverflow.ellipsis, maxLines: 2,
+                style: TextStyle(color: today == e.toTitleCase() ? primaryLite : Colors.black),
               ),
-              SizedBox(
-                height: 40,
-                child: ListTile(
-                  title: Text(
-                    today == 'Lundi' ? "Lundi (aujourd'hui)" : 'Lundi',
-                    style: TextStyle(
-                        color: today == 'Lundi' ? primaryLite : Colors.black),
-                    overflow: TextOverflow.ellipsis, maxLines: 2,),
-                  trailing: Text(salon.salon?.hours?.lundi?["active"] == true ?
-                  "${salon.salon?.hours?.lundi?["start"]} - ${salon.salon?.hours
-                      ?.lundi?["fin"]}" : 'Fermé',
-                    style: TextStyle(
-                        color: salon.salon?.hours?.lundi?["active"] == true
-                            ? Colors.black
-                            : Colors.red),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 16.0),
-                ),
+              trailing: Text(
+                salon.salon!.hours!.jours[e]["active"] == true ?
+                "${salon.salon!.hours!.jours[e]["start"]} - ${salon.salon!.hours!.jours[e]["fin"]}" : 'Fermé',
+                style: TextStyle(color: salon.salon!.hours!.jours[e]["active"] == true ? Colors.black : Colors.red),
               ),
-              SizedBox(
-                height: 40,
-                child: ListTile(
-                  title: Text(
-                    today == 'Mardi' ? "Mardi (aujourd'hui)" : 'Mardi',
-                    style: TextStyle(
-                        color: today == 'Mardi' ? primaryLite : Colors.black),
-                    overflow: TextOverflow.ellipsis, maxLines: 2,),
-                  trailing: Text(salon.salon?.hours?.mardi?["active"] == true ?
-                  "${salon.salon?.hours?.mardi?["start"]} - ${salon.salon?.hours
-                      ?.mardi?["fin"]}" : 'Fermé',
-                    style: TextStyle(
-                        color: salon.salon?.hours?.mardi?["active"] == true
-                            ? Colors.black
-                            : Colors.red),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 16.0),
-                ),
-              ),
-              SizedBox(
-                height: 40,
-                child: ListTile(
-                  title: Text(
-                    today == 'Mercredi' ? "Mercredi (aujourd'hui)" : 'Mercredi',
-                    style: TextStyle(
-                        color: today == 'Mercredi' ? primaryLite : Colors
-                            .black),
-                    overflow: TextOverflow.ellipsis, maxLines: 2,),
-                  trailing: Text(
-                    salon.salon?.hours?.mercredi?["active"] == true ?
-                    "${salon.salon?.hours?.mercredi?["start"]} - ${salon.salon
-                        ?.hours?.mercredi?["fin"]}" : 'Fermé',
-                    style: TextStyle(
-                        color: salon.salon?.hours?.mercredi?["active"] == true
-                            ? Colors.black
-                            : Colors.red),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 16.0),
-                ),
-              ),
-              SizedBox(
-                height: 40,
-                child: ListTile(
-                  title: Text(
-                    today == 'Jeudi' ? "Jeudi (aujourd'hui)" : 'Jeudi',
-                    overflow: TextOverflow.ellipsis, maxLines: 2,
-                    style: TextStyle(
-                        color: today == 'Jeudi' ? primaryLite : Colors.black),),
-                  trailing: Text(salon.salon?.hours?.jeudi?["active"] == true ?
-                  "${salon.salon?.hours?.jeudi?["start"]} - ${salon.salon?.hours
-                      ?.jeudi?["fin"]}" : 'Fermé',
-                    style: TextStyle(
-                        color: salon.salon?.hours?.jeudi?["active"] == true
-                            ? Colors.black
-                            : Colors.red),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 16.0),
-                ),
-              ),
-              SizedBox(
-                height: 40,
-                child: ListTile(
-                  title: Text(
-                    today == 'Vendredi' ? "Vendredi (aujourd'hui)" : 'Vendredi',
-                    style: TextStyle(
-                        color: today == 'Vendredi' ? primaryLite : Colors
-                            .black),
-                    overflow: TextOverflow.ellipsis, maxLines: 2,),
-                  trailing: Text(
-                    salon.salon?.hours?.vendredi?["active"] == true ?
-                    "${salon.salon?.hours?.vendredi?["start"]} - ${salon.salon
-                        ?.hours?.vendredi?["fin"]}" : 'Fermé',
-                    style: TextStyle(
-                        color: salon.salon?.hours?.vendredi?["active"] == true
-                            ? Colors.black
-                            : Colors.red),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 16.0),
-                ),
-              ),
-              SizedBox(
-                height: 40,
-                child: ListTile(
-                  title: Text(
-                    today == 'Samedi' ? "Samedi (aujourd'hui)" : 'Samedi',
-                    style: TextStyle(
-                        color: today == 'Samedi' ? primaryLite : Colors.black),
-                    overflow: TextOverflow.ellipsis, maxLines: 2,),
-                  trailing: Text(salon.salon?.hours?.samedi?["active"] == true ?
-                  "${salon.salon?.hours?.samedi?["start"]} - ${salon.salon
-                      ?.hours?.samedi?["fin"]}" : 'Fermé',
-                    style: TextStyle(
-                        color: salon.salon?.hours?.samedi?["active"] == true
-                            ? Colors.black
-                            : Colors.red),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0.0, horizontal: 16.0),
-                ),
-              ),
-            ]
-
+              contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
+            ),
+          ),
+        ).toList()
         );
       }
       return GFShimmer(
@@ -788,7 +699,7 @@ class CommentsList extends StatelessWidget {
             ),),
           ],
         ),
-        const SizedBox(height: 15.0),
+        const SizedBox(height: 25),
         Consumer<SalonProvider>(builder: (context, salon, child){
           if(salon.salon!.comments.isNotEmpty){
             return  SizedBox(
@@ -887,7 +798,7 @@ class ContactSection extends StatelessWidget {
             ),),
           ],
         ),
-        const SizedBox(height: 15.0),
+        const SizedBox(height: 20),
         if(phone != '') ContactTile(
           contact: phone,
           icon: CupertinoIcons.phone,
@@ -896,7 +807,7 @@ class ContactSection extends StatelessWidget {
             await launchUrl(tlpn);
           },
         ),
-        if(phone != '') const SizedBox(height: 20.0),
+        if(phone != '') const SizedBox(height: 25.0),
         if(location != '') ContactTile(contact: location,
           icon: Icons.location_on_outlined,
           add: true,
@@ -909,7 +820,6 @@ class ContactSection extends StatelessWidget {
             }
           },
         ),
-
         if(phone == '' && location == '') GFShimmer(
           mainColor: primary,
           secondaryColor: clr4,
@@ -926,7 +836,7 @@ class ContactSection extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 25.0),
       ],
     );
   }
@@ -945,7 +855,7 @@ class ContactTile extends StatelessWidget {
     return Material(
       elevation: 5,
       shape: const RoundedRectangleBorder(borderRadius:  BorderRadius.all(Radius.circular(14)),),
-      color: clr4.withOpacity(.2),
+      color: clr4.withOpacity(.15),
       child: InkWell(
         splashColor: clr4,
         borderRadius:  const BorderRadius.all(Radius.circular(14)),

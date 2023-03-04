@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
@@ -65,14 +66,16 @@ class RecentItem extends StatelessWidget {
                               highlightColor: primary.withOpacity(.3),
                               splashColor: primary.withOpacity(.3),
                               onTap: () async {
-                                FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
                                 EasyLoading.show();
+                                FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
 
                                 Provider.of<SalonProvider>(context,listen: false).search = true;
                                 Provider.of<SalonProvider>(context,listen: false).clearSalon();
 
-                                await histories.getSalon(histories.salonsHistory[index].id!).then((salon){
-                                  if(salon != null){
+                                await FirebaseFirestore.instance.collection("salon").doc(histories.salonsHistory[index].id).get().then((snapshot){
+                                  if(snapshot.data() != null){
+                                    Salon salon = Salon.fromJson(snapshot.data()!);
+                                    salon.id = histories.salonsHistory[index].id;
                                     EasyLoading.dismiss();
                                     PersistentNavBarNavigator.pushNewScreen(context,
                                       screen: SalonScreen(salon: salon),

@@ -7,8 +7,8 @@
   import 'package:monsalondz/utils/wilaya.dart';
   import 'package:intl/intl.dart';
   import 'package:provider/provider.dart';
-import '../providers/HistouriqueLocal.dart';
-import '../providers/SearchPrivider.dart';
+  import '../providers/HistouriqueLocal.dart';
+  import '../providers/SearchPrivider.dart';
   import '../utils/constants.dart';
 
   class Serach extends StatelessWidget {
