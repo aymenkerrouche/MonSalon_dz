@@ -385,7 +385,17 @@ class _SignUpFormState extends State<SignUpForm> {
                     final providerAuth = Provider.of<AuthProvider>(context, listen: false);
                     KeyboardUtil.hideKeyboard(context);
                     try {
-                      await providerAuth.signInWithGoogle();
+                      UserCredential user = await providerAuth.signInWithGoogle();
+                      if(user.user != null && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
+                        try{
+                          await FirebaseFirestore.instance.collection("users").doc(user.user?.uid)
+                              .set({"name": user.user?.displayName, "email": user.user?.email});
+                        }
+                        catch(ee){
+                          debugPrint(ee.toString());
+                        }
+                      }
+
                     }
                     catch (e) {
                       GFToast.showToast(
@@ -437,9 +447,11 @@ class _SignUpFormState extends State<SignUpForm> {
                       UserCredential user = await providerAuth.signInWithFacebook();
 
                       // Photo & email
-                      if(user.user != null  && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
+                      if(user.user != null && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
                         try{
                           await user.user?.updatePhotoURL(providerAuth.profile?['picture']['data']['url']);
+                          await FirebaseFirestore.instance.collection("users").doc(user.user?.uid)
+                              .set({"name": user.user?.displayName, "email": user.user?.email});
                         }
                         catch(ee){
                           debugPrint(ee.toString());
@@ -490,9 +502,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       context: context,
                       useRootNavigator: true,
                       isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16))
-                      ),
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(16),topRight: Radius.circular(16))),
                       builder: (cxt) {
                         return Padding(
                           padding: MediaQuery.of(cxt).viewInsets,
@@ -536,7 +546,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                         phoneController.text = "+213 ${phoneController.text}";
                                       }
                                       if(phoneController.text.startsWith("213")){
-                                        phoneController.text = "+${phoneController.text.substring(1,phoneController.text.length)}";
+                                        phoneController.text = "+${phoneController.text}";
                                       }
 
                                       EasyLoading.show(status: 'En cours...');
@@ -550,8 +560,8 @@ class _SignUpFormState extends State<SignUpForm> {
                                         },
 
                                         verificationFailed: (e) {
-                                          EasyLoading.dismiss();
                                           Navigator.of(cxt).pop();
+                                          EasyLoading.dismiss();
                                           GFToast.showToast("${e.message}", context, toastDuration: 4, backgroundColor: red, textStyle: TextStyle(color: white), toastPosition: GFToastPosition.BOTTOM,);
                                         },
 
@@ -627,18 +637,16 @@ class _SignUpFormState extends State<SignUpForm> {
                                             Navigator.of(cnxt).pop();
                                             await FirebaseAuth.instance.signInWithCredential(credential)
                                               .then((value) async {
-                                              setState(() {sms = false;});
-                                                EasyLoading.showSuccess('Bienvenue');
-                                                try{
-                                                  await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).update({"phone": tlpn});
-                                                }
-                                                catch(e){
-                                                  print(e.toString());
-                                                }
+                                                await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).get().then((snapshot) async {
+                                                  if(!snapshot.exists){
+                                                    await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).set({"phone": tlpn});
+                                                  }
+                                                });
+                                                setState(() {sms = false;});
                                               })
                                             .catchError((erreur){
-                                              setState(() {sms = false;});
-                                              GFToast.showToast("${erreur.message}", context, toastDuration: 4, backgroundColor: red, textStyle: TextStyle(color: white), toastPosition: GFToastPosition.BOTTOM,);
+                                              sms = false;
+                                              print(erreur);
                                             });
                                           }
                                         },
@@ -672,7 +680,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     ],
                   ),
                 ),
-
 
               ],
             ),
@@ -717,8 +724,9 @@ class _SignUpFormState extends State<SignUpForm> {
       )
       .then((currentUser) async {
         await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid)
-            .set({"phone": phoneController.text, "email": emailController.text});
+        .set({"phone": phoneController.text, "email": emailController.text});
         provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
+        provider.phone = phoneController.text;
       });
       return true;
     }

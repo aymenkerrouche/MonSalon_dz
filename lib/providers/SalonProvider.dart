@@ -79,6 +79,7 @@ class SalonProvider extends ChangeNotifier {
         if(snapshot.docs.isNotEmpty){
           for (var element in snapshot.docs) {
             Service service =  Service.fromJson(element.data());
+            service.id = element.id;
             salon?.service.add(service);
             if(!salon!.categories.contains(service.category)){
               salon?.categories.add(service.category!);

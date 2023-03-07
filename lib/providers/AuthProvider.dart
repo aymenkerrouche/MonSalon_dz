@@ -11,9 +11,11 @@ import 'package:http/http.dart' as http;
 class AuthProvider extends ChangeNotifier {
 
   AuthCredential ? credentialAuth;
-
   UserCredential ? googleUserCredential;
   UserCredential ? facebookUserCredential;
+
+  String name = '';
+  String phone = '';
 
   Map? _profile;
   Map? get profile => _profile;
@@ -60,6 +62,10 @@ class AuthProvider extends ChangeNotifier {
     // Once signed in, return the UserCredential
     facebookUserCredential = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
 
+    if(facebookUserCredential != null) {
+      name = facebookUserCredential!.user!.displayName!;
+    }
+
     notifyListeners();
     return facebookUserCredential!;
   }
@@ -76,6 +82,10 @@ class AuthProvider extends ChangeNotifier {
     );
 
     googleUserCredential = await FirebaseAuth.instance.signInWithCredential(Credential);
+
+    if(googleUserCredential != null) {
+      name = googleUserCredential!.user!.displayName!;
+    }
 
     notifyListeners();
 

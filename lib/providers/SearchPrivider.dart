@@ -221,7 +221,6 @@ class SearchProvider extends ChangeNotifier {
             await FirebaseFirestore.instance.collection("salonsSearch")
                 .where("category", arrayContains: category )
                 .where("prix", isLessThanOrEqualTo: price )
-
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 

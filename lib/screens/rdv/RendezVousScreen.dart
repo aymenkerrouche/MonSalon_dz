@@ -13,14 +13,16 @@ import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:monsalondz/models/Hours.dart';
 import 'package:monsalondz/models/Team.dart';
+import 'package:monsalondz/screens/rdv/Facture.dart';
 import 'package:monsalondz/theme/colors.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
-import '../models/Salon.dart';
-import '../models/Service.dart';
+import '../../models/Salon.dart';
+import '../../models/Service.dart';
 import 'package:intl/intl.dart';
 
-import '../providers/RendezVousProvider.dart';
-import '../utils/constants.dart';
+import '../../providers/RendezVousProvider.dart';
+import '../../utils/constants.dart';
 
 class RendezVousScreen extends StatelessWidget {
   const RendezVousScreen({Key? key, required this.salon}) : super(key: key);
@@ -32,7 +34,7 @@ class RendezVousScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Résarvation",style: TextStyle(fontSize: 22),),
         centerTitle: true,
-        elevation: 1 ,
+        elevation: .5 ,
         //leading: IconButton(onPressed:(){Navigator.pop(context);}, icon: const Icon(Icons.arrow_back_rounded,)),
       ),
       body: Padding(
@@ -61,7 +63,7 @@ class Body extends StatelessWidget {
         children: [
           const SizedBox(height: 30,),
 
-          listService(serviceController),
+          ServicesList(serviceController:serviceController,service: salon.service,),
 
           const SizedBox(height: 50,),
 
@@ -99,7 +101,6 @@ class Body extends StatelessWidget {
                   await getUser(context);
                   if(name != '' && phone != ''){
                     if(serviceController.selectedItem.isNotEmpty){
-
                       if(rdv.selectedDay == 'Selectionnez une date'){
                         GFToast.showToast("Veuillez Selectionnez une date", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
                       }
@@ -108,21 +109,15 @@ class Body extends StatelessWidget {
                           GFToast.showToast("Veuillez Selectionnez une heure", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
                         }
                         else{
-                          rdv.rendezVous?.salon = salon.nom;
-                          rdv.rendezVous?.location = salon.location;
-                          rdv.rendezVous?.salonID = salon.id;
-                          rdv.rendezVous?.userID = FirebaseAuth.instance.currentUser?.uid;
-                          rdv.rendezVous?.user = FirebaseAuth.instance.currentUser?.displayName;
-
-
-                          rdv.rendezVous?.services = serviceController.selectedItem;
-                          rdv.rendezVous?.servicesID = rdv.rendezVous!.services.map((e) => e.id!).toList();
-
-
-                          if(teamController.selectedItem.name != "N'importe qui"){
-                            rdv.rendezVous?.team = true;
-                            rdv.rendezVous?.teamName = teamController.selectedItem.name;
-                            rdv.rendezVous?.teamID = teamController.selectedItem.userID;
+                          rdv.fillRDV(salon, phone, serviceController.selectedItem, teamController);
+                          rdv.calcPrix();
+                          if(rdv.rendezVous != null){
+                            Timer(const Duration(milliseconds: 200), () {
+                              PersistentNavBarNavigator.pushNewScreen(context,
+                                screen: const FactureScreen(), withNavBar: false,
+                                pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                              );
+                            });
                           }
                         }
                       }
@@ -132,23 +127,6 @@ class Body extends StatelessWidget {
                     }
                   }
 
-
-
-                  /*
-            if(rdv.rendezVous != null){
-
-              Provider.of<RDVProvider>(context,listen: false).salon = salon;
-              Timer(const Duration(milliseconds: 100), () {
-                PersistentNavBarNavigator.pushNewScreen(context,
-                  screen: RendezVousScreen(salon: salon),
-                  withNavBar: false,
-                  pageTransitionAnimation: PageTransitionAnimation.slideUp,
-                );
-                //Navigator.push(context, MaterialPageRoute(builder: (context) => RendezVous(salon: salon,)),);
-              });
-            }
-
-*/
                   setState((){click = false;});
                 },
                 style: ElevatedButton.styleFrom(
@@ -185,55 +163,13 @@ class Body extends StatelessWidget {
         name = snapshot.data()!['name'] ?? '';
       }
     }).whenComplete((){
-      if(FirebaseAuth.instance.currentUser?.displayName == null && FirebaseAuth.instance.currentUser?.phoneNumber == null){
-        GFToast.showToast("Veuillez d'abord remplir votre profil et votre numéro téléphone", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
-      }
-      else if(phone == ''){
+     if(phone == ''){
         GFToast.showToast("Veuillez d'abord ajouter votre numéro de téléphone à votre profil", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
       }
       else if(name == ''){
         GFToast.showToast("Veuillez d'abord ajouter votre notre à votre profil", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
       }
     });
-  }
-
-  Widget listService(serviceController){
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: Row(
-            children: [
-              SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primaryLite,),
-              const SizedBox(width: 10,),
-              const Flexible(child: Text("Choisissez la prestation qui vous convient",style: TextStyle(fontSize: 18),maxLines: 2,)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10,),
-        ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(14)),
-          child: SimpleGroupedCheckbox<Service>(
-            controller: serviceController,
-            groupTitle: "Prestations",
-            groupTitleAlignment: Alignment.centerLeft,
-            helperGroupTitle: false,
-            isExpandableTitle: true,
-            itemsTitle: List.generate(salon.service.length, (index) => "${salon.service[index].service}"),
-            itemsSubTitle: List.generate(salon.service.length, (index) => salon.service[index].prixFin == 0 ?
-            "${salon.service[index].prix} DA" : "${salon.service[index].prix} - ${salon.service[index].prixFin} DA"
-            ),
-            values: salon.service.toList(),
-            groupStyle: GroupStyle(
-              activeColor: primaryLite,
-              itemTitleStyle: const TextStyle(fontSize: 16),
-              groupTitleStyle: const TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: Colors.black,),
-            ),
-            checkFirstElement: false,
-          ),
-        ),
-      ],
-    );
   }
 
   Widget teamList(teamController){
@@ -267,6 +203,51 @@ class Body extends StatelessWidget {
             ),
             checkFirstElement: true,
 
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ServicesList extends StatelessWidget {
+  ServicesList({Key? key, required this.serviceController, required this.service}) : super(key: key);
+  GroupController serviceController;
+  List<Service> service;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Row(
+            children: [
+              SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primaryLite,),
+              const SizedBox(width: 10,),
+              const Flexible(child: Text("Choisissez la prestation qui vous convient",style: TextStyle(fontSize: 18),maxLines: 2,)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10,),
+        ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(14)),
+          child: SimpleGroupedCheckbox<Service>(
+            controller: serviceController,
+            groupTitle: "Prestations",
+            groupTitleAlignment: Alignment.centerLeft,
+            helperGroupTitle: false,
+            isExpandableTitle: true,
+            itemsTitle: List.generate(service.length, (index) => "${service[index].service}"),
+            itemsSubTitle: List.generate(service.length, (index) => service[index].prixFin == 0 ?
+            "${service[index].prix} DA" : "${service[index].prix} - ${service[index].prixFin} DA"
+            ),
+            values: service.toList(),
+            groupStyle: GroupStyle(
+              activeColor: primaryLite,
+              itemTitleStyle: const TextStyle(fontSize: 16),
+              groupTitleStyle: const TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: Colors.black,),
+            ),
+            checkFirstElement: false,
           ),
         ),
       ],
@@ -359,7 +340,7 @@ class PickDay extends StatelessWidget {
 
                   if (pickedDate != null) {
                     setState((){selectedDay = pickedDate;});
-                    provider.getHours(pickedDate);
+                    provider.getHours(pickedDate,hours);
                     provider.selectedDay = "${weekdayName[pickedDate.weekday]} ${DateFormat('dd-MM-yyyy').format(pickedDate)}";
                   }
                 },

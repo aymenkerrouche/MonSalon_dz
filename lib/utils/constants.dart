@@ -1,32 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/Pub.dart';
 import 'package:monsalondz/theme/colors.dart';
+import 'package:intl/intl.dart';
 
 
-snackBar(String txt,Color color, IconData icon,double marginButton){
-  return  SnackBar(
-    content: SizedBox(
-      height: 20,
-      width: double.infinity,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(txt, style: TextStyle(color: white,fontSize: 16),),
-          Icon(icon,color: white,)
-        ],
-      ),
-    ),
-    backgroundColor: color,
-    elevation: 10,
-    duration: const Duration(milliseconds: 1500),
-    margin: EdgeInsets.only(bottom: marginButton,right: 16,left: 16),
-    behavior: SnackBarBehavior.floating,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-  );
-}
-
-
+DateFormat dateFormat = DateFormat("dd-MM-yyyy HH:mm");
 // DAYS
 const Map<int, String> weekdayName = {1: "lundi", 2: "mardi", 3: "mercredi", 4: "jeudi", 5: "vendredi", 6: "samedi", 7: "dimanche"};
 
@@ -57,6 +35,11 @@ OutlineInputBorder inputBorder() {
       borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide(color: primary, width: 1.5),
       gapPadding: 6);
+}
+
+String formatPrice(int priceToFormat) {
+  final total = NumberFormat('#,##0 DA');
+  return total.format(priceToFormat);
 }
 
 

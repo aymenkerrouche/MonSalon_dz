@@ -13,7 +13,8 @@ import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
 import 'package:maps_launcher/maps_launcher.dart';
-import 'package:monsalondz/screens/RendezVous.dart';
+import 'package:monsalondz/providers/RendezVousProvider.dart';
+import 'package:monsalondz/screens/rdv/RendezVousScreen.dart';
 import 'package:monsalondz/widgets/BlankImageWidget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
@@ -315,9 +316,10 @@ class DetailScreen extends StatelessWidget {
                               Team anyOne = Team("N'importe qui", salon.id, "");
                               if(salon.teams.where((element) => element.userID == "").isEmpty)salon.teams.insert(0,anyOne);
                             }
-                            Timer(const Duration(milliseconds: 100), () {
+                            Provider.of<RDVProvider>(context,listen: false).clear();
+                            Timer(const Duration(milliseconds: 200), () {
                               PersistentNavBarNavigator.pushNewScreen(context,
-                                screen: RendezVous(salon: salon),
+                                screen: RendezVousScreen(salon: salon),
                                 withNavBar: false,
                                 pageTransitionAnimation: PageTransitionAnimation.slideUp,
                               );
@@ -330,10 +332,10 @@ class DetailScreen extends StatelessWidget {
 
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryLite,
+                          backgroundColor: primary,
+                          foregroundColor: clr3,
                           fixedSize: const Size(double.maxFinite, 56),
                           elevation: 6,
-                          splashFactory: InkRipple.splashFactory,
                           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -530,7 +532,7 @@ class ListPrestation extends StatelessWidget {
           children: [
             SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primaryLite,),
             const SizedBox(width: 10,),
-            Text("Préstations", style: TextStyle(
+            Text("Prestations", style: TextStyle(
               fontSize: size.width * 0.06,
               fontWeight: FontWeight.w700,
             ),),
