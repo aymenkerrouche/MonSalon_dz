@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toggle/gf_toggle.dart';
 import 'package:getwidget/types/gf_toggle_type.dart';
 import 'package:monsalondz/theme/colors.dart';
@@ -12,7 +13,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text("Settings",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,letterSpacing: 1),),
+        title: const Text("Paramètres",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,letterSpacing: 1),),
         backgroundColor: primary,
         centerTitle: true,
         leading: IconButton(
@@ -33,18 +34,31 @@ class SettingsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
 
-              txtOption('Confidentiality'),
+              Row(
+                children: [
+                  txtOption('Confidentialités'),
+                  const SizedBox(width: 15,),
+                  newOption(),
+                ],
+              ),
               Column(
                 children: const [
-                  OptionSetting(txt:'Accept messages'),
-                  OptionSetting(txt:'Show your e-mail'),
-                  OptionSetting(txt:'Show your profile picture'),
-                  OptionSetting(txt:'Clear cache automatically'),
+                  OptionSetting(txt:"Autoriser la collecte des données d'utilisation"),
+                  OptionSetting(txt:'Montrez votre e-mail'),
+                  OptionSetting(txt:'Montrez votre photo de profil'),
+                  OptionSetting(txt:'Vider le cache automatiquement'),
                   //txt('Dark mode'),
                 ],
               ),
               const Divider(height: 20,thickness:1),
-              txtOption('Theme'),
+
+              Row(
+                children: [
+                  txtOption('Thème'),
+                  const SizedBox(width: 15,),
+                  newOption(),
+                ],
+              ),
               Column(
                 children: [
                   OptionSetting(txt:'Dark mode',onTap: (v){},),
@@ -52,11 +66,19 @@ class SettingsPage extends StatelessWidget {
                 ],
               ),
               const Divider(height: 20,thickness:1),
-              txtOption('Notifications'),
+
+              Row(
+                children: [
+                  txtOption('Notifications'),
+                  const SizedBox(width: 15,),
+                  newOption(),
+                ],
+              ),
               Column(
                 children: const [
-                  OptionSetting(txt:'Orders'),
-                  OptionSetting(txt:'Messages'),
+                  OptionSetting(txt:'Rendez-vous'),
+                  OptionSetting(txt:'Promo'),
+                  OptionSetting(txt:'Nouveaux salons'),
                 ],
               ),
             ],
@@ -69,6 +91,14 @@ class SettingsPage extends StatelessWidget {
   Container txtOption(String txt){
     return Container(margin: const EdgeInsets.only(bottom: 10,top: 10),child: Text(txt,style: TextStyle(fontSize: 20,fontWeight: FontWeight.w500,color: primary),));
   }
+
+  Widget newOption(){
+    return Chip(
+      label:  GFShimmer(secondaryColor: primary,mainColor: clr3,child: const Text("bientôt disponible")),
+      backgroundColor: clr4.withOpacity(.2),
+      labelStyle: TextStyle(color: primaryPro,fontSize: 13),
+      padding: const EdgeInsets.symmetric(horizontal: 6,vertical: 0),);
+  }
 }
 
 class OptionSetting extends StatelessWidget {
@@ -77,14 +107,15 @@ class OptionSetting extends StatelessWidget {
   final void Function(bool?)? onTap;
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return SizedBox(
-      width: double.infinity,
+      width: size.width,
       height: 50,
       child: Row(
         children: [
           const SizedBox(width: 10,),
-          Text("$txt",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w400),),
-          const Spacer(flex: 4,),
+          SizedBox(width: size.width * 0.7,child: Text("$txt",style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w400),)),
+          const Spacer(),
           GFToggle(
             onChanged: onTap ?? (v){},
             value: false,

@@ -408,20 +408,14 @@ class SearchProvider extends ChangeNotifier {
           }
 
           else{
-            print("======************=====");
             await FirebaseFirestore.instance.collection("salonsSearch")
             .where("category", arrayContains: category )
-            //.where("parDefault", isNotEqualTo: true)
             .get()
             .then((value) async {
-
               if(value.docs.isNotEmpty){
-
                 for (var element in value.docs){
-
                   await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
                   .then((salons){
-
                     if(salons.exists){
                       Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
                       data.id = salons.id;

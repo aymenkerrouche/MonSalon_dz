@@ -31,6 +31,40 @@ class SalonProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> incrVU(String id) async {
+    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+      "vuTotal": FieldValue.increment(1),
+      "vu${DateTime.now().year}.${DateTime.now().month}" : FieldValue.increment(1),
+    });
+  }
+
+  Future<void> incrJaime(String id) async {
+    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+      "favorites": FieldValue.increment(1),
+    });
+  }
+
+  Future<void> DecriJaime(String id) async {
+    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+      "favorites": FieldValue.increment(-1),
+    });
+  }
+
+  Future<void> incrMaps(String id) async {
+    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+      "mapsTotal": FieldValue.increment(1),
+      "maps${DateTime.now().year}.${DateTime.now().month}" : FieldValue.increment(1),
+    });
+  }
+
+  Future<void> incrTlpn(String id) async {
+    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+      "tlpnTotal": FieldValue.increment(1),
+      "tlpn${DateTime.now().year}.${DateTime.now().month}" : FieldValue.increment(1),
+    });
+  }
+
+
   Future<void> setSalon(Salon newSalon) async {
     search = true;
     salon = newSalon ;
@@ -42,6 +76,7 @@ class SalonProvider extends ChangeNotifier {
     await checkFavorite();
     search = false;
     notifyListeners();
+    await incrVU(newSalon.id!);
   }
 
   clearSalon(){
@@ -160,8 +195,8 @@ class SalonProvider extends ChangeNotifier {
       salon?.isFavorite["id"] = "";
       salon?.isFavorite["like"] = false;
     });
-
     notifyListeners();
+    await DecriJaime(salon!.id!);
   }
 
   Future<void> likeSalon() async {
@@ -174,7 +209,7 @@ class SalonProvider extends ChangeNotifier {
       salon?.isFavorite["like"] = true;
     });
     notifyListeners();
+    await incrJaime(salon!.id!);
   }
-
 
 }

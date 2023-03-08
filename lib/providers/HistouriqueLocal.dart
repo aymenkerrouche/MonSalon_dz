@@ -52,6 +52,12 @@ class HistoryProvider extends ChangeNotifier {
       await txn.rawQuery("Delete FROM history where id = '$id'");
       await txn.rawUpdate("UPDATE history SET id = id-1 where id > '$id'");
     });
+    if(_searchHistory.length < 2){
+      await _localDB.transaction((txn) async {
+        await txn.rawQuery("Delete FROM history");
+        _searchHistory.clear();
+      });
+    }
     await loadLocalData();
     notifyListeners();
   }

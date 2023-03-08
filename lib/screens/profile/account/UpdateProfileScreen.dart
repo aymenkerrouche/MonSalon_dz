@@ -9,7 +9,7 @@ class UpdateProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("update profile",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,letterSpacing: 1),),
+        title: const Text("Modifier profil",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,letterSpacing: 1),),
         backgroundColor: primary,
         centerTitle: true,
         leading: IconButton(

@@ -62,21 +62,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 pinned: true,
                 floating: false,
                 forceElevated: false,
-                elevation: 0,
-                backgroundColor: backgroundColor,
+                elevation: 50,
+                backgroundColor: Colors.white,
                 title: AnimatedSwitcher(
                   key: const Key("show"),
                   duration: const Duration(milliseconds: 200),
                   child: isShrink ?
                   Container(
                     margin: const EdgeInsets.only(bottom: 5),
-                    child: Image.asset("assets/images/logo.png",height: kToolbarHeight-5,),
+                    child: Image.asset("assets/images/logo.png",height: kToolbarHeight-10,),
                   ):
                   const SizedBox(key: Key("not"),
                   ),
                 ),
                 flexibleSpace: const FlexibleSpaceBar(
-                  background: Pubs(),
+                  background: SafeArea(child: Search()),
                 ),
               ),
             ),
@@ -101,7 +101,9 @@ class HomeBody extends StatelessWidget {
           children: [
 
             // SERACH
-            const Serach(),
+            //const Search(),
+            //const SizedBox(height: 25,),
+            const Pubs(),
             const SizedBox(height: 25,),
 
             //Categories

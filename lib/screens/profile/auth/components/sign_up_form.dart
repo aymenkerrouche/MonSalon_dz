@@ -384,29 +384,21 @@ class _SignUpFormState extends State<SignUpForm> {
                   onPressed: () async {
                     final providerAuth = Provider.of<AuthProvider>(context, listen: false);
                     KeyboardUtil.hideKeyboard(context);
-                    try {
-                      UserCredential user = await providerAuth.signInWithGoogle();
-                      if(user.user != null && user.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
+                    EasyLoading.show();
+                    UserCredential? user = await providerAuth.signInWithGoogle();
+                    if(user?.user != null){
+                      if(user!.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
                         try{
-                          await FirebaseFirestore.instance.collection("users").doc(user.user?.uid)
-                              .set({"name": user.user?.displayName, "email": user.user?.email});
+                          await FirebaseFirestore.instance.collection("users").doc(user.user?.uid).set({"name": user.user?.displayName, "email": user.user?.email});
                         }
                         catch(ee){
                           debugPrint(ee.toString());
+                          EasyLoading.dismiss();
                         }
                       }
+                    }
 
-                    }
-                    catch (e) {
-                      GFToast.showToast(
-                        e.toString(),
-                        context,
-                        toastDuration: 3,
-                        backgroundColor: red,
-                        textStyle: TextStyle(color: white),
-                        toastPosition: GFToastPosition.BOTTOM,
-                      );
-                    }
+                    EasyLoading.dismiss();
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -726,7 +718,6 @@ class _SignUpFormState extends State<SignUpForm> {
         await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid)
         .set({"phone": phoneController.text, "email": emailController.text});
         provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
-        provider.phone = phoneController.text;
       });
       return true;
     }

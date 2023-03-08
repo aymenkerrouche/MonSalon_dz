@@ -25,6 +25,7 @@ Future<void> main() async {
   prefs = await SharedPreferences.getInstance();
   easyConfig();
 
+
   runApp(
     MultiProvider(
       providers: [

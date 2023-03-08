@@ -20,52 +20,11 @@ class UpdateProfileForm extends StatefulWidget {
 
 class UpdateProfileFormState extends State<UpdateProfileForm> {
 
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  String email = '';
 
-  bool done = false;
   bool loading = false;
 
   Future<void> getInfos() async {
-    try{
-      await firestore.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).get().then((snapshot){
-        phoneController.text = snapshot.data()?['phone'] ?? '';
-        email = snapshot.data()?['email'] ?? '';
-      })
-      .then((value) {
-        if(FirebaseAuth.instance.currentUser!.email != null){
-          emailController.text = FirebaseAuth.instance.currentUser!.email! ;
-        }
-        else if(FirebaseAuth.instance.currentUser!.providerData.first.email != null){
-          emailController.text = FirebaseAuth.instance.currentUser!.providerData.first.email!;
-        }
-        else{emailController.text = email ;}
-        nameController.text = FirebaseAuth.instance.currentUser?.displayName ?? '';
-        Timer(const Duration(milliseconds: 700),(){setState(() {done = true;});});
-      });
-    }
-    catch(e){
-      GFToast.showToast(
-        e.toString(), context, toastDuration: 3,
-        backgroundColor: Colors.red.shade600,
-        textStyle: TextStyle(color: white),
-        toastPosition: GFToastPosition.BOTTOM,
-      );
-    }
-    Timer(const Duration(seconds: 5),(){
-      if(done == false) {
-        setState(() {done = true;});
-        GFToast.showToast(
-          'Internet Connection Problem', context, toastDuration: 3,
-          backgroundColor: Colors.red.shade600,
-          textStyle: TextStyle(color: white),
-          toastPosition: GFToastPosition.BOTTOM,
-        );
-      }
-    });
+    await Provider.of<AuthProvider>(context,listen: false).getInfos(context);
   }
 
   @override
@@ -75,74 +34,77 @@ class UpdateProfileFormState extends State<UpdateProfileForm> {
   }
 
   @override
-  void dispose() {
-    emailController.dispose();
-    phoneController.dispose();
-    nameController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return done ?
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextFormEmail(emailController: emailController,),
-        const SizedBox(height: 50),
-        SizedBox(height: 60,child: TextFormName(nameController: nameController,)),
-        const SizedBox(height: 50),
-        SizedBox(height: 60,child: TextFormPhone(phoneController: phoneController,)),
-        const  SizedBox(height: 50),
-        SizedBox(
-          height: 55,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              backgroundColor: primary,
-              elevation: 6
+    return Consumer<AuthProvider>(
+        builder:(context, userInfo, child){
+          if(userInfo.done == true){
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormEmail(emailController: userInfo.emailController,),
+                const SizedBox(height: 50),
+                SizedBox(height: 60,child: TextFormName(nameController: userInfo.nameController,)),
+                const SizedBox(height: 50),
+                SizedBox(height: 60,child: TextFormPhone(phoneController: userInfo.phoneController,)),
+                const  SizedBox(height: 50),
+                SizedBox(
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: primary,
+                        elevation: 6
+                    ),
+                    onPressed: () async {
+                      setState(() {loading = true;});
+                      try{
+                        await updateUser();
+                      }
+                      on FirebaseAuthException catch(e){
+                        GFToast.showToast(
+                          e.code, context, toastDuration: 3,
+                          backgroundColor: Colors.red.shade600,
+                          textStyle: TextStyle(color: white),
+                          toastPosition: GFToastPosition.BOTTOM,
+                        );
+                      }
+                      setState(() {loading = false;});
+                    },
+                    child: loading ?
+                    const SizedBox(height: 30,width: 30,child: CircularProgressIndicator(color: Colors.white,)):
+                    const Text("Mettre à jour", style:  TextStyle(
+                      fontSize: 25,
+                      color: Colors.white,
+                    ),),
+                  ),
+                ),
+                const  SizedBox(height: 50),
+
+              ],
+            );
+          }
+          return GFShimmer(
+            mainColor: Colors.grey.shade50,
+            child: Column(
+              children: [
+                buildShimmer(),
+                SizedBox(height: size.height * 0.05),
+                buildShimmer(),
+                SizedBox(height: size.height * 0.05),
+                buildShimmer(),
+                SizedBox(height: size.height * 0.1),
+                buildShimmer(),
+              ],
             ),
-            onPressed: () async {
-              setState(() {loading = true;});
-              try{
-                await updateUser();
-              }
-              on FirebaseAuthException catch(e){
-                GFToast.showToast(
-                  e.code, context, toastDuration: 3,
-                  backgroundColor: Colors.red.shade600,
-                  textStyle: TextStyle(color: white),
-                  toastPosition: GFToastPosition.BOTTOM,
-                );
-              }
-              setState(() {loading = false;});
-            },
-            child: loading ?
-              const SizedBox(height: 30,width: 30,child: CircularProgressIndicator(color: Colors.white,)):
-              const Text("Confirm", style:  TextStyle(
-                fontSize: 25,
-                color: Colors.white,
-              ),),
-          ),
-        )
-      ],
-    ):
-    GFShimmer(
-      mainColor: Colors.grey.shade50,
-      child: Column(
-        children: [
-          buildShimmer(),
-          SizedBox(height: size.height * 0.05),
-          buildShimmer(),
-          SizedBox(height: size.height * 0.05),
-          buildShimmer(),
-          SizedBox(height: size.height * 0.1),
-          buildShimmer(),
-        ],
-      ),
-    );
+          );
+
+    });
+
+
+
+
   }
 
   Widget buildShimmer(){
@@ -150,11 +112,12 @@ class UpdateProfileFormState extends State<UpdateProfileForm> {
   }
 
   Future<void> updateUser() async {
+    final provider = Provider.of<AuthProvider>(context,listen: false);
 
     // CHECK NAME
-    if(nameController.text.isEmpty && phoneController.text.isNotEmpty){
+    if(provider.nameController.text.isEmpty && provider.phoneController.text.isNotEmpty){
       GFToast.showToast(
-        "User name is empty, Please enter your name", context, toastDuration: 3,
+        "Le nom d'utilisateur est vide, veuillez entrer votre nom", context, toastDuration: 3,
         backgroundColor: Colors.red.shade600,
         textStyle: TextStyle(color: white),
         toastPosition: GFToastPosition.BOTTOM,
@@ -162,9 +125,9 @@ class UpdateProfileFormState extends State<UpdateProfileForm> {
     }
 
     // CHECK PHONE
-    if(nameController.text.isNotEmpty && phoneController.text.isEmpty){
+    if(provider.nameController.text.isNotEmpty && provider.phoneController.text.isEmpty){
       GFToast.showToast(
-        "Please enter your phone", context, toastDuration: 3,
+        "Veuillez entrer votre téléphone", context, toastDuration: 3,
         backgroundColor: Colors.red.shade600,
         textStyle: TextStyle(color: white),
         toastPosition: GFToastPosition.BOTTOM,
@@ -172,9 +135,9 @@ class UpdateProfileFormState extends State<UpdateProfileForm> {
     }
 
     // CHECK BOTH
-    if(nameController.text.isEmpty && phoneController.text.isEmpty){
+    if(provider.nameController.text.isEmpty && provider.phoneController.text.isEmpty){
       GFToast.showToast(
-        "Please enter your Name and Phone", context, toastDuration: 3,
+        "Veuillez saisir votre nom et téléphone", context, toastDuration: 3,
         backgroundColor: Colors.red.shade600,
         textStyle: TextStyle(color: white),
         toastPosition: GFToastPosition.BOTTOM,
@@ -182,15 +145,13 @@ class UpdateProfileFormState extends State<UpdateProfileForm> {
     }
 
     // UPDATE
-    if(nameController.text.isNotEmpty && phoneController.text.isNotEmpty){
+    if(provider.nameController.text.isNotEmpty && provider.phoneController.text.isNotEmpty){
       try{
-        Provider.of<AuthProvider>(context,listen: false).name = nameController.text.trim();
-        Provider.of<AuthProvider>(context,listen: false).phone = phoneController.text.trim();
-        await FirebaseAuth.instance.currentUser?.updateDisplayName(nameController.text);
+        await FirebaseAuth.instance.currentUser?.updateDisplayName(provider.nameController.text);
         await FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set({
-          'phone': phoneController.text.trim(),
-          'name': nameController.text.trim(),
-          'email' : emailController.text.trim()
+          'phone': provider.phoneController.text.trim(),
+          'name': provider.nameController.text.trim(),
+          'email' : provider.emailController.text.trim()
         })
         .then((v) => GFToast.showToast("Mise à jour du profil réussie", context,toastDuration: 3,backgroundColor: primary,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM));
       }
@@ -238,8 +199,8 @@ class TextFormName extends StatelessWidget {
       cursorColor: primary,
       style: const TextStyle(fontWeight: FontWeight.w700),
       decoration: InputDecoration(
-        labelText: "Name",
-        hintText: "Enter your name",
+        labelText: "Nom",
+        hintText: "Entrez votre nom",
         labelStyle:  TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: Icon(
@@ -270,8 +231,8 @@ class TextFormPhone extends StatelessWidget {
       scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       style: const TextStyle(fontWeight: FontWeight.w700),
       decoration: InputDecoration(
-        labelText: "Phone",
-        hintText: "Enter your phone number",
+        labelText: "Téléphone",
+        hintText: "Entrez votre numéro de téléphone",
         labelStyle:  TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: Icon(

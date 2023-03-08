@@ -42,6 +42,7 @@ class _SalonScreenState extends State<SalonScreen> {
   getSalon() async {
     await Provider.of<SalonProvider>(context,listen: false).setSalon(widget.salon);
   }
+
   int counter = 0;
   @override
   Widget build(BuildContext context) {
@@ -291,7 +292,7 @@ class DetailScreen extends StatelessWidget {
 
 
                       //Contacts
-                      ContactSection(phone: salon.phone!,location: salon.location!,latitude: salon.latitude!,longitude: salon.longitude!,),
+                      ContactSection(phone: salon.phone!,location: salon.location!,latitude: salon.latitude!,longitude: salon.longitude!,id: salon.id!,),
 
 
                       //Comments
@@ -312,19 +313,24 @@ class DetailScreen extends StatelessWidget {
                       ElevatedButton(
                         onPressed:(){
                           if(FirebaseAuth.instance.currentUser != null){
-                            if(salon.team){
-                              Team anyOne = Team("N'importe qui", salon.id, "");
-                              if(salon.teams.where((element) => element.userID == "").isEmpty)salon.teams.insert(0,anyOne);
+                            if(salon.hours != null && salon.service.isNotEmpty){
+                              if(salon.team){
+                                Team anyOne = Team("N'importe qui", salon.id, "");
+                                if(salon.teams.where((element) => element.userID == "").isEmpty)salon.teams.insert(0,anyOne);
+                              }
+                              Provider.of<RDVProvider>(context,listen: false).clear();
+                              Timer(const Duration(milliseconds: 200), () {
+                                PersistentNavBarNavigator.pushNewScreen(context,
+                                  screen: RendezVousScreen(salon: salon),
+                                  withNavBar: false,
+                                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                );
+                                //Navigator.push(context, MaterialPageRoute(builder: (context) => RendezVous(salon: salon,)),);
+                              });
                             }
-                            Provider.of<RDVProvider>(context,listen: false).clear();
-                            Timer(const Duration(milliseconds: 200), () {
-                              PersistentNavBarNavigator.pushNewScreen(context,
-                                screen: RendezVousScreen(salon: salon),
-                                withNavBar: false,
-                                pageTransitionAnimation: PageTransitionAnimation.slideUp,
-                              );
-                              //Navigator.push(context, MaterialPageRoute(builder: (context) => RendezVous(salon: salon,)),);
-                            });
+                            else{
+                              GFToast.showToast("Nous sommes désolés, ce salon n'est pas encore disponible", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
+                            }
                           }
                           else{
                             GFToast.showToast("Connecter-vous à votre compte pour prende un rendez-vous", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
@@ -780,11 +786,12 @@ class CommentsList extends StatelessWidget {
 
 
 class ContactSection extends StatelessWidget {
-  const ContactSection({Key? key, required this.phone, required this.location, required this.latitude, required this.longitude}) : super(key: key);
+  const ContactSection({Key? key, required this.phone, required this.location, required this.id,required this.latitude, required this.longitude}) : super(key: key);
   final String phone;
   final String location;
   final double latitude;
   final double longitude;
+  final String id;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -805,6 +812,7 @@ class ContactSection extends StatelessWidget {
           contact: phone,
           icon: CupertinoIcons.phone,
           ontap: () async {
+            await Provider.of<SalonProvider>(context,listen: false).incrTlpn(id);
             final Uri tlpn = Uri(scheme: 'tel', path: phone,);
             await launchUrl(tlpn);
           },
@@ -814,6 +822,7 @@ class ContactSection extends StatelessWidget {
           icon: Icons.location_on_outlined,
           add: true,
           ontap: () async {
+            await Provider.of<SalonProvider>(context,listen: false).incrMaps(id);
             if(latitude != 0 && longitude != 0){
               MapsLauncher.launchCoordinates(latitude, longitude, location);
             }
@@ -861,7 +870,7 @@ class ContactTile extends StatelessWidget {
       child: InkWell(
         splashColor: clr4,
         borderRadius:  const BorderRadius.all(Radius.circular(14)),
-        onTap: (){},
+        onTap: ontap,
         child: ListTile(
           title: Text(contact,overflow: TextOverflow.ellipsis, maxLines:2,style: TextStyle(fontSize: add ? 14 : 16),),
           trailing: Container(

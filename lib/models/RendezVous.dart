@@ -1,4 +1,5 @@
 import 'package:monsalondz/models/Service.dart';
+import 'Team.dart';
 
 class RendezVous {
   String? id;
@@ -15,14 +16,12 @@ class RendezVous {
   String? comment;
   int? remise;
   bool? team;
-  String? teamID;
-  String? teamName;
-  List<String> servicesID = [];
+  Team? teamInfo;
   List<Service> services = [];
   String? location;
   String? userPhone;
 
-  RendezVous(this.id, this.team, this.prixFin,this.userPhone,this.location,this.servicesID,this.teamID,this.teamName,this.comment, this.date, this.remise,this.salonID,this.hour, this.etat, this.salon, this.user, this.userID,this.duree, this.prix);
+  RendezVous(this.id, this.team, this.prixFin,this.userPhone,this.location,this.teamInfo,this.comment, this.date, this.remise,this.salonID,this.hour, this.etat, this.salon, this.user, this.userID,this.duree, this.prix);
 
   RendezVous.fromJson(Map<String, dynamic> json){
     userID = json['userID'] ?? '';
@@ -37,9 +36,7 @@ class RendezVous {
     remise = json["remise"] ??  0 ;
     comment = json['comment'] ?? '';
     team = json['team'] ?? false;
-    teamID = json['teamID'] ?? '';
-    teamName = json['teamName'] ?? '';
-    servicesID = json['servicesID'] ?? [];
+    teamInfo = json['teamInfo'];
     location = json['location'] ?? '';
     userPhone = json['userPhone'] ?? '';
     prixFin = json["prixFin"] ?? 0 ;
@@ -58,11 +55,10 @@ class RendezVous {
     "remise": remise,
     "comment": comment,
     "team":team,
-    "teamID":teamID,
-    "teamName":teamName,
-    "servicesID" : servicesID,
+    "teamInfo":teamInfo?.toJson() ?? {},
     "location" : location,
     "userPhone" : userPhone,
-    "prixFin" : prixFin
+    "prixFin" : prixFin,
+    "service" : services.map((e) => e.toJson()).toList()
   };
 }

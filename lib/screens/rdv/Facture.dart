@@ -45,7 +45,7 @@ class FactureScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("${rdv.rendezVous?.salon}", style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700,),maxLines: 2,),
-                    if(rdv.rendezVous?.team == true)Text("Expert: ${rdv.rendezVous?.teamName}", style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600,color: Colors.grey.shade600),maxLines: 2,),
+                    if(rdv.rendezVous?.team == true)Text("Expert: ${rdv.rendezVous?.teamInfo?.name}", style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600,color: Colors.grey.shade600),maxLines: 2,),
                     Text("${rdv.rendezVous?.location}", style: const TextStyle(
                       fontSize: 14,fontWeight: FontWeight.w600,),maxLines: 2,overflow: TextOverflow.ellipsis,),
                   ],

@@ -85,28 +85,24 @@ class RDVProvider extends ChangeNotifier {
   
   fillRDV(Salon salon, String phone, List<Service> services, teamController){
     _rendezVous?.salon = salon.nom;
-    _rendezVous?.services = services;_rendezVous?.services = services;
+    _rendezVous?.services = services;
     _rendezVous?.location = salon.location;
     _rendezVous?.salonID = salon.id;
     _rendezVous?.userID = FirebaseAuth.instance.currentUser?.uid;
     _rendezVous?.user = FirebaseAuth.instance.currentUser?.displayName;
     _rendezVous?.userPhone = phone;
     _rendezVous?.remise = salon.remise;
-    _rendezVous?.servicesID = _rendezVous!.services.map((e) => e.id!).toList();
     if(salon.promo == true) _rendezVous?.remise = salon.remise;
     if(teamController.selectedItem.name != "N'importe qui"){
       _rendezVous?.team = true;
-      _rendezVous?.teamName = teamController.selectedItem.name;
-      _rendezVous?.teamID = teamController.selectedItem.userID;
+      _rendezVous?.teamInfo = teamController.selectedItem;
     }
     else{
       _rendezVous?.team = false;
-      _rendezVous?.teamName = "";
-      _rendezVous?.teamID = "";
+      _rendezVous?.teamInfo = null;
     }
     notifyListeners();
   }
-
 
   Future<bool> createRDV() async {
     Map<String,dynamic> json= _rendezVous!.toJson();

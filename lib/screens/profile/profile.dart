@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:monsalondz/theme/colors.dart';
 import '../../providers/AuthProvider.dart';
 import '../../widgets/profile_menu.dart';
-import '../settings.dart';
+import 'settings.dart';
 import 'account/UpdateProfileScreen.dart';
 
 class Profile extends StatefulWidget {
@@ -30,7 +30,7 @@ class _ProfileState extends State<Profile> {
       backgroundColor: backgroundColor,
         appBar: AppBar(
           title: const Text(
-            "Profile",
+            "Profil",
             style: TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -53,7 +53,7 @@ class _ProfileState extends State<Profile> {
                 Padding(
                   padding: const EdgeInsets.only(left: 10,top: 30,bottom: 8),
                   child: Text(
-                    "General",
+                    "Général",
                     style: TextStyle(
                         color: black,
                         fontWeight: FontWeight.w400,
@@ -61,7 +61,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 ProfileMenu(
-                  text: "Account",
+                  text: "Compte",
                   icon: "assets/icons/user1.svg",
                   press: () => {
                     Timer(const Duration(milliseconds: 200),(){
@@ -76,7 +76,7 @@ class _ProfileState extends State<Profile> {
                   secondary: secondary,
                 ),
                 ProfileMenu(
-                  text: "Historique",
+                  text: "Rendez-Vous",
                   icon: "assets/icons/history.svg",
                   press: () {},
                   width: 30,
@@ -84,7 +84,7 @@ class _ProfileState extends State<Profile> {
                   secondary: secondary,
                 ),
                 ProfileMenu(
-                  text: "Settings",
+                  text: "Paramètres",
                   icon: "assets/icons/setting.svg",
                   press: () {
                     Timer(const Duration(milliseconds: 200),(){
@@ -111,7 +111,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 ProfileMenu(
-                  text: "Help Center",
+                  text: "Centre d'aide",
                   icon: "assets/icons/Question mark.svg",
                   press: () {},
                   primary: primary,
@@ -137,7 +137,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 ProfileMenu(
-                  text: "Log out",
+                  text: "Se déconnecter",
                   icon: "assets/icons/Logout.svg",
                   press: () async {
                     if (!mounted) return;
@@ -178,11 +178,11 @@ class _ProfileState extends State<Profile> {
                 const Align(
                   alignment: Alignment.center,
                   child: Text(
-                    "Version 1.0.0\nby Aymen Kerrouche",
+                    "v1.0.0 by Techno DZ",
                     style: TextStyle(
-                        color: Colors.black26,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14
+                      color: Colors.black26,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14
                     ),
                     textAlign: TextAlign.center,
                   ),

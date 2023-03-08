@@ -1,8 +1,15 @@
   // ignore_for_file: file_names, must_be_immutable, depend_on_referenced_packages
 
-  import 'package:animated_custom_dropdown/custom_dropdown.dart';
+  import 'dart:async';
+
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
   import 'package:flutter/cupertino.dart';
   import 'package:flutter/material.dart';
+import 'package:getwidget/components/shimmer/gf_shimmer.dart';
+import 'package:monsalondz/root.dart';
   import 'package:monsalondz/theme/colors.dart';
   import 'package:monsalondz/utils/wilaya.dart';
   import 'package:intl/intl.dart';
@@ -11,8 +18,8 @@
   import '../providers/SearchPrivider.dart';
   import '../utils/constants.dart';
 
-  class Serach extends StatelessWidget {
-    const Serach({Key? key}) : super(key: key);
+  class Search extends StatelessWidget {
+    const Search({Key? key}) : super(key: key);
     @override
     Widget build(BuildContext context) {
       Size size = MediaQuery.of(context).size;
@@ -21,6 +28,63 @@
         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
         child: Column(
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(child: Image.asset("assets/images/logo.png",height: kToolbarHeight-5,)),
+                StreamBuilder<User?>(
+                    stream: FirebaseAuth.instance.authStateChanges(),
+                    builder: (context, snapshot) {
+                      if(!snapshot.hasData) {
+                        return IconButton(
+                          onPressed:(){
+                            controller.jumpToTab(3);
+                          },
+                          icon: Icon(CupertinoIcons.person,color: primary,size: 26,),
+                          style: IconButton.styleFrom(
+                            backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr4.withOpacity(.1),
+                          ),
+                        );
+                      }
+                      if(snapshot.hasData) {
+                        if(snapshot.data!.uid.isNotEmpty && FirebaseAuth.instance.currentUser?.photoURL != null && FirebaseAuth.instance.currentUser?.phoneNumber == null) {
+                          return CachedNetworkImage(
+                            imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
+                            fit: BoxFit.fill,
+                            imageBuilder: (context, imageProvider) => CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              backgroundImage: imageProvider,
+                            ),
+                            errorWidget: (cnx,photo,err)=> Container(),
+                            placeholder: (context,s) => GFShimmer(
+                              mainColor: Colors.grey.shade50,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: clr4
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                      if(FirebaseAuth.instance.currentUser?.photoURL == null || FirebaseAuth.instance.currentUser?.phoneNumber == null) {
+                        return IconButton(
+                          onPressed:(){
+                            controller.jumpToTab(3);
+                          },
+                          icon: Icon(CupertinoIcons.person,color: primary,size: 26,),
+                          style: IconButton.styleFrom(
+                            backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr4.withOpacity(.1),
+                          ),
+                        );
+                      }
+                      return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,strokeWidth: 2,),));
+                    }
+                ),
+              ],
+            ),
+            const SizedBox(height: 20,),
             Container(
               width: size.width,
               decoration: BoxDecoration(
@@ -59,7 +123,7 @@
                         padding: EdgeInsets.zero,
                         onPressed: () {search.search.clear();}
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 15,horizontal: 25),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12,horizontal: 25),
                     ),
                   );
                 }
@@ -68,16 +132,13 @@
             const SizedBox(
               height: 10,
             ),
-            Row(
+           /* Row(
               children : const [
                 SerachWilaya(),
                 Spacer(),
                 SearchTime(),
               ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
+            ),*/
             SearchButton(),
           ],
         ),
@@ -98,58 +159,50 @@
         builder: (BuildContext context, StateSetter setState){
           return ElevatedButton(
             onPressed: () async {
-
-             /* await FirebaseFirestore.instance.collection("salon").orderBy("wilaya").limit(10).get().then((value){
+              /* await FirebaseFirestore.instance.collection("salon").get().then((value){
                 value.docs.forEach((element) async {
                   //Salon data = Salon.fromJson(element.data());
-                  await FirebaseFirestore.instance.collection("services").
-                   add({
-                    "salonID": element.id,
-                    "category" : "Homme",
-                    "categoryID" : "hOMbj6KeiLOsw8DqqiKu",
-                    "parDefault": false,
-                    "prix": 500,
-                    "prixFin": 2000,
-                    "service": "Coupe homme",
-                    "serviceID":"8jPoMf6DFJvuqjVogJoC",
+                  await FirebaseFirestore.instance.collection("salon").doc(element.id).update({
+                    "visible":true,
                   });
                 });
               });*/
-
               setState(() {loading = true;});
-
               var provider = Provider.of<HistoryProvider>(context,listen: false);
               var provider2 = Provider.of<SearchProvider>(context,listen: false);
 
-              var serarchedWilaya = wilaya.where((element) => provider2.searchWilaya.text.contains(element["name"]!)).first;
-             // provider2.setWilaya(serarchedWilaya["name"]!);
-
-              await provider.setSearchHistory(
-                  provider2.search.text.isEmpty ? '' : provider2.search.text,
-                  provider2.searchWilaya.text.isEmpty ? '' : serarchedWilaya["name"]!,
+              if(provider2.search.text.isNotEmpty){
+                await provider.setSearchHistory(
+                  provider2.search.text,
                   '',
-                  provider2.searchDate.text.isEmpty ? '' : provider2.searchDate.text,
-                  provider2.day,
-                  provider2.hour,
-                  provider2.prixFin,
-              );
+                  '',
+                  '',
+                  '',
+                  '',
+                  0,
+                );
+              }
+              Timer(const Duration(milliseconds: 600), () {
+                setState(() {loading = false;});
+                controller.jumpToTab(1);
+                provider2.refreshSearch();
+              });
 
-              setState(() {loading = false;});
-
+              //var serarchedWilaya = wilaya.where((element) => provider2.searchWilaya.text.contains(element["name"]!)).first;
+              // provider2.setWilaya(serarchedWilaya["name"]!);
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: primary,
                 fixedSize: const Size(double.maxFinite, 48),
                 elevation: 6,
                 shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12)))),
-            child: loading ?
-            SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: white,strokeWidth: 3,),):
-            Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text('Rechercher', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
-                SizedBox(width: 15,),
-                Icon(CupertinoIcons.search,color: Colors.white)
+              children: [
+                const Text('Rechercher', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
+                const SizedBox(width: 15,),
+                loading ?
+                SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: white,strokeWidth: 3,),):Icon(CupertinoIcons.search,color: Colors.white)
               ],
             ),
 

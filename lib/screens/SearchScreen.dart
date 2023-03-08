@@ -932,7 +932,7 @@ class _SalonListState extends State<SalonList> {
       child: Consumer<SearchProvider>(
         builder: (context, salons, child) {
 
-          if(salons.lastDocument == null || salons.isSearching){
+          if(salons.lastDocument == null || (salons.isSearching == true && salons.listSalon.isEmpty)){
             return Center(child: SizedBox(height: 40,width: 40,child: CircularProgressIndicator(color: primary,)),
             );
           }
@@ -953,6 +953,10 @@ class _SalonListState extends State<SalonList> {
           }
           else{
             salonsTemps = salons.listSalon;
+          }
+
+          if(salonsTemps.isEmpty){
+            return Center(child: Lottie.asset("assets/animation/empty.json"),);
           }
 
           return Column(
@@ -994,7 +998,7 @@ class _SalonListState extends State<SalonList> {
              // if(salons.isLoading)
               AnimatedContainer(
                 width: MediaQuery.of(context).size.width,
-                height: salons.isLoading ? 30 : 0,
+                height: salons.isLoading == true || salons.isSearching == true ? 30 : 0,
                 curve: Curves.fastLinearToSlowEaseIn,
                 duration: const Duration(milliseconds: 400),
                 padding: const EdgeInsets.all(5),

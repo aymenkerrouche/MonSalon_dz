@@ -1,9 +1,13 @@
 // ignore_for_file: file_names
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:provider/provider.dart';
+import '../providers/SearchPrivider.dart';
+import '../root.dart';
 import '../theme/colors.dart';
 
 class ListCatigories extends StatelessWidget {
@@ -30,7 +34,14 @@ class ListCatigories extends StatelessWidget {
                 radius: 14,
                 highlightColor: primary,
                 splashColor: primary,
-                onTap: () {},
+                onTap: () async {
+                  categories.selectedCat = categories.categories[index];
+                  Timer(const Duration(milliseconds: 600), () async {
+                    controller.jumpToTab(1);
+                    await Provider.of<SearchProvider>(context,listen: false).filterSalons(categories.categories[index].id, null, null, null);
+                  });
+
+                },
                 child: categories.done == true && categories.categories.isNotEmpty ?
                 CachedNetworkImage(
                   imageUrl: categories.categories[index].photo,

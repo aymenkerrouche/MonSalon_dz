@@ -11,11 +11,20 @@ class Pubs extends StatelessWidget {
   const Pubs({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: true,
-      child: Consumer<CategoriesProvider>(
-        builder: (context, pubs, child) {
-          return CarouselSlider(
+    return Consumer<CategoriesProvider>(
+      builder: (context, pubs, child) {
+        if(pubs.ads == true){
+          return GFShimmer(
+            mainColor: Colors.grey.shade100,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(14),),
+                  color: Colors.grey.shade50
+              ),
+            ),
+          );
+        }
+        if(pubs.pubs.isNotEmpty){return CarouselSlider(
             options: CarouselOptions(
               autoPlay: true,
               autoPlayInterval: const Duration(seconds: 10),
@@ -24,7 +33,7 @@ class Pubs extends StatelessWidget {
               aspectRatio: 2,
               viewportFraction: 0.95,
             ),
-              items: List.generate(pubs.pubs.length, (index) =>
+            items: List.generate(pubs.pubs.length, (index) =>
                 Material(
                   elevation: 10,
                   borderRadius: BorderRadius.circular(16),
@@ -37,12 +46,7 @@ class Pubs extends StatelessWidget {
                       final Uri url = Uri.parse(pubs.pubs[index].lien!);
                       await launchUrl(url,mode: LaunchMode.externalApplication);
                     },
-                    child: pubs.pubs[index].id == '0' ?
-                      Ink.image(
-                        image: AssetImage(pubs.pubs[index].photo),
-                        fit: BoxFit.fill,
-                      ):
-                      CachedNetworkImage(
+                    child: CachedNetworkImage(
                       imageUrl: pubs.pubs[index].photo,
                       fit: BoxFit.fill,
                       imageBuilder: (context, imageProvider) => Ink.image(
@@ -65,10 +69,10 @@ class Pubs extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
-          );
-        }
-      ),
+            )
+        );}
+        return const SizedBox();
+      }
     );
   }
 }

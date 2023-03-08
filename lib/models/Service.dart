@@ -21,4 +21,12 @@ class Service {
     prixFin= json['prixFin'] ?? 0;
     parDefault = json['parDefault'] ?? false;
   }
+
+  Map<String, dynamic> toJson() => {
+    "serviceID": id,
+    "service": service,
+    "prix" : prix,
+    "prixFin" : prixFin
+  };
+
 }

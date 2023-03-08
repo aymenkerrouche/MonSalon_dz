@@ -55,33 +55,28 @@ class CategoriesProvider extends ChangeNotifier {
   Future getPubs() async {
 
     _pubs.clear();
-    ads = false;
+    ads = true;
 
     await FirebaseFirestore.instance.collection('pubs').orderBy('index').get().then((snapshot) async {
-      for (var element in snapshot.docs) {
-
-        Pub data = Pub.fromJson(element.data());
-        data.id = element.id;
-
-        try{
-          data.photo = await storage.child('pubs/${element.id}.jpg').getDownloadURL();
+      if(snapshot.docs.isNotEmpty){
+        for (var element in snapshot.docs) {
+          Pub data = Pub.fromJson(element.data());
+          data.id = element.id;
+          try{
+            data.photo = await storage.child('pubs/${element.id}.jpg').getDownloadURL();
+          }
+          catch(e){
+            data.photo = '';
+          }
+          _pubs.add(data);
         }
-        catch(e){
-          ads = false;
-          data.photo = '';
-        }
-
-        _pubs.add(data);
-
       }
-    })
-    .catchError((e){
+    }).catchError((e){
       pubsError = e.toString();
+      getPubs();
     });
 
-    if(_pubs.isEmpty){
-      _pubs.add(localPub);
-    }
+    ads = false;
     notifyListeners();
   }
 

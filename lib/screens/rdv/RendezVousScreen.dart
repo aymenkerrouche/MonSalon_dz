@@ -23,6 +23,7 @@ import 'package:intl/intl.dart';
 
 import '../../providers/RendezVousProvider.dart';
 import '../../utils/constants.dart';
+import '../profile/account/UpdateProfileScreen.dart';
 
 class RendezVousScreen extends StatelessWidget {
   const RendezVousScreen({Key? key, required this.salon}) : super(key: key);
@@ -96,7 +97,7 @@ class Body extends StatelessWidget {
             builder: (BuildContext cntxt, StateSetter setState) {
               return  ElevatedButton(
                 onPressed:() async {
-                  setState((){click = true;});
+                  setState((){click = true;phone = '';name = '';});
                   final rdv = Provider.of<RDVProvider>(context,listen: false);
                   await getUser(context);
                   if(name != '' && phone != ''){
@@ -125,6 +126,15 @@ class Body extends StatelessWidget {
                     else{
                       GFToast.showToast("Veuillez sélectionner au moins une préstation", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
                     }
+                  }
+                  else{
+                    Timer(const Duration(milliseconds: 200),(){
+                      PersistentNavBarNavigator.pushNewScreen(context,
+                        screen: const UpdateProfileScreen(),
+                        withNavBar: false,
+                        pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                      );
+                    });
                   }
 
                   setState((){click = false;});
@@ -156,7 +166,6 @@ class Body extends StatelessWidget {
   }
 
   Future<void> getUser(context) async {
-
     await FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser?.uid).get().then((snapshot){
       if(snapshot.data() != null){
         phone = snapshot.data()!['phone'] ?? '';
@@ -164,10 +173,10 @@ class Body extends StatelessWidget {
       }
     }).whenComplete((){
      if(phone == ''){
-        GFToast.showToast("Veuillez d'abord ajouter votre numéro de téléphone à votre profil", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
+        GFToast.showToast("Veuillez ajouter votre numéro de téléphone", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
       }
       else if(name == ''){
-        GFToast.showToast("Veuillez d'abord ajouter votre notre à votre profil", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
+        GFToast.showToast("Veuillez d'abord ajouter votre nom", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
       }
     });
   }

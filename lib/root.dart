@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
-import 'package:monsalondz/providers/FavoriteProvider.dart';
 import 'package:monsalondz/screens/SearchScreen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:monsalondz/screens/Favorites.dart';
@@ -162,28 +161,34 @@ class _RootState extends State<Root> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if(!snapshot.hasData) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 150,),
-                  SizedBox(
-                    height: 300,
-                    child: Lottie.asset("assets/animation/auth.json",reverse: true),
+            return Scaffold(
+              appBar: AppBar( backgroundColor: Colors.white,),
+              body: SafeArea(
+                child: Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 70,),
+                      SizedBox(
+                        height: 300,
+                        child: Lottie.asset("assets/animation/auth.json",reverse: true),
+                      ),
+                      const SizedBox(height: 50,),
+                      const Text("Connecter-vous à votre compte pour voir vos salons préférés",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w600,fontSize: 22),),
+                      const SizedBox(height: 20,),
+                      CupertinoButton(
+                        onPressed: (){
+                          controller.jumpToTab(3);
+                        },
+                        color: primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(12)),
+                        child: Text("Se connecter".toUpperCase(),style: const TextStyle(fontWeight: FontWeight.w700,fontSize: 20,letterSpacing: .8,color: Colors.white,fontFamily: 'Rubik',),),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 50,),
-                  const Text("Connecter-vous à votre compte pour voir vos salons préférés",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w600,fontSize: 22),),
-                  const SizedBox(height: 20,),
-                  CupertinoButton(
-                    onPressed: (){
-                      controller.jumpToTab(3);
-                    },
-                    color: primary,
-                    borderRadius: const BorderRadius.all(Radius.circular(12)),
-                    child: Text("Se connecter".toUpperCase(),style: const TextStyle(fontWeight: FontWeight.w700,fontSize: 20,letterSpacing: .8,color: Colors.white,fontFamily: 'Rubik',),),
-                  ),
-                ],
+                ),
               ),
             );
           }
