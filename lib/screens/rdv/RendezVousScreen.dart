@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, use_build_context_synchronously
 
 import 'dart:async';
 
@@ -99,33 +99,33 @@ class Body extends StatelessWidget {
                 onPressed:() async {
                   setState((){click = true;phone = '';name = '';});
                   final rdv = Provider.of<RDVProvider>(context,listen: false);
-                  await getUser(context);
-                  if(name != '' && phone != ''){
-                    if(serviceController.selectedItem.isNotEmpty){
-                      if(rdv.selectedDay == 'Selectionnez une date'){
-                        GFToast.showToast("Veuillez Selectionnez une date", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
-                      }
-                      else{
-                        if(rdv.selectedHour == ''){
-                          GFToast.showToast("Veuillez Selectionnez une heure", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
+                  await getUser(context).then((then){
+                    if(name != '' && phone != ''){
+                      if(serviceController.selectedItem.isNotEmpty){
+                        if(rdv.selectedDay == 'Selectionnez une date'){
+                          GFToast.showToast("Veuillez Selectionnez une date", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
                         }
                         else{
-                          rdv.fillRDV(salon, phone, serviceController.selectedItem, teamController);
-                          rdv.calcPrix();
-                          if(rdv.rendezVous != null){
-                            Timer(const Duration(milliseconds: 200), () {
-                              PersistentNavBarNavigator.pushNewScreen(context,
-                                screen: const FactureScreen(), withNavBar: false,
-                                pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                              );
-                            });
+                          if(rdv.selectedHour == ''){
+                            GFToast.showToast("Veuillez Selectionnez une heure", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
+                          }
+                          else{
+                            rdv.fillRDV(salon, phone, serviceController.selectedItem, teamController);
+                            rdv.calcPrix();
+                            if(rdv.rendezVous != null){
+                              Timer(const Duration(milliseconds: 200), () {
+                                PersistentNavBarNavigator.pushNewScreen(context,
+                                  screen: const FactureScreen(), withNavBar: false,
+                                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                );
+                              });
+                            }
                           }
                         }
                       }
-                    }
-                    else{
-                      GFToast.showToast("Veuillez sélectionner au moins une préstation", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
-                    }
+                      else{
+                        GFToast.showToast("Veuillez sélectionner au moins une préstation", context,toastDuration: 3,backgroundColor: black,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
+                      }
                   }
                   else{
                     Timer(const Duration(milliseconds: 200),(){
@@ -136,6 +136,7 @@ class Body extends StatelessWidget {
                       );
                     });
                   }
+                  });
 
                   setState((){click = false;});
                 },

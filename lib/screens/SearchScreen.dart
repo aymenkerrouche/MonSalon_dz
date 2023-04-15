@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:monsalondz/models/Category.dart' as cat;
+import 'package:monsalondz/models/Service.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/screens/salon/SalonScreen.dart';
@@ -51,6 +52,7 @@ class SearchScreen extends StatelessWidget {
                         children: [
                           const SizedBox(width: 16,),
                           const FilterCategory(),
+                          const FilterService(),
                           const FilterWilaya(),
                           const FilterPrix(),
                           const FilterDate(),
@@ -320,6 +322,146 @@ class FilterCategory extends StatelessWidget {
                         provider.prixFin
                     );
                   }
+                });
+              },
+            );
+          }
+      ),
+    );
+  }
+}
+
+
+class FilterService extends StatelessWidget {
+  const FilterService({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final categ = Provider.of<CategoriesProvider>(context,listen: false);
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      height: 50,
+      margin: const EdgeInsets.only(right: 15),
+      child:Consumer<SearchProvider>(
+          builder: (cxt, srv, child){
+            return RawChip(
+              label: Text( "Prestations" ,style: TextStyle(color: srv.servicesSelectioned.isEmpty ? primary : white ),),
+              avatar: Container(
+                margin: const EdgeInsets.only(left: 6),
+                child: srv.servicesSelectioned.isEmpty ?
+                SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primary,):
+                Icon(Icons.check_rounded, color: white,),
+              ),
+              backgroundColor: Colors.white,
+              selected: srv.servicesSelectioned.isEmpty ? false: true ,
+              showCheckmark: false,
+              selectedColor: primary,
+              onPressed: (){
+                FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
+                showModalBottomSheet(
+                  context: context,
+                  useRootNavigator: true,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
+                  ),
+                  builder: (context) {
+                    return Container(
+                      width: size.width,
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children:[
+                          Container(
+                            height: 4,
+                            width: 30,
+                            margin: const EdgeInsets.only(top: 5,bottom: 30),
+                            decoration:  BoxDecoration(
+                              color: primaryPro,
+                              borderRadius: const BorderRadius.all(Radius.circular(50)),
+                            ),
+                          ),
+                          const Text( "Sélectionner des Prestations", maxLines: 2,style: TextStyle(fontSize: 20, color: Colors.black),),
+                          const SizedBox(height: 25,),
+                          Container(
+                            constraints: BoxConstraints(
+                                maxHeight: size.height * 0.6
+                            ),
+                            child: StatefulBuilder(
+                              builder: (BuildContext context, StateSetter setState) =>Wrap(
+                                children: categ.servicesParDefault.where((element) => element.category == categ.selectedCat.category).map((e) =>
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                                    child: FilterChip(
+                                      label: Text(e.service!,style: TextStyle(color: srv.servicesSelectioned.where((srvs) => srvs.id == e.id).isNotEmpty ? Colors.white : primaryPro,fontSize: 16),),
+                                      selected: srv.servicesSelectioned.where((srvs) => srvs.id == e.id).isNotEmpty ? true : false,
+                                      onSelected: (v){
+                                        if(v == true){
+                                          setState((){
+                                            srv.servicesSelectioned.add(e);
+                                          });
+                                        }
+                                        else{
+                                          setState((){
+                                            srv.servicesSelectioned.removeWhere((srvs) => srvs.id == e.id);
+                                          });
+
+                                        }
+                                      },
+
+                                      backgroundColor: clr4.withOpacity(.1),
+                                      selectedColor: primaryLite,
+                                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+                                    ),
+                                  )
+                                ).toList(),
+                              )
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () async {
+                              //if(categories.selectedCat.id != ''){
+                              //Provider.of<SearchProvider>(context,listen: false).fetchSalonsCategory(categories.selectedCat.category!);
+                              Navigator.pop(context);
+                              //}
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: primary,
+                                fixedSize: const Size(double.maxFinite, 45),
+                                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Text('Appliquer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
+                                SizedBox(width: 15,),
+                                Icon(CupertinoIcons.search,color: Colors.white)
+                              ],
+                            ),
+
+                          ),
+                          const SizedBox(height: 15,),
+                          OutlinedButton(
+                            onPressed: (){
+                              srv.clearServicesSelectioned();
+                              Navigator.pop(context);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+                              side: BorderSide(color: Colors.red.shade800, width: 1),
+                              foregroundColor: Colors.red.shade800,
+                              fixedSize: const Size(double.maxFinite, 45),
+                            ),
+                            child: Text("Effacer les services", style: TextStyle(color: Colors.red.shade800,fontWeight: FontWeight.w600,fontSize: 20),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    );
+                  }
+                ).whenComplete(() async {
+                    srv.filterPrestation();
                 });
               },
             );
@@ -924,6 +1066,7 @@ class _SalonListState extends State<SalonList> {
   Future<void> fetchSalons() async {
     await Provider.of<SearchProvider>(context,listen: false).fetchSalons();
   }
+
   List<Salon> salonsTemps = [];
 
   @override
@@ -938,7 +1081,7 @@ class _SalonListState extends State<SalonList> {
           }
 
           else if(salons.listSalon.isEmpty ){
-              return Center(child: Lottie.asset("assets/animation/empty.json"),);
+              return Center(child: Lottie.asset("assets/animation/empty.json",reverse: true),);
           }
 
           if(salons.search.text.isNotEmpty){
@@ -946,17 +1089,20 @@ class _SalonListState extends State<SalonList> {
               element.nom!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
               element.wilaya!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
               element.commune!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
-              element.description!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
-              element.categories.contains(salons.search.text.toUpperCase()) ||
-              element.service.map((e) => e.service).contains(salons.search.text.toUpperCase())
+              element.description!.toUpperCase().contains(salons.search.text.toUpperCase())
             ).toList();
           }
           else{
             salonsTemps = salons.listSalon;
           }
 
-          if(salonsTemps.isEmpty){
-            return Center(child: Lottie.asset("assets/animation/empty.json"),);
+          if(salons.servicesSelectioned.isNotEmpty){
+            salons.filterPrestation();
+            salonsTemps = salonsTemps;
+          }
+
+          if(salonsTemps.isEmpty && salons.servicesSelectioned.isEmpty){
+            return Center(child: Lottie.asset("assets/animation/empty.json",reverse: true),);
           }
 
           return Column(
@@ -974,23 +1120,17 @@ class _SalonListState extends State<SalonList> {
                     salons.fetchSalons();
                     salons.hasMore = true;
                   },
-                  child: Scrollbar(
-                    thickness: 4,
-                    trackVisibility: true,
-                    controller: ScrollController(),
-                    radius: const Radius.circular(25),
-                    child: ListView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: List.generate(salonsTemps.length, (index){
-                        if(salonsTemps.length > index){
-                          return SalonWidget(salon: salonsTemps.elementAt(index));
-                        }
-                        else {
-                          return const SizedBox();
-                        }
-                      }),
-                    ),
+                  child: ListView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: List.generate(salonsTemps.length, (index){
+                      if(salonsTemps.length > index){
+                        return SalonWidget(salon: salonsTemps.elementAt(index));
+                      }
+                      else {
+                        return const SizedBox();
+                      }
+                    }),
                   ),
                 ),
               ),

@@ -35,6 +35,11 @@ class SalonProvider extends ChangeNotifier {
     await FirebaseFirestore.instance.collection("statistics").doc(id).update({
       "vuTotal": FieldValue.increment(1),
       "vu${DateTime.now().year}.${DateTime.now().month}" : FieldValue.increment(1),
+    }).catchError((e) async {
+      await FirebaseFirestore.instance.collection("statistics").doc(id).set({
+        "vuTotal": FieldValue.increment(1),
+        "vu${DateTime.now().year}" : {"${DateTime.now().month}":FieldValue.increment(1)},
+      });
     });
   }
 

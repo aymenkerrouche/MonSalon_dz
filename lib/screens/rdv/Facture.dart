@@ -190,9 +190,9 @@ class FactureScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed:() async {
                   await Provider.of<RDVProvider>(context,listen: false).createRDV().then((value){
-                    if(value == true){
+                    
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const DoneScreen()),);
-                    }
+                  
                   }).catchError((e){
                     GFToast.showToast("$e", context,toastDuration: 3,backgroundColor: red,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM, );
                   });

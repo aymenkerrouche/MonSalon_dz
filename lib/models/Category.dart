@@ -1,7 +1,10 @@
+import 'package:monsalondz/models/Service.dart';
+
 class Category {
   String? id;
   String? category;
   String photo = '';
+  List<Service> servicesParDefault = [];
 
   Category(this.id,this.category, this.photo);
 

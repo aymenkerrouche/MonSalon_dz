@@ -16,7 +16,7 @@
 
     <item
         android:width="90dp"
-        android:height="30dp"
+        android:height="40dp"
         android:bottom="50dp"
         android:gravity="bottom|center">
         <bitmap

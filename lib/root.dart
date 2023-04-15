@@ -63,6 +63,7 @@ class _RootState extends State<Root> {
     await prv.getPubs();
     await prv.getCategories().then((value) async {
       await prv.getCategoriesPhotos();
+      await prv.getServices();
     });
   }
 
@@ -91,9 +92,9 @@ class _RootState extends State<Root> {
       navBarHeight: 55,
       stateManagement: true,
       hideNavigationBarWhenKeyboardShows: true,
-      decoration: NavBarDecoration(
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-        colorBehindNavBar: white,
+      decoration: const NavBarDecoration(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+        colorBehindNavBar: Colors.white,
       ),
       popAllScreensOnTapOfSelectedTab: true,
       popActionScreens: PopActionScreensType.once,

@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/Salon.dart';
 
+import '../models/Service.dart';
+
 class SearchProvider extends ChangeNotifier {
 
 
@@ -122,8 +124,37 @@ class SearchProvider extends ChangeNotifier {
   DocumentSnapshot? lastDocument;
   bool isSearching = false;
 
+  List<Service> servicesSelectioned = [];
+  clearServicesSelectioned(){
+    servicesSelectioned.clear();
+    salonsTemps.clear();
+    notifyListeners();
+  }
 
-  Future fetchSalons() async {
+  List<Salon> salonsTemps = [];
+
+  filterPrestation(){
+    salonsTemps.clear();
+    salonsTemps = _listSalon;
+    print(_listSalon.length);
+    if(servicesSelectioned.isNotEmpty){
+      for(int i = 0 ; i < salonsTemps.length; i++){
+        bool delete = true;
+        for(int j = 0 ; j < salonsTemps[i].service.length; j++){
+          if(servicesSelectioned.where((element) => element.service == salonsTemps[i].service[j].service).isNotEmpty){
+            delete = false;
+          }
+        }
+        if(delete == true){
+          salonsTemps.removeWhere((element) => element.id == salonsTemps[i].id);
+        }
+      }
+    }
+    notifyListeners();
+  }
+
+
+  Future<void> fetchSalons() async {
 
     QuerySnapshot? documentList;
     isLoading = true;
@@ -171,8 +202,6 @@ class SearchProvider extends ChangeNotifier {
     Timer(const Duration(seconds: 1), () {isLoading = false;notifyListeners(); });
   }
 
-
-  // FILTER
   Future<void> filterSalons(dynamic category,dynamic wilaya,dynamic price,dynamic date) async {
 
     isSearching= true;
@@ -191,7 +220,6 @@ class SearchProvider extends ChangeNotifier {
                 .where("category", arrayContains: category )
                 .where("days.$date", isEqualTo: true )
                 .where("prix", isLessThanOrEqualTo: price )
-
                 .where("wilaya", isEqualTo: wilaya ).get()
                 .then((value) async {
 
@@ -642,9 +670,27 @@ class SearchProvider extends ChangeNotifier {
     }
 
     Timer(const Duration(seconds: 1), () {isSearching= false;notifyListeners(); });
+    await getServices();
+  }
 
+  Future<void> getServices() async {
+    if(_listSalon.isNotEmpty){
+      for (var element in _listSalon) {
+        await FirebaseFirestore.instance.collection("services").
+        where("salonID", isEqualTo: element.id )
+            .get()
+            .then((services){
+          if(services.docs.isNotEmpty){
+            for (var sr in services.docs) {
+              Service service =  Service.fromJson(sr.data());
+              service.id = sr.id;
+              element.service.add(service);
+            }
+          }
+        });
+      }
+    }
     notifyListeners();
-
   }
 
 /*  Future<void> searchByWord() async{

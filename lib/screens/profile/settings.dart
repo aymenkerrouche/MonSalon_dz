@@ -120,7 +120,7 @@ class OptionSetting extends StatelessWidget {
             onChanged: onTap ?? (v){},
             value: false,
             type: GFToggleType.ios,
-            enabledTrackColor: primary,
+            enabledTrackColor: primaryLite,
             duration: const Duration(milliseconds: 200),
           ),
           const SizedBox(width: 5,),

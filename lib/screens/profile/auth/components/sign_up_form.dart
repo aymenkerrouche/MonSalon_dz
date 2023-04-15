@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -389,12 +390,16 @@ class _SignUpFormState extends State<SignUpForm> {
                     if(user?.user != null){
                       if(user!.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
                         try{
-                          await FirebaseFirestore.instance.collection("users").doc(user.user?.uid).set({"name": user.user?.displayName, "email": user.user?.email});
+                          await FirebaseFirestore.instance.collection("users").doc(user.user?.uid).set({"name": user.user?.displayName, "email": user.user?.email,"token":await FirebaseMessaging.instance.getToken()});
                         }
                         catch(ee){
                           debugPrint(ee.toString());
                           EasyLoading.dismiss();
                         }
+                      }
+                      else{
+                      
+                        await FirebaseFirestore.instance.collection("users").doc(user.user!.uid).update({"token":await FirebaseMessaging.instance.getToken()});
                       }
                     }
 
@@ -443,11 +448,12 @@ class _SignUpFormState extends State<SignUpForm> {
                         try{
                           await user.user?.updatePhotoURL(providerAuth.profile?['picture']['data']['url']);
                           await FirebaseFirestore.instance.collection("users").doc(user.user?.uid)
-                              .set({"name": user.user?.displayName, "email": user.user?.email});
+                          .set({"name": user.user?.displayName, "email": user.user?.email,"token":await FirebaseMessaging.instance.getToken()});
                         }
-                        catch(ee){
-                          debugPrint(ee.toString());
-                        }
+                        catch(ee){debugPrint(ee.toString());}
+                      }
+                      else if(user.user != null){
+                        await FirebaseFirestore.instance.collection("users").doc(user.user!.uid).update({"token":await FirebaseMessaging.instance.getToken()});
                       }
                     }
                     on FirebaseAuthException catch (e) {
@@ -566,6 +572,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                           setState(() {sms = true;});
                                         }),
                                       );
+                                    
                                     },
                                     child: Text( "Envoyer le code",
                                       style: TextStyle(fontSize: 20, color: white,fontWeight: FontWeight.w700),
@@ -631,7 +638,8 @@ class _SignUpFormState extends State<SignUpForm> {
                                               .then((value) async {
                                                 await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).get().then((snapshot) async {
                                                   if(!snapshot.exists){
-                                                    await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).set({"phone": tlpn});
+                                                  
+                                                    await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).set({"phone": tlpn,"token":await FirebaseMessaging.instance.getToken()});
                                                   }
                                                 });
                                                 setState(() {sms = false;});
@@ -686,16 +694,13 @@ class _SignUpFormState extends State<SignUpForm> {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
-        password: passwordController.text.trim());
-        provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
-        setState(() {
-          isLoading = false;
-        });
+        password: passwordController.text.trim()).then((user) async =>  
+          await FirebaseFirestore.instance.collection("users").doc(user.user!.uid).update({"token":await FirebaseMessaging.instance.getToken()}));
+      provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
+      setState(() {isLoading = false;});
     }
     on FirebaseAuthException catch (e) {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() {isLoading = false;});
       GFToast.showToast(
         e.message,
         context,
@@ -715,8 +720,7 @@ class _SignUpFormState extends State<SignUpForm> {
         password: passwordController.text,
       )
       .then((currentUser) async {
-        await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid)
-        .set({"phone": phoneController.text, "email": emailController.text});
+        await FirebaseFirestore.instance.collection("users").doc(currentUser.user?.uid).set({"phone": phoneController.text, "email": emailController.text,"token":await FirebaseMessaging.instance.getToken()});
         provider.credentialAuth = EmailAuthProvider.credential(email: emailController.text, password: passwordController.text);
       });
       return true;

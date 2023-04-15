@@ -35,17 +35,6 @@ import 'package:monsalondz/root.dart';
                 StreamBuilder<User?>(
                     stream: FirebaseAuth.instance.authStateChanges(),
                     builder: (context, snapshot) {
-                      if(!snapshot.hasData) {
-                        return IconButton(
-                          onPressed:(){
-                            controller.jumpToTab(3);
-                          },
-                          icon: Icon(CupertinoIcons.person,color: primary,size: 26,),
-                          style: IconButton.styleFrom(
-                            backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr4.withOpacity(.1),
-                          ),
-                        );
-                      }
                       if(snapshot.hasData) {
                         if(snapshot.data!.uid.isNotEmpty && FirebaseAuth.instance.currentUser?.photoURL != null && FirebaseAuth.instance.currentUser?.phoneNumber == null) {
                           return CachedNetworkImage(
@@ -79,7 +68,15 @@ import 'package:monsalondz/root.dart';
                           ),
                         );
                       }
-                      return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,strokeWidth: 2,),));
+                      return IconButton(
+                        onPressed:(){
+                          controller.jumpToTab(3);
+                        },
+                        icon: Icon(CupertinoIcons.person,color: primary,size: 26,),
+                        style: IconButton.styleFrom(
+                          backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr4.withOpacity(.1),
+                        ),
+                      );
                     }
                 ),
               ],

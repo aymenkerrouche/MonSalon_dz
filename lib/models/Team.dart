@@ -16,6 +16,6 @@ class Team {
   Map<String, dynamic> toJson() => {
     "salonID": salonID,
     "userID": userID,
-    "name" : name
+    "user" : name
   };
 }

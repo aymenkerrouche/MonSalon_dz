@@ -9,81 +9,94 @@ import '../models/Service.dart';
 import '../utils/constants.dart';
 
 class RDVProvider extends ChangeNotifier {
-
-
   RendezVous? _rendezVous;
-  RendezVous ? get rendezVous => _rendezVous;
+  RendezVous? get rendezVous => _rendezVous;
 
-  set rendezVous(RendezVous? newrdv){
+  set rendezVous(RendezVous? newrdv) {
     _rendezVous = newrdv;
     notifyListeners();
   }
 
-
   List<String> heures = [];
-  List<String> heuresSHIMER = ['10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+  List<String> heuresSHIMER = [
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00'
+  ];
 
   String _selectedHour = '';
   String get selectedHour => _selectedHour;
-  set selectedHour(String heure){
+  set selectedHour(String heure) {
     _selectedHour = heure;
     _rendezVous?.hour = _selectedHour;
+    String dateTemp = _rendezVous!.date!.split(" ").last;
+    DateTime date2 = DateFormat('dd-MM-yyyy, HH:mm').parse('$dateTemp, $heure');
+    _rendezVous?.date2 = Timestamp.fromDate(date2);
     notifyListeners();
   }
 
   String _selectedDay = 'Selectionnez une date';
   String get selectedDay => _selectedDay;
-  set selectedDay(String day){
+  set selectedDay(String day) {
     _selectedDay = day;
     _rendezVous?.date = day;
     notifyListeners();
   }
 
-  getHours(DateTime pickedDay, Hours hours){
-
+  getHours(DateTime pickedDay, Hours hours) {
     heures.clear();
     _selectedHour = '';
 
     String start = hours.jours[weekdayName[pickedDay.weekday]]["start"];
     String end = hours.jours[weekdayName[pickedDay.weekday]]["fin"];
 
-
-    DateTime dateTimeStart = dateFormat.parse("${DateFormat("dd-MM-yyyy").format(pickedDay)} $start");
-    DateTime dateTimeEnd = dateFormat.parse("${DateFormat("dd-MM-yyyy").format(pickedDay)} $end");
+    DateTime dateTimeStart = dateFormat
+        .parse("${DateFormat("dd-MM-yyyy").format(pickedDay)} $start");
+    DateTime dateTimeEnd =
+        dateFormat.parse("${DateFormat("dd-MM-yyyy").format(pickedDay)} $end");
     DateTime dateTimeTemp = dateTimeStart;
 
-
-    while(dateTimeTemp.isBefore(dateTimeEnd)){
+    while (dateTimeTemp.isBefore(dateTimeEnd)) {
       heures.add(DateFormat.Hm().format(dateTimeTemp));
       dateTimeTemp = dateTimeTemp.add(const Duration(minutes: 30));
     }
 
     notifyListeners();
-
   }
 
-  calcPrix(){
-    int prix = 0 ;
+  calcPrix() {
+    int prix = 0;
     int prixFin = 0;
-    _rendezVous?.services.forEach((element) {
+    for (var element in _rendezVous!.services) {
       prix += element.prix!;
       prixFin += element.prixFin == 0 ? element.prix! : element.prixFin!;
-    });
+    }
     _rendezVous?.prix = prix;
     _rendezVous?.prixFin = prixFin;
     notifyListeners();
   }
 
-  clear(){
+  clear() {
     _selectedHour = '';
     _selectedDay = "Selectionnez une date";
     heures.clear();
     _rendezVous = RendezVous.fromJson({});
     notifyListeners();
   }
-  
-  
-  fillRDV(Salon salon, String phone, List<Service> services, teamController){
+
+  fillRDV(Salon salon, String phone, List<Service> services, teamController) {
     _rendezVous?.salon = salon.nom;
     _rendezVous?.services = services;
     _rendezVous?.location = salon.location;
@@ -92,12 +105,11 @@ class RDVProvider extends ChangeNotifier {
     _rendezVous?.user = FirebaseAuth.instance.currentUser?.displayName;
     _rendezVous?.userPhone = phone;
     _rendezVous?.remise = salon.remise;
-    if(salon.promo == true) _rendezVous?.remise = salon.remise;
-    if(teamController.selectedItem.name != "N'importe qui"){
+    if (salon.promo == true) _rendezVous?.remise = salon.remise;
+    if (teamController.selectedItem.name != "N'importe qui") {
       _rendezVous?.team = true;
       _rendezVous?.teamInfo = teamController.selectedItem;
-    }
-    else{
+    } else {
       _rendezVous?.team = false;
       _rendezVous?.teamInfo = null;
     }
@@ -105,12 +117,35 @@ class RDVProvider extends ChangeNotifier {
   }
 
   Future<bool> createRDV() async {
-    Map<String,dynamic> json= _rendezVous!.toJson();
-    try{await FirebaseFirestore.instance.collection("rdv").add(json);return true;}
-    catch(e){
-      print(e);return false;
+    Map<String, dynamic> json = _rendezVous!.toJson();
+    try {
+      await FirebaseFirestore.instance
+          .collection("rdv")
+          .add(json)
+          .then((value) async {
+        await FirebaseFirestore.instance
+            .collection("statistics")
+            .doc(value.id)
+            .update({
+          "rdvTotal": FieldValue.increment(1),
+          "rdv${DateTime.now().year}.${DateTime.now().month}":
+              FieldValue.increment(1)
+        });
+        if (_rendezVous!.services.isNotEmpty) {
+          for (var element in _rendezVous!.services) {
+            await FirebaseFirestore.instance
+                .collection("statistics")
+                .doc(value.id)
+                .update({
+              "services.${element.service}": FieldValue.increment(1),
+            });
+          }
+        }
+      });
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
     }
   }
-
-
 }

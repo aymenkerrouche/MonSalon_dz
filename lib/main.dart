@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/FavoriteProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
+import 'package:monsalondz/providers/MapsProvider.dart';
 import 'package:monsalondz/providers/RendezVousProvider.dart';
 import 'package:monsalondz/providers/SalonProvider.dart';
 import 'package:monsalondz/providers/SearchPrivider.dart';
@@ -36,6 +37,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => SalonProvider()),
         ChangeNotifierProvider(create: (context) => FavoriteProvider()),
         ChangeNotifierProvider(create: (context) => RDVProvider()),
+        ChangeNotifierProvider(create: (context) => MapsProvider()),
       ],
       child: const MyApp(),
     ),

@@ -178,7 +178,7 @@ class _ProfileState extends State<Profile> {
                 const Align(
                   alignment: Alignment.center,
                   child: Text(
-                    "v1.0.0 by Techno DZ",
+                    "v 1.0.0 by Aymen Kerrouche",
                     style: TextStyle(
                       color: Colors.black26,
                       fontWeight: FontWeight.w400,

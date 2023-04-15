@@ -6,12 +6,15 @@ import '../models/Category.dart';
 import '../models/Pub.dart';
 import '../models/Salon.dart';
 import '../models/Service.dart';
-import '../utils/constants.dart';
+
 
 class CategoriesProvider extends ChangeNotifier {
 
   List<Category> _categories = [];
   List<Category> get categories => _categories;
+
+  List<Service> _servicesParDefault = [];
+  List<Service> get servicesParDefault => _servicesParDefault;
 
   List<Salon> _populars = [];
   List<Salon> get populars => _populars;
@@ -151,6 +154,17 @@ class CategoriesProvider extends ChangeNotifier {
     }
     catch(e){print(e);}
 
+    notifyListeners();
+  }
+
+  Future getServices() async {
+    servicesParDefault.clear();
+    await FirebaseFirestore.instance.collection("services").where("parDefault", isEqualTo: true ).get().then((snapshot){
+      for (var element in snapshot.docs) {
+        Service data = Service.fromJson(element.data());
+        data.id = element.id;
+        _servicesParDefault.add(data);}
+    });
     notifyListeners();
   }
 }

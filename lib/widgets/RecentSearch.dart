@@ -95,6 +95,7 @@ class RecentSearch extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 25,),
             ],
           );
         }
