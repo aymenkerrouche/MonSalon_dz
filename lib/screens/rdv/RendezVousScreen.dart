@@ -357,7 +357,7 @@ class PickDay extends StatelessWidget {
                 child: ListTile(
                   title: Text(provider.selectedDay,style: TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: primaryPro,),),
                   trailing: Icon(CupertinoIcons.calendar, color: primaryPro,),
-                  tileColor: clr4.withOpacity(.15),
+                  tileColor: clr3.withOpacity(.15),
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)),),
                 ),
               ),
@@ -397,7 +397,7 @@ class PickHour extends StatelessWidget {
                         }
                       },
 
-                      backgroundColor: clr4,
+                      backgroundColor: clr3,
                       //pressElevation: 1,
                       selectedColor: primaryLite,
                       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
@@ -413,10 +413,10 @@ class PickHour extends StatelessWidget {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 5),
                   child: FilterChip(
-                    label: GFShimmer(mainColor: clr3, secondaryColor: clr4,child: Text(rdv.heuresSHIMER[index],style: TextStyle(color:primaryPro,fontSize: 16),)),
+                    label: GFShimmer(mainColor: clr3, secondaryColor: clr3,child: Text(rdv.heuresSHIMER[index],style: TextStyle(color:primaryPro,fontSize: 16),)),
                     selected: false,
                     onSelected: (v){},
-                    backgroundColor: clr4,
+                    backgroundColor: clr3,
                     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
                   ),
                 );

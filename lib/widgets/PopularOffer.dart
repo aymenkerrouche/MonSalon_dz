@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:monsalondz/utils/constants.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import '../models/Salon.dart';
@@ -30,35 +31,25 @@ class PopularOffer extends StatelessWidget {
               minHeight: 260,
               //maxHeight: 290
             ),
-            width: MediaQuery.of(context).size.width * 0.95,
+            width: MediaQuery.of(context).size.width,
             margin: const EdgeInsets.only(bottom: 10,top: 10) ,
             decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(12),),
+                borderRadius: const BorderRadius.all(Radius.circular(14),),
                 color: white,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    offset: Offset(0, 3),
-                    blurRadius: 10,
-                  )
-                ]
+
             ),
             child: Material(
-              elevation: 8,
-              borderRadius: BorderRadius.circular(12),
+              elevation: 4,
+              borderRadius: BorderRadius.circular(14),
               clipBehavior: Clip.antiAliasWithSaveLayer,
               child: InkWell(
-                splashColor: primary.withOpacity(.2),
+                splashColor: primary.withOpacity(.1),
                 highlightColor: Colors.transparent,
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
+                borderRadius: const BorderRadius.all(Radius.circular(14)),
                 onTap: () async {
                   final provider =  Provider.of<SalonProvider>(context,listen: false);
-
                   provider.search = true;
-
                   Provider.of<HistoryProvider>(context,listen: false).setSalonsHistory(salon);
-
-                  print(salon.service.map((e) => e.service).toList());
 
                   Timer(const Duration(milliseconds: 200),(){
                     PersistentNavBarNavigator.pushNewScreen(context,
@@ -77,7 +68,7 @@ class PopularOffer extends StatelessWidget {
                     SizedBox(
                       height: 200,
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(14), topRight: Radius.circular(14)),
                         child: CachedNetworkImage(
                           imageUrl: "${salon.photo}",
                           placeholder: (context, url) => const BlankImageWidget(),
@@ -86,7 +77,7 @@ class PopularOffer extends StatelessWidget {
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                                borderRadius: const BorderRadius.only(topLeft: Radius.circular(14), topRight: Radius.circular(14)),
                                 image: DecorationImage(image: imageProvider, fit: BoxFit.fill),
                               ),
                             ),
@@ -118,7 +109,7 @@ class PopularOffer extends StatelessWidget {
 
                                 //Titre
                                 Text(
-                                  "${salon.nom}",
+                                  "${salon.nom}".toTitleCase(),
                                   style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

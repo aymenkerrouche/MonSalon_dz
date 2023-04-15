@@ -20,7 +20,7 @@ class FavoriteScreen extends StatelessWidget {
         centerTitle: false,
         actions: [
           Material(
-            elevation: 8,
+            elevation: 3,
             shape: const CircleBorder(),
             clipBehavior: Clip.antiAliasWithSaveLayer,
               child: InkWell(
@@ -32,7 +32,7 @@ class FavoriteScreen extends StatelessWidget {
                 child: Container(
                     decoration: BoxDecoration(shape: BoxShape.circle,color: primaryLite.withOpacity(.1)),
                     padding: const EdgeInsets.all(10),
-                    child: SvgPicture.asset("assets/icons/filter.svg",width: 18,height: 18,color: primaryPro,)),
+                    child: SvgPicture.asset("assets/icons/filter.svg",width: 18,height: 18,color: Colors.black,)),
               )
           ),
 
@@ -92,7 +92,7 @@ class _FavoriteListState extends State<FavoriteList> {
         builder: (context, salons, child) {
 
           if(salons.isRefreshing){
-            return Center(child: SizedBox(height: 40,width: 40,child: CircularProgressIndicator(color: primary,)),
+            return const Center(child: SizedBox(height: 40,width: 40,child: CircularProgressIndicator(color: primary,)),
             );
           }
 
@@ -122,6 +122,7 @@ class _FavoriteListState extends State<FavoriteList> {
             },
             child: Container(
               color: Colors.grey.shade50,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Column(
                   children: [
                     Expanded(

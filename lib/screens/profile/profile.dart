@@ -27,7 +27,7 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: background,
         appBar: AppBar(
           title: const Text(
             "Profil",

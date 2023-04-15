@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Rubik',
         splashFactory: InkRipple.splashFactory,
         splashColor: primaryLite,
-        iconTheme: IconThemeData(color: primary),
+        iconTheme: const IconThemeData(color: primary),
         useMaterial3: true,
         scrollbarTheme: const ScrollbarThemeData().copyWith(
           thumbColor: MaterialStateProperty.all(primary),

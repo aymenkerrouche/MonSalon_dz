@@ -78,7 +78,6 @@ class CategoriesProvider extends ChangeNotifier {
       pubsError = e.toString();
       getPubs();
     });
-
     ads = false;
     notifyListeners();
   }

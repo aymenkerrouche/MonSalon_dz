@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 pinned: true,
                 floating: false,
                 forceElevated: false,
-                elevation: 50,
+                elevation: 0,
                 backgroundColor: Colors.white,
                 title: AnimatedSwitcher(
                   key: const Key("show"),
@@ -164,7 +164,7 @@ class HomeBody extends StatelessWidget {
 
             const SalonNearOfMe(),
 
-            const SizedBox(height: kToolbarHeight,),
+            const SizedBox(height: 70,),
 
           ],
         ),

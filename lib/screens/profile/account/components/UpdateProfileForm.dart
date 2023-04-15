@@ -1,8 +1,7 @@
-// ignore_for_file: curly_braces_in_flow_control_structures, avoid_returning_null_for_void, use_key_in_widget_constructors, non_constant_identifier_names
+// ignore_for_file: curly_braces_in_flow_control_structures, avoid_returning_null_for_void, use_key_in_widget_constructors, non_constant_identifier_names, must_be_immutable
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
@@ -153,7 +152,16 @@ class UpdateProfileFormState extends State<UpdateProfileForm> {
           'name': provider.nameController.text.trim(),
           'email' : provider.emailController.text.trim()
         })
-        .then((v) => GFToast.showToast("Mise à jour du profil réussie", context,toastDuration: 3,backgroundColor: primary,textStyle: const TextStyle(color: Colors.white),toastPosition:GFToastPosition.BOTTOM));
+        .then((v){
+          const snackBar = SnackBar(
+            elevation: 10,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+            content: Text("Mise à jour du profil réussie", style: TextStyle(color: Colors.white),),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        });
+
       }
       on FirebaseAuthException catch (e) {
         GFToast.showToast(e.code, context,toastDuration: 3,backgroundColor: red,textStyle: TextStyle(color: white),toastPosition:GFToastPosition.BOTTOM,);

@@ -27,11 +27,11 @@ class ListCatigories extends StatelessWidget {
           ),
           itemBuilder: (BuildContext context, int index) {
             return Material(
-              elevation: 10,
+              elevation: 2,
               borderRadius: BorderRadius.circular(14),
               clipBehavior: Clip.antiAliasWithSaveLayer,
               child: InkWell(
-                radius: 14,
+                borderRadius: const BorderRadius.all(Radius.circular(14)),
                 highlightColor: primary,
                 splashColor: primary,
                 onTap: () async {

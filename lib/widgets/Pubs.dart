@@ -11,12 +11,14 @@ class Pubs extends StatelessWidget {
   const Pubs({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Consumer<CategoriesProvider>(
       builder: (context, pubs, child) {
         if(pubs.ads == true){
           return GFShimmer(
-            mainColor: Colors.grey.shade100,
+            mainColor: Colors.grey.shade50,
             child: Container(
+              margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(14),),
                   color: Colors.grey.shade50
@@ -31,42 +33,23 @@ class Pubs extends StatelessWidget {
               autoPlayAnimationDuration: const Duration(seconds: 1),
               enlargeCenterPage: true,
               aspectRatio: 2,
-              viewportFraction: 0.95,
+              viewportFraction: .95,
             ),
             items: List.generate(pubs.pubs.length, (index) =>
                 Material(
-                  elevation: 10,
                   borderRadius: BorderRadius.circular(16),
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    highlightColor: primary.withOpacity(0.2),
                     splashFactory: NoSplash.splashFactory,
+                    borderRadius: BorderRadius.circular(16),
+                    highlightColor: primary.withOpacity(0.3),
                     onTap: () async {
                       final Uri url = Uri.parse(pubs.pubs[index].lien!);
                       await launchUrl(url,mode: LaunchMode.externalApplication);
                     },
-                    child: CachedNetworkImage(
-                      imageUrl: pubs.pubs[index].photo,
-                      fit: BoxFit.fill,
-                      imageBuilder: (context, imageProvider) => Ink.image(
-                        image: imageProvider,
-                        fit: BoxFit.fill,
-                      ),
-                      errorWidget: (cnx,photo,err)=> Ink.image(
-                        image: AssetImage(pubs.pubs[index].photo),
-                        fit: BoxFit.fill,
-                      ),
-                      placeholder: (context,s) => GFShimmer(
-                        mainColor: Colors.grey.shade100,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(14),),
-                              color: Colors.grey.shade50
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: SizedBox(
+                      width: size.width,
+                        child: Ink.image(image:CachedNetworkImageProvider(pubs.pubs[index].photo),fit: BoxFit.fill)),
                   ),
                 ),
             )

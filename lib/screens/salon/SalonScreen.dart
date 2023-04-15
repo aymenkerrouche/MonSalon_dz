@@ -53,6 +53,7 @@ class _SalonScreenState extends State<SalonScreen> {
       body: SizedBox(
         child: Stack(
           children: [
+
             // PHOTOS
             SizedBox(
               height: size.height * 0.4,
@@ -61,11 +62,11 @@ class _SalonScreenState extends State<SalonScreen> {
                 builder: (context, salon, child) {
                   if(salon.search == false && salon.images.isEmpty){
                     return GFShimmer(
-                      secondaryColor: primaryLite,
+                      secondaryColor: primaryLite.withOpacity(.3),
                       duration: const Duration(seconds: 2),
-                      mainColor: clr3,
+                      mainColor: primaryLite,
                       child: Container(
-                          color: clr4
+                          color: primary
                       ),
                     );
                   }
@@ -82,11 +83,11 @@ class _SalonScreenState extends State<SalonScreen> {
                         imageUrl: salon.images[index],
                         errorWidget: (cnx, photo, err) => const BlankImageWidget(error: true,),
                         placeholder: (context, s) => GFShimmer(
-                              mainColor: clr4,
+                              mainColor: primary,
                               child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(14),),
-                                  color: clr4
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(14),),
+                                  color: primary
                                 ),
                               ),
                             ),
@@ -135,9 +136,9 @@ class _SalonScreenState extends State<SalonScreen> {
                         },
                         padding: EdgeInsets.zero,
                         isSelected: salon.salon?.isFavorite["like"],
-                        icon: Icon(CupertinoIcons.heart,color: primary,size: 32,),
-                        splashColor: clr4,
-                        selectedIcon: Icon(CupertinoIcons.heart_fill,color: primaryLite,size: 32,),
+                        icon: const Icon(CupertinoIcons.heart,color: primary,size: 32,),
+                        splashColor: primary,
+                        selectedIcon: const Icon(CupertinoIcons.heart_fill,color: primaryLite2,size: 32,),
                       ),
                     );
                   }),
@@ -157,14 +158,14 @@ class _SalonScreenState extends State<SalonScreen> {
                   child: IconButton(
                     onPressed:(){Navigator.pop(context);},
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.arrow_back_rounded,color: primary,size: 30,),
-                    splashColor: clr4,
+                    icon: const Icon(Icons.arrow_back_rounded,color: primary,size: 30,),
+                    splashColor: primary,
 
                   ),
                 ),
               ),
             ),
-            
+
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -186,7 +187,7 @@ class _SalonScreenState extends State<SalonScreen> {
               }
               return SizedBox(
                 height: size.height,
-                child: Center(child: CircularProgressIndicator(color: primary,),));
+                child: const Center(child: CircularProgressIndicator(color: primary,),));
             }),
           ],
         ),
@@ -223,9 +224,9 @@ class DetailScreen extends StatelessWidget {
               Container(
                 height: 4,
                 margin: EdgeInsets.only(left: size.width * 0.43,right:size.width * 0.43,top: 10,bottom: 30),
-                decoration:  BoxDecoration(
-                  color: primaryLite,
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
+                decoration:  const BoxDecoration(
+                  color: primaryLite2,
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
                 ),
               ),
 
@@ -253,7 +254,7 @@ class DetailScreen extends StatelessWidget {
                       // LOCATION
                       Row(
                         children: [
-                          SvgPicture.asset("assets/icons/location.svg", width: 18,height: 18, color: primaryLite,),
+                          SvgPicture.asset("assets/icons/location.svg", width: 18,height: 18, color: primaryLite2,),
                           const SizedBox(width: 10,),
                           SizedBox(
                             width: size.width * 0.8,
@@ -282,31 +283,20 @@ class DetailScreen extends StatelessWidget {
                       if(salon.team)Experts(teams: salon.teams,),
 
                       // DIVIDER
-                      Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          child: const Divider(
-                            color: Colors.black38,
-                            height: 50,
-                          )
-                      ),
+                      const SizedBox(height: 50,),
 
 
                       //Contacts
                       ContactSection(phone: salon.phone!,location: salon.location!,latitude: salon.latitude!,longitude: salon.longitude!,id: salon.id!,),
 
+                      const SizedBox(height: 20,),
 
                       //Comments
                       const CommentsList(),
 
 
                       // DIVIDER
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        child: const Divider(
-                          color: Colors.black38,
-                          height: 50,
-                        )
-                      ),
+                      const SizedBox(height: 50,),
 
 
                       // BOOK
@@ -339,14 +329,14 @@ class DetailScreen extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
-                          foregroundColor: clr3,
+                          foregroundColor: primary,
                           fixedSize: const Size(double.maxFinite, 56),
                           elevation: 6,
                           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('Réserver maintenant', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
+                            const Text('Réserver', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
                             const SizedBox(width: 15,),
                             SvgPicture.asset("assets/icons/book.svg",width: 26,height: 26,color: Colors.white,),
                           ],
@@ -378,7 +368,7 @@ class Experts extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(CupertinoIcons.group,color: primaryLite,),
+            const Icon(CupertinoIcons.group,color: primaryLite2,),
             const SizedBox(width: 10,),
             Text("Nos Experts", style: TextStyle(
               fontSize: size.width * 0.06,
@@ -400,8 +390,8 @@ class Experts extends StatelessWidget {
                       SizedBox(
                         width: 35,
                         child: CircleAvatar(
-                          backgroundColor: clr4,
-                          child: Text("${teams[index].name?.substring(0,1)}".toUpperCase(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 20),),
+                          backgroundColor: primaryLite,
+                          child: Text("${teams[index].name?.substring(0,1)}".toUpperCase(),style: const TextStyle(color: primaryPro,fontWeight: FontWeight.w700,fontSize: 20),),
                         ),
                       ),
                       const SizedBox(width: 10,),
@@ -436,9 +426,9 @@ class Rate extends StatelessWidget {
               itemSize: 22,
               ignoreGestures: true,
               ratingWidget: RatingWidget(
-                full: Icon(Icons.star_rate_rounded,color: clr3,),
-                half: Icon(Icons.star_half_rounded,color: clr3,),
-                empty: Icon(Icons.star_border_rounded,color: clr3,),
+                full: const Icon(Icons.star_rate_rounded,color: primary,),
+                half: const Icon(Icons.star_half_rounded,color: primary,),
+                empty: const Icon(Icons.star_border_rounded,color: primary,),
               ),
               onRatingUpdate: (rating) {},
             ),
@@ -464,7 +454,7 @@ class Description extends StatelessWidget {
       children: [
         Row(
           children: [
-            SvgPicture.asset("assets/icons/badge.svg", width: 18,height: 18, color: primaryLite,),
+            SvgPicture.asset("assets/icons/badge.svg", width: 18,height: 18, color: primaryLite2,),
             const SizedBox(width: 10,),
             Text("À propos", style: TextStyle(
               fontSize: size.width * 0.06,
@@ -483,14 +473,14 @@ class Description extends StatelessWidget {
           trimMode: TrimMode.Line,
           trimCollapsedText: ' Plus',
           trimExpandedText: '   Moins',
-          moreStyle: TextStyle(
+          moreStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: primaryLite),
-          lessStyle: TextStyle(
+              color: primaryLite2),
+          lessStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: primaryLite),
+              color: primaryLite2),
         ),
         const SizedBox(height: 15.0),
       ],
@@ -509,7 +499,7 @@ class WorkHours extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(CupertinoIcons.calendar,color: primaryLite,),
+            const Icon(CupertinoIcons.calendar,color: primaryLite2,),
             const SizedBox(width: 10,),
             Text("Horaires de travail", style: TextStyle(
               fontSize: size.width * 0.06,
@@ -536,7 +526,7 @@ class ListPrestation extends StatelessWidget {
       children: [
         Row(
           children: [
-            SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primaryLite,),
+            SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primaryLite2,),
             const SizedBox(width: 10,),
             Text("Prestations", style: TextStyle(
               fontSize: size.width * 0.06,
@@ -552,9 +542,9 @@ class ListPrestation extends StatelessWidget {
              return Column(
                children: salon.salon!.categories.map((e) => ExpansionTile(
                  title: Text(e.toUpperCase()),
-                 iconColor: Colors.cyan,
-                 textColor: Colors.cyan,
-                 backgroundColor: primaryLite.withOpacity(.02),
+                 iconColor: primaryLite2,
+                 textColor: primaryLite2,
+                 backgroundColor: primaryLite.withOpacity(.1),
                  children:salon.salon!.service.where((element) => element.category == e).map((service) =>
                      ListTile(
                        title: Text(service.service!,overflow: TextOverflow.ellipsis, maxLines: 2,),
@@ -566,39 +556,39 @@ class ListPrestation extends StatelessWidget {
              );
            }
            return GFShimmer(
-             mainColor: clr4,
+             mainColor: primary,
              child: Column(
                children: [
                  Container(
-                   decoration: BoxDecoration(
-                     borderRadius: const BorderRadius.all(Radius.circular(14)),
-                     color: clr4,
+                   decoration: const BoxDecoration(
+                     borderRadius: BorderRadius.all(Radius.circular(14)),
+                     color: primary,
                    ),
                    child: ListTile(
-                     title:  Container(height: 15,decoration: BoxDecoration(
-                       borderRadius: const BorderRadius.all(Radius.circular(14)),
-                       color: clr4,
+                     title:  Container(height: 15,decoration: const BoxDecoration(
+                       borderRadius: BorderRadius.all(Radius.circular(14)),
+                       color: primary,
                      ),),
                      trailing: const Text('x xxx - x xxx DA',),
                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-                     tileColor: clr3,
+                     tileColor: primary,
                      dense: true,
                    ),
                  ),
                  const SizedBox(height: 10,),
                  Container(
-                   decoration: BoxDecoration(
-                     borderRadius: const BorderRadius.all(Radius.circular(14)),
-                     color: clr4,
+                   decoration: const BoxDecoration(
+                     borderRadius: BorderRadius.all(Radius.circular(14)),
+                     color: primary,
                    ),
                    child: ListTile(
-                     title:  Container(height: 15,decoration: BoxDecoration(
-                       borderRadius: const BorderRadius.all(Radius.circular(14)),
-                       color: clr4,
+                     title:  Container(height: 15,decoration: const BoxDecoration(
+                       borderRadius: BorderRadius.all(Radius.circular(14)),
+                       color: primary,
                      ),),
                      trailing: const Text('x xxx - x xxx DA',),
                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-                     tileColor: clr3,
+                     tileColor: primary,
                      dense: true,
                    ),
                  ),
@@ -629,7 +619,7 @@ class HeuresDeTravail extends StatelessWidget {
               title: Text(
                 today == e.toTitleCase() ? "${e.toTitleCase()} (aujourd'hui)" : e.toTitleCase(),
                 overflow: TextOverflow.ellipsis, maxLines: 2,
-                style: TextStyle(color: today == e.toTitleCase() ? primaryLite : Colors.black),
+                style: TextStyle(color: today == e.toTitleCase() ? Colors.green.shade600 : Colors.black),
               ),
               trailing: Text(
                 salon.salon!.hours!.jours[e]["active"] == true ?
@@ -643,41 +633,41 @@ class HeuresDeTravail extends StatelessWidget {
         );
       }
       return GFShimmer(
-        mainColor: clr4,
+        mainColor: primaryLite,
         child: Column(
           children: [
             Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(14)),
-                color: clr4,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(14)),
+                color: primary,
               ),
               child: ListTile(
-                title: Container(height: 15, decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(14)),
-                  color: clr4,
+                title: Container(height: 15, decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(14)),
+                  color: primary,
                 ),),
                 trailing: const Text('08:00 - 19:00',),
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(14))),
-                tileColor: clr3,
+                tileColor: primary,
                 dense: true,
               ),
             ),
             const SizedBox(height: 10,),
             Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(14)),
-                color: clr4,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(14)),
+                color: primary,
               ),
               child: ListTile(
-                title: Container(height: 15, decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(14)),
-                  color: clr4,
+                title: Container(height: 15, decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(14)),
+                  color: primary,
                 ),),
                 trailing: const Text('08:00 - 19:00',),
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(14))),
-                tileColor: clr3,
+                tileColor: primary,
                 dense: true,
               ),
             ),
@@ -699,7 +689,7 @@ class CommentsList extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(CupertinoIcons.chat_bubble_2,color: primaryLite,),
+            const Icon(CupertinoIcons.chat_bubble_2,color: primaryLite2,),
             const SizedBox(width: 10,),
             Text("Commentaires", style: TextStyle(
               fontSize: size.width * 0.06,
@@ -718,9 +708,9 @@ class CommentsList extends StatelessWidget {
                     margin: const EdgeInsets.only(right: 20),
                     width: size.width * 0.7,
                     child: Material(
-                      elevation: 5,
+                      //elevation: 5,
                       shape: const RoundedRectangleBorder(borderRadius:  BorderRadius.all(Radius.circular(14)),),
-                      color: clr4.withOpacity(.15),
+                      color: primaryLite2.withOpacity(.1),
                       child: ListTile(
                         title: Text("${salon.salon!.comments[index].name}",overflow: TextOverflow.ellipsis, maxLines:2,),
                         contentPadding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
@@ -741,11 +731,11 @@ class CommentsList extends StatelessWidget {
           }
           if(salon.search){
             return GFShimmer(
-              mainColor: clr4,
+              mainColor: primary,
               child: Material(
                 elevation: 5,
                 shape: const RoundedRectangleBorder(borderRadius:  BorderRadius.all(Radius.circular(14)),),
-                color: clr4,
+                color: primary,
                 child: ListTile(
                   title: Container(height: 15,decoration: const BoxDecoration(color: Colors.grey,borderRadius:  BorderRadius.all(Radius.circular(5)),),),
                   contentPadding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
@@ -763,7 +753,7 @@ class CommentsList extends StatelessWidget {
           }
           return GFShimmer(
             mainColor: primary,
-            secondaryColor: clr4,
+            secondaryColor: primary,
             duration: const Duration(seconds: 2),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -799,7 +789,7 @@ class ContactSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(CupertinoIcons.phone_circle,color: primaryLite,),
+            const Icon(CupertinoIcons.phone_circle,color: primaryLite2,),
             const SizedBox(width: 10,),
             Text("Contactez - nous", style: TextStyle(
               fontSize: size.width * 0.06,
@@ -833,7 +823,7 @@ class ContactSection extends StatelessWidget {
         ),
         if(phone == '' && location == '') GFShimmer(
           mainColor: primary,
-          secondaryColor: clr4,
+          secondaryColor: primary,
           duration: const Duration(seconds: 2),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -864,11 +854,10 @@ class ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      elevation: 5,
       shape: const RoundedRectangleBorder(borderRadius:  BorderRadius.all(Radius.circular(14)),),
-      color: clr4.withOpacity(.15),
+      color: primaryLite2.withOpacity(.1),
       child: InkWell(
-        splashColor: clr4,
+        splashColor: primaryLite,
         borderRadius:  const BorderRadius.all(Radius.circular(14)),
         onTap: ontap,
         child: ListTile(
@@ -880,7 +869,7 @@ class ContactTile extends StatelessWidget {
               ),
               child: IconButton(
                 onPressed:ontap,
-                icon:  Icon(icon,color: primaryLite,),splashColor: clr4,)
+                icon:  Icon(icon,color: primaryLite2,),splashColor: primary,)
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
         ),

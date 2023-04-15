@@ -23,13 +23,7 @@ class Populars extends StatelessWidget {
                 decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(12),),
                     color: Color(0x5AFFFFFF),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        offset: Offset(0, 3),
-                        blurRadius: 10,
-                      )
-                    ]
+
                 ),
               ),
             );

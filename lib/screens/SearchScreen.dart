@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:monsalondz/models/Category.dart' as cat;
-import 'package:monsalondz/models/Service.dart';
 import 'package:monsalondz/providers/CategoriesProvider.dart';
 import 'package:monsalondz/providers/HistouriqueLocal.dart';
 import 'package:monsalondz/screens/salon/SalonScreen.dart';
@@ -31,11 +30,11 @@ class SearchScreen extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return GestureDetector(onTap: () {FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);},
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: background,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(120.0),
           child: AppBar(
-            backgroundColor: clr4,
+            backgroundColor: primaryLite,
             flexibleSpace: SafeArea(
               top: true,
               child: Column(
@@ -52,12 +51,17 @@ class SearchScreen extends StatelessWidget {
                         children: [
                           const SizedBox(width: 16,),
                           const FilterCategory(),
-                          const FilterService(),
+                          Consumer<CategoriesProvider>(
+                              builder: (cxt, categories, child){
+                                if(categories.selectedCat.id != ''){return const FilterService();}
+                                return const SizedBox();
+                              }
+                          ),
                           const FilterWilaya(),
                           const FilterPrix(),
                           const FilterDate(),
                           InkWell(
-                            splashColor: clr3,
+                            splashColor: Colors.white,
                             borderRadius: const BorderRadius.all(Radius.circular(50)),
                             onTap:() async {
 
@@ -69,6 +73,7 @@ class SearchScreen extends StatelessWidget {
                                 search.listSalon.clear();
                                 category.selectedCat = cat.Category("","","");
                                 await search.fetchSalons();
+                                search.clearServicesSelectioned();
                               }
                             },
                             child: const Icon(Icons.close_rounded),
@@ -84,7 +89,7 @@ class SearchScreen extends StatelessWidget {
           ),
         ),
         body: Container(
-          color: backgroundColor,
+          color: background,
           padding: const EdgeInsets.symmetric(horizontal: 5),
           margin: const EdgeInsets.only(bottom: 55),
           child: const SalonList(),
@@ -144,12 +149,12 @@ class SearchBar extends StatelessWidget {
               hintStyle: const TextStyle(color: Color(0xFFA7A7A7), fontSize: 18),
               border: InputBorder.none,
               suffixIcon: IconButton(
-                  icon: Icon(Icons.close_rounded, color: primary),
+                  icon: const Icon(Icons.close_rounded, color: primary),
                   padding: EdgeInsets.zero,
                   onPressed: () {search.clearSearch();}
               ),
-              icon: Padding(
-                padding: const EdgeInsets.only(left:10),
+              icon: const Padding(
+                padding: EdgeInsets.only(left:10),
                 child: Icon(Icons.search, color: primary,),
               ),
             ),
@@ -184,6 +189,9 @@ class FilterCategory extends StatelessWidget {
               selected: categories.selectedCat.id == '' ? false: true ,
               showCheckmark: false,
               selectedColor: primary,
+              elevation: 0,
+              side: BorderSide.none,
+              shape: const RoundedRectangleBorder(side: BorderSide.none,borderRadius: BorderRadius.all(Radius.circular(12))),
               onPressed: (){
                 FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
                 String searchEntry = categories.selectedCat.category ?? "";
@@ -191,12 +199,14 @@ class FilterCategory extends StatelessWidget {
                   context: context,
                   useRootNavigator: true,
                   isScrollControlled: true,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
-                  ),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))),
                   builder: (context) {
                     return Container(
                       width: size.width,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+                        color: background,
+                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -205,12 +215,12 @@ class FilterCategory extends StatelessWidget {
                             height: 4,
                             width: 30,
                             margin: const EdgeInsets.only(top: 5,bottom: 30),
-                            decoration:  BoxDecoration(
+                            decoration:  const BoxDecoration(
                               color: primaryPro,
-                              borderRadius: const BorderRadius.all(Radius.circular(50)),
+                              borderRadius: BorderRadius.all(Radius.circular(50)),
                             ),
                           ),
-                          const Text( "Sélectionner une catégorie", maxLines: 2,style: TextStyle(fontSize: 20, color: Colors.black),),
+                          const Text( "Sélectionner une catégorie", maxLines: 2,style: TextStyle(fontSize: 20, color: primaryPro),),
                           const SizedBox(height: 25,),
                           Container(
                             constraints: BoxConstraints(
@@ -223,12 +233,12 @@ class FilterCategory extends StatelessWidget {
                                     Container(
                                       decoration:  BoxDecoration(
                                         borderRadius: const BorderRadius.all(Radius.circular(16)),
-                                        color: e.id == categories.selectedCat.id ? clr4 : Colors.white ,
+                                        color: e.id == categories.selectedCat.id ? primaryLite.withOpacity(.6) : Colors.white ,
                                       ),
                                       height: 50,
                                       margin: const EdgeInsets.only(bottom: 20),
                                       child: InkWell(
-                                        splashColor: clr4,
+                                        splashColor: primary,
                                         borderRadius: const BorderRadius.all(Radius.circular(16)),
                                         onTap: (){
                                           if(categories.selectedCat.id == e.id){
@@ -241,7 +251,7 @@ class FilterCategory extends StatelessWidget {
                                         child: Row(
                                           children: [
                                             const SizedBox(width: 30,),
-                                            Text(e.category!, style: TextStyle(color: primary,fontSize: 20,fontWeight: FontWeight.w600),),
+                                            Text(e.category!, style: const TextStyle(color: primary,fontSize: 20,fontWeight: FontWeight.w600),),
                                             const Spacer(),
                                             if(e.id == categories.selectedCat.id) const Icon(Icons.check_rounded,size: 25,),
                                             const SizedBox(width: 30,),
@@ -279,6 +289,7 @@ class FilterCategory extends StatelessWidget {
                           OutlinedButton(
                             onPressed: (){
                               categories.selectedCat = cat.Category('', '', '');
+                              Provider.of<SearchProvider>(context,listen: false).clearServicesSelectioned();
                               Navigator.pop(context);
                             },
                             style: OutlinedButton.styleFrom(
@@ -345,17 +356,20 @@ class FilterService extends StatelessWidget {
       child:Consumer<SearchProvider>(
           builder: (cxt, srv, child){
             return RawChip(
-              label: Text( "Prestations" ,style: TextStyle(color: srv.servicesSelectioned.isEmpty ? primary : white ),),
+              label: Text( srv.servicesSelectioned == null ? "Prestations" : "${srv.servicesSelectioned?.service}",style: TextStyle(color: srv.servicesSelectioned == null ? primary : white ),),
               avatar: Container(
                 margin: const EdgeInsets.only(left: 6),
-                child: srv.servicesSelectioned.isEmpty ?
+                child: srv.servicesSelectioned == null ?
                 SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primary,):
                 Icon(Icons.check_rounded, color: white,),
               ),
               backgroundColor: Colors.white,
-              selected: srv.servicesSelectioned.isEmpty ? false: true ,
+              selected: srv.servicesSelectioned == null ? false: true ,
               showCheckmark: false,
               selectedColor: primary,
+              elevation: 0,
+              side: BorderSide.none,
+              shape: const RoundedRectangleBorder(side: BorderSide.none,borderRadius: BorderRadius.all(Radius.circular(12))),
               onPressed: (){
                 FocusScope.of(context).unfocus();KeyboardUtil.hideKeyboard(context);
                 showModalBottomSheet(
@@ -368,6 +382,10 @@ class FilterService extends StatelessWidget {
                   builder: (context) {
                     return Container(
                       width: size.width,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+                        color: background,
+                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -376,42 +394,42 @@ class FilterService extends StatelessWidget {
                             height: 4,
                             width: 30,
                             margin: const EdgeInsets.only(top: 5,bottom: 30),
-                            decoration:  BoxDecoration(
+                            decoration:  const BoxDecoration(
                               color: primaryPro,
-                              borderRadius: const BorderRadius.all(Radius.circular(50)),
+                              borderRadius: BorderRadius.all(Radius.circular(50)),
                             ),
                           ),
-                          const Text( "Sélectionner des Prestations", maxLines: 2,style: TextStyle(fontSize: 20, color: Colors.black),),
+                          const Text( "Sélectionner des Prestations", maxLines: 2,style: TextStyle(fontSize: 20, color: primaryPro),),
                           const SizedBox(height: 25,),
                           Container(
-                            constraints: BoxConstraints(
-                                maxHeight: size.height * 0.6
-                            ),
+                            constraints: BoxConstraints(maxHeight: size.height * 0.6,minWidth: size.width),
                             child: StatefulBuilder(
                               builder: (BuildContext context, StateSetter setState) =>Wrap(
                                 children: categ.servicesParDefault.where((element) => element.category == categ.selectedCat.category).map((e) =>
                                   Container(
                                     margin: const EdgeInsets.symmetric(horizontal: 5),
                                     child: FilterChip(
-                                      label: Text(e.service!,style: TextStyle(color: srv.servicesSelectioned.where((srvs) => srvs.id == e.id).isNotEmpty ? Colors.white : primaryPro,fontSize: 16),),
-                                      selected: srv.servicesSelectioned.where((srvs) => srvs.id == e.id).isNotEmpty ? true : false,
+                                      elevation: 0,
+                                      side: BorderSide.none,
+                                      shape: const RoundedRectangleBorder(side: BorderSide.none,borderRadius: BorderRadius.all(Radius.circular(12))),
+                                      label: Text(e.service!,style: TextStyle(color: srv.servicesSelectioned?.id == e.id ? Colors.white : primaryPro,fontSize: 16),),
+                                      selected: srv.servicesSelectioned?.id == e.id ? true : false,
                                       onSelected: (v){
                                         if(v == true){
                                           setState((){
-                                            srv.servicesSelectioned.add(e);
+                                            srv.setPrestation(e);
                                           });
                                         }
                                         else{
                                           setState((){
-                                            srv.servicesSelectioned.removeWhere((srvs) => srvs.id == e.id);
+                                            srv.clearServicesSelectioned();
                                           });
 
                                         }
                                       },
-
-                                      backgroundColor: clr4.withOpacity(.1),
-                                      selectedColor: primaryLite,
-                                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+                                      backgroundColor: primaryLite.withOpacity(.2),
+                                      selectedColor: primary,
+                                      checkmarkColor: Colors.white,
                                     ),
                                   )
                                 ).toList(),
@@ -460,8 +478,16 @@ class FilterService extends StatelessWidget {
                       ),
                     );
                   }
-                ).whenComplete(() async {
-                    srv.filterPrestation();
+                ).whenComplete((){
+                    final categories = Provider.of<CategoriesProvider>(context,listen: false);
+                    var serarchedWilaya;
+                    if(srv.searchWilaya.text.isNotEmpty) serarchedWilaya = wilaya.where((element) => srv.searchWilaya.text.contains(element["name"]!)).first;
+                    srv.filterSalons(
+                        categories.selectedCat.id == '' ? null:categories.selectedCat.id,
+                        serarchedWilaya != null ? serarchedWilaya["name"]:null,
+                        srv.prixFin == 0 ? null : srv.prixFin,
+                        srv.day == ''? null : srv.day
+                    ).then((value) => srv.filterPrestation());
                 });
               },
             );
@@ -484,6 +510,9 @@ class FilterPrix extends StatelessWidget {
       child:Consumer<SearchProvider>(
         builder: (cxt, prix, child){
           return RawChip(
+            elevation: 0,
+            side: BorderSide.none,
+            shape: const RoundedRectangleBorder(side: BorderSide.none,borderRadius: BorderRadius.all(Radius.circular(12))),
             label: Text( prix.prixFin == 0 ? "Prix" : " max ${prix.prixFin} DA",style: TextStyle(color: prix.prixFin == 0 ? primary : white ),),
             avatar: Container(
               margin: const EdgeInsets.only(left: 6),
@@ -508,6 +537,10 @@ class FilterPrix extends StatelessWidget {
                 builder: (context) {
                   return Container(
                     width: size.width,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+                      color: background,
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -516,20 +549,20 @@ class FilterPrix extends StatelessWidget {
                           height: 4,
                           width: 30,
                           margin: const EdgeInsets.only(top: 5,bottom: 30),
-                          decoration:  BoxDecoration(
+                          decoration:  const BoxDecoration(
                             color: primaryPro,
-                            borderRadius: const BorderRadius.all(Radius.circular(50)),
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
                           ),
                         ),
-                        const Text( "Saisir le prix maximum", maxLines: 2,style: TextStyle(fontSize: 20, color: Colors.black),),
+                        const Text( "Saisir le prix maximum", maxLines: 2,style: TextStyle(fontSize: 20, color: primaryPro),),
                         const SizedBox(height: 35,),
                         SingleChildScrollView(
                           child: StatefulBuilder(
                             builder: (BuildContext context, StateSetter setState) =>
                               SliderTheme(
-                                data: SliderThemeData(
+                                data: const SliderThemeData(
                                     valueIndicatorColor: primary,
-                                    rangeValueIndicatorShape:  const PaddleRangeSliderValueIndicatorShape(),
+                                    rangeValueIndicatorShape:  PaddleRangeSliderValueIndicatorShape(),
                                   ),
                                 child: Slider(
                                   value: prix.prixFin.toDouble(),
@@ -537,7 +570,7 @@ class FilterPrix extends StatelessWidget {
                                   max: 10000,
                                   divisions: 10,
                                   activeColor: primary,
-                                  inactiveColor: clr3,
+                                  inactiveColor: primaryLite.withOpacity(.6),
                                   onChanged: (value) {
                                     setState(() {
                                       prix.prixFin = value.toInt();
@@ -599,7 +632,7 @@ class FilterPrix extends StatelessWidget {
                       serarchedWilaya != null ? serarchedWilaya["name"]:null,
                       prix.prixFin == 0 ? null : prix.prixFin,
                       prix.day == ''? null:prix.day
-                  );
+                  ).then((value) => prix.filterPrestation());
 
 
                   var provider2 = Provider.of<HistoryProvider>(context,listen: false);
@@ -636,6 +669,9 @@ class FilterWilaya extends StatelessWidget {
       child:Consumer<SearchProvider>(
           builder: (cxt, wilayas, child){
             return RawChip(
+              elevation: 0,
+              side: BorderSide.none,
+              shape: const RoundedRectangleBorder(side: BorderSide.none,borderRadius: BorderRadius.all(Radius.circular(12))),
               label: Text(wilayas.searchWilaya.text.isEmpty ? "Wilaya" : wilayas.searchWilaya.text ,style: TextStyle(color: wilayas.searchWilaya.text.isEmpty ? primary : white ),),
               avatar: Container(
                 margin: const EdgeInsets.only(left: 6),
@@ -660,6 +696,10 @@ class FilterWilaya extends StatelessWidget {
                   builder: (context) {
                     return Container(
                       width: size.width,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+                        color: background,
+                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -668,12 +708,12 @@ class FilterWilaya extends StatelessWidget {
                             height: 4,
                             width: 30,
                             margin: const EdgeInsets.only(top: 5,bottom: 30),
-                            decoration:  BoxDecoration(
+                            decoration:  const BoxDecoration(
                               color: primaryPro,
-                              borderRadius: const BorderRadius.all(Radius.circular(50)),
+                              borderRadius: BorderRadius.all(Radius.circular(50)),
                             ),
                           ),
-                          const Text( "Choisir la wilaya", maxLines: 2,style: TextStyle(fontSize: 20, color: Colors.black),),
+                          const Text( "Choisir la wilaya", maxLines: 2,style: TextStyle(fontSize: 20, color: primaryPro),),
                           const SizedBox(height: 35,),
                           Container(
                             constraints: BoxConstraints(
@@ -686,12 +726,12 @@ class FilterWilaya extends StatelessWidget {
                                     Container(
                                       decoration:  BoxDecoration(
                                         borderRadius: const BorderRadius.all(Radius.circular(16)),
-                                        color: wilayas.searchWilaya.text.contains('${e['code']!}  ${e['name']!}') ? clr4 : Colors.white ,
+                                        color: wilayas.searchWilaya.text.contains('${e['code']!}  ${e['name']!}') ? primaryLite.withOpacity(.6) : Colors.white ,
                                       ),
                                       height: 50,
                                       margin: const EdgeInsets.only(bottom: 10),
                                       child: InkWell(
-                                        splashColor: clr4,
+                                        splashColor: clr3,
                                         borderRadius: const BorderRadius.all(Radius.circular(16)),
                                         onTap: (){
                                           if( wilayas.searchWilaya.text == '${e['code']!}  ${e['name']!}'){
@@ -764,7 +804,6 @@ class FilterWilaya extends StatelessWidget {
                   if(searchSortie != searchEntry){
                     final provider = Provider.of<CategoriesProvider>(context,listen: false);
                     var serarchedWilaya;
-                    print("=======${wilayas.searchWilaya.text}");
                     if(wilayas.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => wilayas.searchWilaya.text.contains(element["name"]!)).first;
 
                     wilayas.filterSalons(
@@ -772,7 +811,7 @@ class FilterWilaya extends StatelessWidget {
                         serarchedWilaya != null ? serarchedWilaya["name"]:null,
                         wilayas.prixFin == 0 ? null : wilayas.prixFin,
                         wilayas.day == ''? null:wilayas.day
-                    );
+                    ).then((value) => wilayas.filterPrestation());
 
 
                     var provider2 = Provider.of<HistoryProvider>(context,listen: false);
@@ -808,6 +847,9 @@ class FilterDate extends StatelessWidget {
       child:Consumer<SearchProvider>(
         builder: (cxt, date, child){
           return RawChip(
+            elevation: 0,
+            side: BorderSide.none,
+            shape: const RoundedRectangleBorder(side: BorderSide.none,borderRadius: BorderRadius.all(Radius.circular(12))),
             label: Text(date.searchDate.text.isEmpty ? "Date" : date.searchDate.text ,style: TextStyle(color: date.searchDate.text.isEmpty ? primary : white ),),
             avatar: Container(
               margin: const EdgeInsets.only(left: 6),
@@ -834,8 +876,14 @@ class FilterDate extends StatelessWidget {
                 builder: (context, child) {
                   return Theme(
                     data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
+                      colorScheme: const ColorScheme.light(
                         primary: primary,
+                        secondary: Colors.white,
+                        surface: Colors.white,
+                        background: Colors.white,
+                        onPrimary: Colors.white,
+                        onSurface: primaryPro,
+                        onBackground: Colors.white,
                       ),
                       textButtonTheme: TextButtonThemeData(
                         style: TextButton.styleFrom(
@@ -864,7 +912,7 @@ class FilterDate extends StatelessWidget {
                       serarchedWilaya != null ? serarchedWilaya["name"]:null,
                       date.prixFin == 0 ? null : date.prixFin,
                       date.day == ''? null:date.day
-                  );
+                  ).then((value) => date.filterPrestation());
                 }
               }
               else {
@@ -878,7 +926,7 @@ class FilterDate extends StatelessWidget {
                     serarchedWilaya != null ? serarchedWilaya["name"]:null,
                     date.prixFin == 0 ? null : date.prixFin,
                     null
-                );
+                ).then((value) => date.filterPrestation());;
               }
 
 
@@ -921,7 +969,6 @@ class SalonWidget extends StatelessWidget {
       ),
       margin: const EdgeInsets.only(bottom: 10,top: 10,right: 3),
       child: Material(
-        elevation: 8,
         borderRadius: BorderRadius.circular(12),
         clipBehavior: Clip.antiAliasWithSaveLayer,
         child: InkWell(
@@ -952,8 +999,10 @@ class SalonWidget extends StatelessWidget {
                   borderRadius:  BorderRadius.only(topLeft: Radius.circular(12),bottomLeft: Radius.circular(12)),
                 ),
                 width: size.width * 0.35,
+                height: 150,
                 child: CachedNetworkImage(
                   imageUrl: salon.photo!,
+                  fit: BoxFit.cover,
                   errorWidget: (cnx,photo,err)=>GFShimmer(
                     mainColor: Colors.grey.shade100,
                     child: Container(
@@ -963,11 +1012,6 @@ class SalonWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  imageBuilder: (context, imageProvider) =>
-                    Ink.image(
-                      image: CachedNetworkImageProvider(salon.photo!),
-                      fit: BoxFit.cover,
-                    ),
                 )
               ),
               Expanded(
@@ -1076,7 +1120,7 @@ class _SalonListState extends State<SalonList> {
         builder: (context, salons, child) {
 
           if(salons.lastDocument == null || (salons.isSearching == true && salons.listSalon.isEmpty)){
-            return Center(child: SizedBox(height: 40,width: 40,child: CircularProgressIndicator(color: primary,)),
+            return const Center(child: SizedBox(height: 40,width: 40,child: CircularProgressIndicator(color: primary,)),
             );
           }
 
@@ -1089,6 +1133,7 @@ class _SalonListState extends State<SalonList> {
               element.nom!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
               element.wilaya!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
               element.commune!.toUpperCase().contains(salons.search.text.toUpperCase()) ||
+              element.service.contains(salons.servicesSelectioned) ||
               element.description!.toUpperCase().contains(salons.search.text.toUpperCase())
             ).toList();
           }
@@ -1096,12 +1141,7 @@ class _SalonListState extends State<SalonList> {
             salonsTemps = salons.listSalon;
           }
 
-          if(salons.servicesSelectioned.isNotEmpty){
-            salons.filterPrestation();
-            salonsTemps = salonsTemps;
-          }
-
-          if(salonsTemps.isEmpty && salons.servicesSelectioned.isEmpty){
+          if(salonsTemps.isEmpty){
             return Center(child: Lottie.asset("assets/animation/empty.json",reverse: true),);
           }
 
@@ -1143,9 +1183,9 @@ class _SalonListState extends State<SalonList> {
                 duration: const Duration(milliseconds: 400),
                 padding: const EdgeInsets.all(5),
                 margin: const EdgeInsets.only(right: 4),
-                decoration: BoxDecoration(
-                  color: clr3,
-                  borderRadius: const BorderRadius.all(Radius.circular(6))
+                decoration: const BoxDecoration(
+                  color: primaryLite,
+                  borderRadius: BorderRadius.all(Radius.circular(6))
                 ),
                 child: Row(
                   children: const [

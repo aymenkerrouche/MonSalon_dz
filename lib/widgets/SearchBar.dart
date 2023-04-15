@@ -48,9 +48,9 @@ import 'package:monsalondz/root.dart';
                             placeholder: (context,s) => GFShimmer(
                               mainColor: Colors.grey.shade50,
                               child: Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: clr4
+                                    color: clr3
                                 ),
                               ),
                             ),
@@ -62,9 +62,9 @@ import 'package:monsalondz/root.dart';
                           onPressed:(){
                             controller.jumpToTab(3);
                           },
-                          icon: Icon(CupertinoIcons.person,color: primary,size: 26,),
+                          icon: const Icon(CupertinoIcons.person,color: primary,size: 26,),
                           style: IconButton.styleFrom(
-                            backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr4.withOpacity(.1),
+                            backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr3.withOpacity(.1),
                           ),
                         );
                       }
@@ -72,9 +72,9 @@ import 'package:monsalondz/root.dart';
                         onPressed:(){
                           controller.jumpToTab(3);
                         },
-                        icon: Icon(CupertinoIcons.person,color: primary,size: 26,),
+                        icon: const Icon(CupertinoIcons.person,color: primary,size: 26,),
                         style: IconButton.styleFrom(
-                          backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr4.withOpacity(.1),
+                          backgroundColor: FirebaseAuth.instance.currentUser?.photoURL != null ? Colors.transparent : clr3.withOpacity(.1),
                         ),
                       );
                     }

@@ -11,7 +11,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: background,
       appBar: AppBar(
         title: const Text("Paramètres",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,letterSpacing: 1),),
         backgroundColor: primary,
@@ -89,14 +89,17 @@ class SettingsPage extends StatelessWidget {
   }
 
   Container txtOption(String txt){
-    return Container(margin: const EdgeInsets.only(bottom: 10,top: 10),child: Text(txt,style: TextStyle(fontSize: 20,fontWeight: FontWeight.w500,color: primary),));
+    return Container(margin: const EdgeInsets.only(bottom: 10,top: 10),child: Text(txt,style: const TextStyle(fontSize: 20,fontWeight: FontWeight.w500,color: primary),));
   }
 
   Widget newOption(){
     return Chip(
-      label:  GFShimmer(secondaryColor: primary,mainColor: clr3,child: const Text("bientôt disponible")),
-      backgroundColor: clr4.withOpacity(.2),
-      labelStyle: TextStyle(color: primaryPro,fontSize: 13),
+      elevation: 0,
+      side: BorderSide.none,
+      shape: const RoundedRectangleBorder(side: BorderSide.none,borderRadius: BorderRadius.all(Radius.circular(12))),
+      label: const GFShimmer(secondaryColor: primary,mainColor: primary,child: Text("bientôt disponible")),
+      backgroundColor: primaryLite2.withOpacity(.1),
+      labelStyle: const TextStyle(color: primaryPro,fontSize: 13),
       padding: const EdgeInsets.symmetric(horizontal: 6,vertical: 0),);
   }
 }
@@ -120,7 +123,7 @@ class OptionSetting extends StatelessWidget {
             onChanged: onTap ?? (v){},
             value: false,
             type: GFToggleType.ios,
-            enabledTrackColor: primaryLite,
+            enabledTrackColor: primary,
             duration: const Duration(milliseconds: 200),
           ),
           const SizedBox(width: 5,),

@@ -17,11 +17,11 @@ class SignUp extends StatelessWidget {
           title: Container(
             margin: const EdgeInsets.only(bottom: 5,left: 10),
             child:  const Text(
-              "Profil",
+              "Authentification",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
                 //fontFamily: 'Rufik',
               ),
               maxLines: 1,

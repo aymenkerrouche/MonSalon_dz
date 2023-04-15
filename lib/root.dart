@@ -107,55 +107,53 @@ class _RootState extends State<Root> {
   }
   List<Widget> buildScreens() {
     return [
-      GestureDetector(onTap: () {FocusScope.of(context).unfocus();},
-        child: Consumer<AuthProvider>(
-          builder: (cxt, cnx, child){
-            if(AuthProvider.isConnect == true){
-              return const HomeScreen();
-            }
-            else{
-              if(AuthProvider.isConnect == false){
-                return Column(
-                  children: [
-                    const SizedBox(height: 150,),
-                    SizedBox(
-                      height: 300,
-                      child: Lottie.asset("assets/animation/404.json",reverse: true),
-                    ),
-                    const SizedBox(height: 50,),
-                    const Text("veuillez vérifier votre connexion",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 22),),
-                    const SizedBox(height: 20,),
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: primary,
-                            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)))
-                        ),
-                        onPressed: (){
-                          getCategories();
-                          if(testCnx == false){
+      Consumer<AuthProvider>(
+        builder: (cxt, cnx, child){
+          if(AuthProvider.isConnect == true){
+            return const HomeScreen();
+          }
+          else{
+            if(AuthProvider.isConnect == false){
+              return Column(
+                children: [
+                  const SizedBox(height: 150,),
+                  SizedBox(
+                    height: 300,
+                    child: Lottie.asset("assets/animation/404.json",reverse: true),
+                  ),
+                  const SizedBox(height: 50,),
+                  const Text("veuillez vérifier votre connexion",style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 22),),
+                  const SizedBox(height: 20,),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: primary,
+                          padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)))
+                      ),
+                      onPressed: (){
+                        getCategories();
+                        if(testCnx == false){
+                          setState(() {
+                            testCnx = true;
+                          });
+                        }
+                        Timer(const Duration(seconds: 4), () {
+                          if(AuthProvider.isConnect == false){
                             setState(() {
-                              testCnx = true;
+                              testCnx = false;
                             });
                           }
-                          Timer(const Duration(seconds: 4), () {
-                            if(AuthProvider.isConnect == false){
-                              setState(() {
-                                testCnx = false;
-                              });
-                            }
-                          });
-                        },
-                        child: testCnx == false ? const Text("Réessayer",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 18,color: Colors.white),):
-                        const SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: Colors.white,))
-                    ),
-                  ],
-                );
-              }
-              return Center(child: SizedBox(width: 40,height: 40,child: CircularProgressIndicator(color: primary,)));
+                        });
+                      },
+                      child: testCnx == false ? const Text("Réessayer",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 18,color: Colors.white),):
+                      const SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: Colors.white,))
+                  ),
+                ],
+              );
             }
+            return const Center(child: SizedBox(width: 40,height: 40,child: CircularProgressIndicator(color: primary,)));
           }
-        ),
+        }
       ),
       const SearchScreen(),
       StreamBuilder<User?>(
@@ -199,7 +197,7 @@ class _RootState extends State<Root> {
             }
           }
           if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
-          return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));
+          return Container(color: white,child: const Center(child: CircularProgressIndicator(color: primary,),));
         }
       ),
       GestureDetector(onTap: () {FocusScope.of(context).unfocus();},
@@ -215,7 +213,7 @@ class _RootState extends State<Root> {
               }
             }
             if (snapshot.hasError) return Dialog(child: Text(snapshot.error.toString()),);
-            return Container(color: white,child: Center(child: CircularProgressIndicator(color: primary,),));
+            return Container(color: white,child: const Center(child: CircularProgressIndicator(color: primary,),));
           }
         ),
       )

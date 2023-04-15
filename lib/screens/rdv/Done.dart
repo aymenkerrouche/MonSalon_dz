@@ -31,13 +31,13 @@ class DoneScreen extends StatelessWidget {
                   onPressed:(){Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
                       const Root()), (Route<dynamic> route) => false);},
                   style: TextButton.styleFrom(
-                    backgroundColor: clr4 ,
+                    backgroundColor: clr3 ,
                     //padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 6)
                   ),
                   child: Row(
-                    children: [
+                    children: const [
                       Text("  Continue", style: TextStyle(fontSize: 22,color: primary,fontWeight: FontWeight.w600),),
-                      const SizedBox(width: 10,),
+                      SizedBox(width: 10,),
                       Icon(Icons.arrow_forward_ios_rounded,size: 26,color: primary,),
                     ],
                   ),

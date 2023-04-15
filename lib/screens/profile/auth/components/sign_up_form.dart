@@ -73,13 +73,13 @@ class _SignUpFormState extends State<SignUpForm> {
       child: Column(
         children: [
 
-          AnimatedContainer(
-            height:!auth ? size.height * 0.15:0,
-            duration: const Duration(milliseconds: 400),
-          ),
+          const SizedBox(height: 30,),
 
-            //titre
-            const SizedBox(height: 20),
+            Container(
+            height: 100,
+            padding: const EdgeInsets.only(right: 5,top: 15,bottom: 5),
+            child: Image.asset('assets/images/logo3.png',color: primaryPro,),
+          ),
             Text.rich(
               maxLines:1,
               TextSpan(
@@ -232,13 +232,13 @@ class _SignUpFormState extends State<SignUpForm> {
 
                       // SUBMIT
                       if(auth) Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black12,
-                                offset: Offset(0, 3),
+                                color: Colors.grey.shade100,
+                                offset: const Offset(0, 1),
                                 blurRadius: 10,
-                                spreadRadius: 4
+                                spreadRadius: 1
                               )
                             ]
                         ),
@@ -343,17 +343,16 @@ class _SignUpFormState extends State<SignUpForm> {
                           )),
                     ),
 
-                    if(auth)
-                      InkWell(
+                    if(auth) InkWell(
                         splashColor: primary,
                         child: Container(
                             height: 40,
                             width: 40,
-                            decoration: BoxDecoration(
-                                color: clr4,
+                            decoration: const BoxDecoration(
+                                color: primary,
                                 shape: BoxShape.circle
                             ),
-                            child: InkResponse(child: Icon(Icons.keyboard_double_arrow_up_rounded,size: 25,color: primary,))
+                            child: const InkResponse(child: Icon(Icons.keyboard_double_arrow_up_rounded,size: 25,color: Colors.white,))
                         ),
                         onTap: (){
                           setState(() {
@@ -378,30 +377,51 @@ class _SignUpFormState extends State<SignUpForm> {
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    side: BorderSide(color: primary, width: 1),
+                    side: const BorderSide(color: primary, width: 1),
                     foregroundColor: primary,
-                    fixedSize: const Size(double.infinity, 55),elevation: 6
+                    fixedSize: const Size(double.infinity, 50),
+                      elevation: 6
                   ),
                   onPressed: () async {
+
                     final providerAuth = Provider.of<AuthProvider>(context, listen: false);
                     KeyboardUtil.hideKeyboard(context);
                     EasyLoading.show();
-                    UserCredential? user = await providerAuth.signInWithGoogle();
-                    if(user?.user != null){
-                      if(user!.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
-                        try{
-                          await FirebaseFirestore.instance.collection("users").doc(user.user?.uid).set({"name": user.user?.displayName, "email": user.user?.email,"token":await FirebaseMessaging.instance.getToken()});
+
+                    try{
+                      UserCredential? user = await providerAuth.signInWithGoogle();
+                      if(user?.user != null){
+                        if(user!.user!.metadata.creationTime!.isAfter(DateTime.now().subtract(const Duration(minutes: 2)))) {
+                          try{
+                            await FirebaseFirestore.instance.collection("users").doc(user.user?.uid).set({"name": user.user?.displayName, "email": user.user?.email,"token":await FirebaseMessaging.instance.getToken()});
+                          }
+                          catch(ee){
+                            debugPrint(ee.toString());
+                            EasyLoading.dismiss();
+                            final snackBar = SnackBar(
+                              elevation: 10,
+                              behavior: SnackBarBehavior.floating,
+                              content: Text(ee.toString(), style: const TextStyle(color: Colors.white),),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                          }
                         }
-                        catch(ee){
-                          debugPrint(ee.toString());
-                          EasyLoading.dismiss();
+                        else{
+                          await FirebaseFirestore.instance.collection("users").doc(user.user!.uid).update({"token":await FirebaseMessaging.instance.getToken()});
                         }
-                      }
-                      else{
-                      
-                        await FirebaseFirestore.instance.collection("users").doc(user.user!.uid).update({"token":await FirebaseMessaging.instance.getToken()});
                       }
                     }
+                    catch(e){
+                      final snackBar = SnackBar(
+                        elevation: 10,
+                        behavior: SnackBarBehavior.floating,
+                        content: Text(e.toString(), style: const TextStyle(color: Colors.white),),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    }
+
+
 
                     EasyLoading.dismiss();
                   },
@@ -415,13 +435,13 @@ class _SignUpFormState extends State<SignUpForm> {
                         width: 28,
                       ),
                       const SizedBox(width: 15,),
-                      Text(
+                      Expanded(child: Text(
                         "Connecter avec Google",
                         style: TextStyle(
                           fontSize: 18,
                           color: black,
                         ),
-                      ),
+                      ),)
                     ],
                   ),
                 ),
@@ -433,9 +453,10 @@ class _SignUpFormState extends State<SignUpForm> {
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     foregroundColor: primary,
-                    fixedSize: const Size(double.infinity, 55),
+                    fixedSize: const Size(double.infinity, 50),
                     backgroundColor: Colors.blueAccent,
-                      elevation: 6
+                    elevation: 6,
+                    side: BorderSide.none
                   ),
                   onPressed: () async {
                     KeyboardUtil.hideKeyboard(context);
@@ -473,13 +494,16 @@ class _SignUpFormState extends State<SignUpForm> {
                       SizedBox(width: size.width * 0.09,),
                       const Icon(Icons.facebook_rounded,size: 37,color: Colors.white,),
                       const SizedBox(width: 10,),
-                      const Text(
-                        "Connecter avec Facebook",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
+                       const Expanded(
+                         child: Text(
+                           "Connecter avec Facebook",
+                           style: TextStyle(
+                             fontSize: 18,
+                             color: Colors.white,
+                           ),
+                         ),
+                       )
+
                     ],
                   ),
                 ),
@@ -491,9 +515,10 @@ class _SignUpFormState extends State<SignUpForm> {
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     foregroundColor: primary,
-                    fixedSize: const Size(double.infinity, 55),
+                    fixedSize: const Size(double.infinity, 50),
                     backgroundColor: Colors.greenAccent.shade700,
-                      elevation: 6
+                    elevation: 6,
+                    side: BorderSide.none
                   ),
                   onPressed: () async {
                     showModalBottomSheet(
@@ -670,13 +695,14 @@ class _SignUpFormState extends State<SignUpForm> {
                       SizedBox(width: size.width * 0.1,),
                       const Icon(Icons.phone_rounded,size: 30,color: Colors.white,),
                       const SizedBox(width: 15,),
-                      const Text(
+                      const Expanded(child: Text(
                         "Connecter avec Téléphone",
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.white,
                         ),
-                      ),
+                      ),),
+
                     ],
                   ),
                 ),
