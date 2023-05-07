@@ -116,7 +116,7 @@ class RDVProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> createRDV() async {
+/*  Future<bool> createRDV() async {
     Map<String, dynamic> json = _rendezVous!.toJson();
     try {
       await FirebaseFirestore.instance
@@ -125,7 +125,7 @@ class RDVProvider extends ChangeNotifier {
           .then((value) async {
         await FirebaseFirestore.instance
             .collection("statistics")
-            .doc(value.id)
+            .doc(_rendezVous?.salonID)
             .update({
           "rdvTotal": FieldValue.increment(1),
           "rdv${DateTime.now().year}.${DateTime.now().month}":
@@ -135,7 +135,7 @@ class RDVProvider extends ChangeNotifier {
           for (var element in _rendezVous!.services) {
             await FirebaseFirestore.instance
                 .collection("statistics")
-                .doc(value.id)
+                .doc(_rendezVous?.salonID)
                 .update({
               "services.${element.service}": FieldValue.increment(1),
             });
@@ -147,5 +147,42 @@ class RDVProvider extends ChangeNotifier {
       debugPrint(e.toString());
       return false;
     }
+  }*/
+
+  Future<bool> createRDV() async {
+    Map<String, dynamic> json = _rendezVous!.toJson();
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    // Add appointment to Firestore with server timestamp
+    DocumentReference appointmentRef = FirebaseFirestore.instance.collection("rdv").doc();
+    json['createdAt'] = FieldValue.serverTimestamp();
+    batch.set(appointmentRef, json);
+
+    // Update salon statistics
+    DocumentReference salonStatsRef = FirebaseFirestore.instance.collection("statistics").doc(_rendezVous!.salonID);
+    batch.update(salonStatsRef, {
+      "rdvTotal": FieldValue.increment(1),
+      "rdv${DateTime.now().year}.${DateTime.now().month}": FieldValue.increment(1),
+    });
+
+    // Update service statistics (if any)
+    if (_rendezVous!.services.isNotEmpty) {
+      for (var element in _rendezVous!.services) {
+        batch.update(salonStatsRef, {
+          "services.${element.service}": FieldValue.increment(1),
+        });
+      }
+    }
+
+    // Commit the batch write
+    try {
+      await batch.commit();
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
   }
+
+
 }

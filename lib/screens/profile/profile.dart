@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:monsalondz/theme/colors.dart';
 import '../../providers/AuthProvider.dart';
 import '../../widgets/profile_menu.dart';
+import 'listRDV/MesDEMANDES.dart';
+import 'listRDV/MesRDV.dart';
 import 'settings.dart';
 import 'account/UpdateProfileScreen.dart';
 
@@ -31,14 +33,11 @@ class _ProfileState extends State<Profile> {
         appBar: AppBar(
           title: const Text(
             "Profil",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600,),
             maxLines: 1,
             overflow: TextOverflow.clip,
           ),
+          elevation: 20,
           backgroundColor: primary,
         ),
         body: Container(
@@ -63,22 +62,40 @@ class _ProfileState extends State<Profile> {
                 ProfileMenu(
                   text: "Compte",
                   icon: "assets/icons/user1.svg",
-                  press: () => {
-                    Timer(const Duration(milliseconds: 200),(){
+                  press: () => Timer(const Duration(milliseconds: 200),(){
                       PersistentNavBarNavigator.pushNewScreen(context,
                         screen: const UpdateProfileScreen(),
                         withNavBar: false,
                         pageTransitionAnimation: PageTransitionAnimation.cupertino,
                       );
-                    })
-                  },
+                    }),
+                  primary: primary,
+                  secondary: secondary,
+                ),
+                ProfileMenu(
+                  text: "Demandes",
+                  icon: "assets/icons/book.svg",
+                  press: ()=>Timer(const Duration(milliseconds: 200),(){
+                    PersistentNavBarNavigator.pushNewScreen(context,
+                      screen:  LesDemandes(color: Colors.blue.shade700,),
+                      withNavBar: false,
+                      pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                    );
+                  }),
+                  width: 30,
                   primary: primary,
                   secondary: secondary,
                 ),
                 ProfileMenu(
                   text: "Rendez-Vous",
                   icon: "assets/icons/history.svg",
-                  press: () {},
+                  press: ()=>Timer(const Duration(milliseconds: 200),(){
+                    PersistentNavBarNavigator.pushNewScreen(context,
+                      screen: const LesRendezVous(color: Colors.teal,),
+                      withNavBar: false,
+                      pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                    );
+                  }),
                   width: 30,
                   primary: primary,
                   secondary: secondary,

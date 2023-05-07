@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
 import 'package:getwidget/position/gf_toast_position.dart';
@@ -5,7 +6,6 @@ import 'package:monsalondz/providers/RendezVousProvider.dart';
 import 'package:monsalondz/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:monsalondz/utils/constants.dart';
-
 import 'Done.dart';
 
 class FactureScreen extends StatelessWidget {
@@ -16,9 +16,11 @@ class FactureScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text("Confirmation",style: TextStyle(fontSize: 22),),
+        title: const Text("Confirmation",style: TextStyle(fontSize: 22,color: Colors.white),),
         centerTitle: true,
         elevation: .5 ,
+        backgroundColor: primary,
+        leading: IconButton(onPressed:(){Navigator.pop(context);}, icon: const Icon(Icons.arrow_back_rounded,color: Colors.white,)),
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -32,10 +34,10 @@ class FactureScreen extends StatelessWidget {
               SizedBox(
                 height: 20,
                 child: Row(
-                  children:  [
-                    Icon(Icons.business_sharp,color: primaryLite.withOpacity(.8),size: 20,),
-                    const SizedBox(width: 10,),
-                    Text("salon", style: TextStyle(fontSize: 16,color: primaryLite.withOpacity(.8),fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
+                  children:  const [
+                    Icon(Icons.business_sharp,color: primaryLite2,size: 20,),
+                    SizedBox(width: 10,),
+                    Text("Salon", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
                   ],
                 ),
               ),
@@ -52,7 +54,7 @@ class FactureScreen extends StatelessWidget {
                 );
               }),
 
-              const SizedBox(height: 25,),
+              const SizedBox(height: 35,),
 
              /* SizedBox(
                 height: 20,
@@ -81,10 +83,10 @@ class FactureScreen extends StatelessWidget {
               SizedBox(
                 height: 20,
                 child: Row(
-                  children:  [
-                    Icon(Icons.calendar_month_rounded,color: primaryLite.withOpacity(.8),size: 20,),
-                    const SizedBox(width: 10,),
-                    Text("Rendez-vous", style: TextStyle(fontSize: 16,color: primaryLite.withOpacity(.8),fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
+                  children:  const [
+                    Icon(Icons.calendar_month_rounded,color: primaryLite2,size: 20,),
+                    SizedBox(width: 10,),
+                    Text("Rendez-vous", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
                   ],
                 ),
               ),
@@ -98,16 +100,16 @@ class FactureScreen extends StatelessWidget {
                 );
               }),
 
-              const SizedBox(height: 25,),
+              const SizedBox(height: 35,),
 
               // SERVICES
               SizedBox(
                 height: 20,
                 child: Row(
-                  children:  [
-                    Icon(Icons.content_cut_rounded,color: primaryLite.withOpacity(.8),size: 20,),
-                    const SizedBox(width: 10,),
-                    Text("Prestations", style: TextStyle(fontSize: 16,color: primaryLite.withOpacity(.8),fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
+                  children:  const [
+                    Icon(Icons.content_cut_rounded,color: primaryLite2,size: 20,),
+                    SizedBox(width: 10,),
+                    Text("Prestations", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
                   ],
                 ),
               ),
@@ -135,8 +137,12 @@ class FactureScreen extends StatelessWidget {
                   ).toList()
                 );
               }),
+              const SizedBox(height: 35,),
 
+
+              const Text("Prix", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
               const Divider(height: 20,),
+
 
               // PRIX
               Consumer<RDVProvider>(builder: (context, rdv, child){
@@ -145,9 +151,9 @@ class FactureScreen extends StatelessWidget {
                   height: 20,
                   child: Row(
                     children: [
-                      Text("Montant", style: TextStyle(fontSize: 16,color: primaryPro,fontWeight: FontWeight.w600),),
+                      const Text("Montant", style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
                       const Spacer(),
-                      Text(rdv.rendezVous?.prixFin == rdv.rendezVous?.prix ? "${rdv.rendezVous?.prix} DA" : "${rdv.rendezVous?.prix} - ${rdv.rendezVous?.prixFin} DA", style: TextStyle(fontSize: 16,color: primaryPro,fontWeight: FontWeight.w600),),
+                      Text(rdv.rendezVous?.prixFin == rdv.rendezVous?.prix ? "${rdv.rendezVous?.prix} DA" : "${rdv.rendezVous?.prix} - ${rdv.rendezVous?.prixFin} DA", style: const TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
                     ],
                   ),
                 );
@@ -160,9 +166,9 @@ class FactureScreen extends StatelessWidget {
                   height: 20,
                   child: Row(
                     children: [
-                      const Text("Remise", style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
+                      const Text("Remise", style: TextStyle(fontSize: 16,color: Colors.teal,fontWeight: FontWeight.w600),),
                       const Spacer(),
-                      Text("- ${rdv.rendezVous?.remise} DA", style: const TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
+                      Text("- ${rdv.rendezVous?.remise} DA", style: const TextStyle(fontSize: 16,color: Colors.teal,fontWeight: FontWeight.w600),),
                     ],
                   ),
                 );
@@ -175,10 +181,10 @@ class FactureScreen extends StatelessWidget {
                   height: 20,
                   child: Row(
                     children: [
-                      Text("Total", style: TextStyle(fontSize: 16,color: primaryLite,fontWeight: FontWeight.w600),),
+                      const Text("Total", style: TextStyle(fontSize: 16,color: primary,fontWeight: FontWeight.w700),),
                       const Spacer(),
                       Text(rdv.rendezVous?.prixFin == rdv.rendezVous?.prix ? formatPrice(rdv.rendezVous!.prix!-rdv.rendezVous!.remise!) : "${formatPrice(rdv.rendezVous!.prix!-rdv.rendezVous!.remise!)} - ${formatPrice(rdv.rendezVous!.prixFin!-rdv.rendezVous!.remise!)}",
-                        style:TextStyle(fontSize: 16,color: primaryLite,fontWeight: FontWeight.w600),),
+                        style:const TextStyle(fontSize: 16,color: primary,fontWeight: FontWeight.w700),),
                     ],
                   ),
                 );
@@ -199,9 +205,9 @@ class FactureScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primary,
-                  fixedSize: const Size(double.maxFinite, 56),
+                  fixedSize: const Size(double.maxFinite, 54),
                   elevation: 6,
-                  foregroundColor: clr3,
+                  foregroundColor: Colors.white,
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -212,6 +218,8 @@ class FactureScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
+              const SizedBox(height: kToolbarHeight,),
             ],
           ),
         ),
@@ -219,3 +227,5 @@ class FactureScreen extends StatelessWidget {
     );
   }
 }
+
+

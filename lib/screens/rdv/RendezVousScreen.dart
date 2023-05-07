@@ -30,18 +30,17 @@ class RendezVousScreen extends StatelessWidget {
   final Salon salon;
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Résarvation",style: TextStyle(fontSize: 22),),
+        title: const Text("Résarvation",style: TextStyle(fontSize: 22,color: Colors.white),),
         centerTitle: true,
         elevation: .5 ,
-        //leading: IconButton(onPressed:(){Navigator.pop(context);}, icon: const Icon(Icons.arrow_back_rounded,)),
+        backgroundColor: primary,
+        leading: IconButton(onPressed:(){Navigator.pop(context);}, icon: const Icon(Icons.arrow_back_rounded,color: Colors.white,)),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Body(salon: salon,)
-      ),
+      body: Container(height: size.height,padding: const EdgeInsets.symmetric(horizontal: 12),color: primaryLite.withOpacity(.2),child:Body(salon: salon,) )
     );
   }
 }
@@ -76,9 +75,9 @@ class Body extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               children: [
-                SvgPicture.asset("assets/icons/history.svg", width: 16, color: primaryLite,),
+                SvgPicture.asset("assets/icons/history.svg", width: 16, color: primary,),
                 const SizedBox(width: 10,),
-                const Flexible(child: Text("Choisissez la date et l'heure",style: TextStyle(fontSize: 18),maxLines: 2,)),
+                const Flexible(child: Text("Choisissez la date et l'heure",style: TextStyle(fontSize: 16),maxLines: 2,)),
               ],
             ),
           ),
@@ -90,6 +89,8 @@ class Body extends StatelessWidget {
           const SizedBox(height: 20,),
 
           const PickHour(),
+
+          const SizedBox(height: 20,),
 
 
           // BOOK
@@ -142,14 +143,14 @@ class Body extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: primary,
-                    fixedSize: const Size(double.maxFinite, 56),
+                    fixedSize: const Size(double.maxFinite, 54),
                     elevation: 6,
-                    foregroundColor: clr3,
+                    foregroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Vérifier votre RDV', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white),),
+                    const Text('Vérifier', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18,color: Colors.white,letterSpacing: 1),),
                     const SizedBox(width: 15,),
                     click ? const SizedBox(height: 25,width: 25,child: CircularProgressIndicator(color: Colors.white,strokeWidth: 3,),) :
                     SvgPicture.asset("assets/icons/check.svg",width: 26,height: 26,color: Colors.white,),
@@ -188,33 +189,38 @@ class Body extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: Row(
-            children: [
-              Icon(CupertinoIcons.group,color: primaryLite,),
-              const SizedBox(width: 10,),
-              const Flexible( child:Text("Choisissez l’expert avec qui vous êtes à l’aise",style: TextStyle(fontSize: 18),maxLines: 2),),
+            children: const [
+              Icon(CupertinoIcons.group,color: primary,),
+              SizedBox(width: 10,),
+              Flexible( child:Text("Choisissez l’expert avec qui vous êtes à l’aise",style: TextStyle(fontSize: 16),maxLines: 2),),
             ],
           ),
         ),
         const SizedBox(height: 10,),
-        ClipRRect(
+        Material(
+          elevation: 1,
           borderRadius: const BorderRadius.all(Radius.circular(14)),
-          child: SimpleGroupedCheckbox<Team>(
-            controller: teamController,
-            groupTitle: 'Nos Experts',
-            groupTitleAlignment: Alignment.centerLeft,
-            helperGroupTitle: false,
-            isExpandableTitle: true,
-            itemsTitle: salon.teams.map((e) => e.name!).toList(),
-            values: salon.teams.toList(),
-            groupStyle: GroupStyle(
-              activeColor: primaryLite,
-              itemTitleStyle: const TextStyle(fontSize: 16),
-              groupTitleStyle: const TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: Colors.black,),
-            ),
-            checkFirstElement: true,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(14)),
+            child: SimpleGroupedCheckbox<Team>(
+              controller: teamController,
+              groupTitle: 'Nos Experts',
+              groupTitleAlignment: Alignment.centerLeft,
+              helperGroupTitle: false,
+              isExpandableTitle: true,
+              itemsTitle: salon.teams.map((e) => e.name!).toList(),
+              values: salon.teams.toList(),
+              groupStyle: GroupStyle(
+                activeColor: primaryLite2,
+                itemTitleStyle: const TextStyle(fontSize: 16),
+                groupTitleStyle: const TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: Colors.black,),
+              ),
+              checkFirstElement: true,
 
+            ),
           ),
         ),
+
       ],
     );
   }
@@ -232,14 +238,17 @@ class ServicesList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: Row(
             children: [
-              SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primaryLite,),
+              SvgPicture.asset("assets/icons/cut.svg", width: 16, color: primary,),
               const SizedBox(width: 10,),
-              const Flexible(child: Text("Choisissez la prestation qui vous convient",style: TextStyle(fontSize: 18),maxLines: 2,)),
+              const Flexible(child: Text("Choisissez la prestation qui vous convient",style: TextStyle(fontSize: 16),maxLines: 2,)),
             ],
           ),
         ),
         const SizedBox(height: 10,),
-        ClipRRect(
+        Material(
+          elevation: 2,
+          borderRadius: const BorderRadius.all(Radius.circular(14)),
+          child:  ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(14)),
           child: SimpleGroupedCheckbox<Service>(
             controller: serviceController,
@@ -253,13 +262,15 @@ class ServicesList extends StatelessWidget {
             ),
             values: service.toList(),
             groupStyle: GroupStyle(
-              activeColor: primaryLite,
+              activeColor: primaryLite2,
               itemTitleStyle: const TextStyle(fontSize: 16),
               groupTitleStyle: const TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: Colors.black,),
             ),
             checkFirstElement: false,
           ),
         ),
+        ),
+
       ],
     );
   }
@@ -277,11 +288,11 @@ class PickDay extends StatelessWidget {
         StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return  Material(
-              elevation: 6,
+              elevation: 1,
               borderRadius: const BorderRadius.all(Radius.circular(14)),
               child: InkWell(
                 borderRadius: const BorderRadius.all(Radius.circular(14)),
-                splashColor: clr3,
+                splashColor: primaryLite2,
                 onTap: () async {
                   bool ok = false;
                   while(ok == false){
@@ -334,8 +345,9 @@ class PickDay extends StatelessWidget {
                     builder: (context, child) {
                       return Theme(
                         data: Theme.of(context).copyWith(
-                          colorScheme: ColorScheme.light(
+                          colorScheme: const ColorScheme.light(
                             primary: primary,
+                            surfaceTint: Colors.white,
                           ),
                           textButtonTheme: TextButtonThemeData(
                             style: TextButton.styleFrom(
@@ -355,9 +367,9 @@ class PickDay extends StatelessWidget {
                   }
                 },
                 child: ListTile(
-                  title: Text(provider.selectedDay,style: TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: primaryPro,),),
-                  trailing: Icon(CupertinoIcons.calendar, color: primaryPro,),
-                  tileColor: clr3.withOpacity(.15),
+                  title: Text(provider.selectedDay,style: const TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: Colors.black,),),
+                  trailing: const Icon(CupertinoIcons.calendar, color: primary,),
+                  tileColor: Colors.white,
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14)),),
                 ),
               ),
@@ -397,9 +409,10 @@ class PickHour extends StatelessWidget {
                         }
                       },
 
-                      backgroundColor: clr3,
-                      //pressElevation: 1,
-                      selectedColor: primaryLite,
+                      backgroundColor: primaryLite,
+                      selectedColor: primaryLite2,
+                      side: BorderSide.none,
+                      checkmarkColor: Colors.white,
                       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
                     ),
                   );
@@ -412,11 +425,10 @@ class PickHour extends StatelessWidget {
               itemBuilder: (context,index){
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 5),
-                  child: FilterChip(
-                    label: GFShimmer(mainColor: clr3, secondaryColor: clr3,child: Text(rdv.heuresSHIMER[index],style: TextStyle(color:primaryPro,fontSize: 16),)),
-                    selected: false,
-                    onSelected: (v){},
-                    backgroundColor: clr3,
+                  child: Chip(
+                    label: GFShimmer(mainColor: primaryLite2,child: Text(rdv.heuresSHIMER[index],style: const TextStyle(color:primaryPro,fontSize: 16),)),
+                    backgroundColor: primaryLite.withOpacity(.5),
+                    side: BorderSide.none,
                     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
                   ),
                 );

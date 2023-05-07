@@ -6,7 +6,10 @@ import 'package:monsalondz/models/Salon.dart';
 import 'package:monsalondz/models/Service.dart';
 import '../models/Comment.dart';
 import '../models/Hours.dart';
+import '../models/RendezVous.dart';
 import '../models/Team.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SalonProvider extends ChangeNotifier {
 
@@ -14,6 +17,8 @@ class SalonProvider extends ChangeNotifier {
   List<String> get images => _images;
   Salon? salon;
   bool search = false;
+
+  // IMAGE
 
   Future<void> getSalonImages(String id) async {
     try{
@@ -30,6 +35,9 @@ class SalonProvider extends ChangeNotifier {
     catch(e){print(e);}
     notifyListeners();
   }
+
+
+  // STATISTIQUES
 
   Future<void> incrVU(String id) async {
     await FirebaseFirestore.instance.collection("statistics").doc(id).update({
@@ -70,6 +78,8 @@ class SalonProvider extends ChangeNotifier {
   }
 
 
+
+  // SET SALON
   Future<void> setSalon(Salon newSalon) async {
     search = true;
     salon = newSalon ;
@@ -93,6 +103,9 @@ class SalonProvider extends ChangeNotifier {
     images.clear();
     notifyListeners();
   }
+
+
+  // GET SALON INFORMATIONS
 
   Future<void> getHours() async {
     //salon?.hours?.jours.clear();
@@ -173,6 +186,9 @@ class SalonProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  // FAVORITES
+
   Future<bool> checkFavorite() async {
     if(FirebaseAuth.instance.currentUser != null){
       await FirebaseFirestore.instance.collection("favorites")
@@ -215,6 +231,216 @@ class SalonProvider extends ChangeNotifier {
     });
     notifyListeners();
     await incrJaime(salon!.id!);
+  }
+
+
+
+
+  // RDV LIST
+  List<RendezVous> listRDV = [];
+  List<RendezVous> listDemandes = [];
+  bool done = false;
+
+  Future<void> getDemandes(context) async {
+    listDemandes.clear();
+    done = false;
+    await FirebaseFirestore.instance.collection("rdv")
+        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where("etat",isEqualTo: 0)
+        .where("date2", isGreaterThanOrEqualTo: DateTime.now()).orderBy("date2")
+        .get().then((snapshot){
+      if(snapshot.docs.isNotEmpty){
+        for (var element in snapshot.docs) {
+          RendezVous rdv = RendezVous.fromJson(element.data());
+          rdv.id = element.id;
+          if(element.data()["service"] != null){
+            for (var srv in element.data()["service"]) {
+              rdv.services.add(Service.fromJson(srv));
+            }
+          }
+          listDemandes.add(rdv);
+          notifyListeners();
+        }
+      }
+    })
+    .catchError((onError){
+      debugPrint(onError.toString());
+      done = false;
+      final snackBar = SnackBar(
+        elevation: 10,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          onError.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      notifyListeners();
+    });
+    done = true;
+    notifyListeners();
+  }
+
+  Future<void> deleteDemande(String salonID,String rdvID,BuildContext context) async {
+    try{
+      await FirebaseFirestore.instance.collection("rdv").doc(rdvID).update({
+        "etat": -1,
+      });
+      listDemandes.removeWhere((element) => element.id == rdvID);
+      await getUserToken(salonID,rdvID,"Le client(e) ${FirebaseAuth.instance.currentUser?.displayName} a annulé son rendez-vous","Rendez-vous annulé");
+    }
+    catch(e){
+      debugPrint(e.toString());
+      final snackBar = SnackBar(
+        elevation: 10,
+        behavior: SnackBarBehavior.floating,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        content: Text(
+          e.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    notifyListeners();
+  }
+
+
+
+  Future<void> getRDV(context) async {
+    listRDV.clear();
+    done = false;
+    await FirebaseFirestore.instance.collection("rdv")
+        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where("etat",isEqualTo: 1)
+        .where("date2", isGreaterThanOrEqualTo: DateTime.now()).orderBy("date2")
+        .get().then((snapshot){
+      if(snapshot.docs.isNotEmpty){
+        for (var element in snapshot.docs) {
+          RendezVous rdv = RendezVous.fromJson(element.data());
+          rdv.id = element.id;
+          if(element.data()["service"] != null){
+            for (var srv in element.data()["service"]) {
+              rdv.services.add(Service.fromJson(srv));
+            }
+          }
+          listRDV.add(rdv);
+          notifyListeners();
+        }
+      }
+    })
+    .catchError((onError){
+      debugPrint(onError.toString());
+      done = false;
+      final snackBar = SnackBar(
+        elevation: 10,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          onError.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      notifyListeners();
+    });
+    done = true;
+    notifyListeners();
+  }
+
+  Future<void> deleteRDV(String rdvID, String salonID,context) async {
+    try{
+      await FirebaseFirestore.instance.collection("statistics").doc(salonID).update({
+        "rdv${DateTime.now().year}.${DateTime.now().month}done":FieldValue.increment(-1),
+        "rdvDone":FieldValue.increment(-1),
+      });
+      await FirebaseFirestore.instance.collection("rdv").doc(rdvID).update({
+        "etat": 2,
+      });
+      listRDV.removeWhere((element) => element.id == rdvID);
+      await getUserToken(salonID,rdvID,"Nous sommes désolés de vous informer que le client(e) ${FirebaseAuth.instance.currentUser?.displayName} a annulé le rendez-vous .","Rendez-vous annulé");
+    }
+    catch(onError){
+      final snackBar = SnackBar(
+        elevation: 10,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          onError.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      debugPrint(onError.toString());
+    }
+    notifyListeners();
+  }
+
+  Future<void> terminerRDV(String rdvID,String salonID,context) async {
+    try{
+      await FirebaseFirestore.instance.collection("rdv").doc(rdvID).update({
+        "etat": 3,
+      });
+      listDemandes.removeWhere((element) => element.id == rdvID);
+      await getUserToken(salonID,rdvID,"Nous souhaitons que vous ayez eu une expérience formidable, Notez le salon et laissez un commentaire","Rendez-vous terminé");
+    }
+    catch(e){
+      debugPrint(e.toString());
+      final snackBar = SnackBar(
+        elevation: 10,
+        behavior: SnackBarBehavior.floating,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        content: Text(
+          e.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    notifyListeners();
+  }
+
+
+
+  getUserToken(String userID, String rdvID,String body, String title) async {
+    await FirebaseFirestore.instance.collection("salon").doc(userID).get().then((value) async {
+      if(value.exists){
+        if(value.data()!.isNotEmpty){
+          await sendPushMessage(value.get("token"),rdvID,userID,body,title);
+        }
+      }
+    });
+  }
+
+  Future<void> sendPushMessage(String token, String rdvID, String userID, String body, String title) async {
+    String serverToken = "AAAA_zv9Bzo:APA91bFHW72_Q55L2tgImKoSrFUDWRI9NAmftCmsKiB2SLpJ1IJ5JV8rbxuXLj32E9a0Xx_YvaQV2c7FaPkZaNsiYhkTCznakDolzHoDV7MW-_OJarNiSNhwHD2BhgdO1VOFcj_WRAxB";
+    try {
+      await http.post(
+        Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'key=$serverToken',
+        },
+        body: jsonEncode(
+          <String, dynamic>{
+            'notification': <String, dynamic>{
+              'body': body,
+              'title': title,
+            },
+            'priority': 'high',
+            'data': <String, dynamic>{
+              'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+              'id': rdvID,
+              "userID" : userID
+            },
+            "to": token,
+          },
+        ),
+      );
+    } catch (e) {
+      debugPrint('error push notification');
+    }
   }
 
 }

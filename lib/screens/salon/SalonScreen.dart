@@ -315,7 +315,7 @@ class DetailScreen extends StatelessWidget {
                                   withNavBar: false,
                                   pageTransitionAnimation: PageTransitionAnimation.cupertino,
                                 );
-                                //Navigator.push(context, MaterialPageRoute(builder: (context) => RendezVous(salon: salon,)),);
+                                //Navigator.push(context, CupertinoPageRoute(builder: (context) => RendezVousScreen(salon: salon),),);
                               });
                             }
                             else{
@@ -329,7 +329,7 @@ class DetailScreen extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
-                          foregroundColor: primary,
+                          foregroundColor: Colors.white,
                           fixedSize: const Size(double.maxFinite, 56),
                           elevation: 6,
                           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),
@@ -451,6 +451,7 @@ class Description extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -556,40 +557,24 @@ class ListPrestation extends StatelessWidget {
              );
            }
            return GFShimmer(
-             mainColor: primary,
+             mainColor: primaryLite,
              child: Column(
                children: [
                  Container(
+                   width: size.width,
+                   height: 46,
                    decoration: const BoxDecoration(
                      borderRadius: BorderRadius.all(Radius.circular(14)),
                      color: primary,
-                   ),
-                   child: ListTile(
-                     title:  Container(height: 15,decoration: const BoxDecoration(
-                       borderRadius: BorderRadius.all(Radius.circular(14)),
-                       color: primary,
-                     ),),
-                     trailing: const Text('x xxx - x xxx DA',),
-                     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-                     tileColor: primary,
-                     dense: true,
                    ),
                  ),
                  const SizedBox(height: 10,),
                  Container(
+                   width: size.width,
+                   height: 46,
                    decoration: const BoxDecoration(
                      borderRadius: BorderRadius.all(Radius.circular(14)),
                      color: primary,
-                   ),
-                   child: ListTile(
-                     title:  Container(height: 15,decoration: const BoxDecoration(
-                       borderRadius: BorderRadius.all(Radius.circular(14)),
-                       color: primary,
-                     ),),
-                     trailing: const Text('x xxx - x xxx DA',),
-                     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-                     tileColor: primary,
-                     dense: true,
                    ),
                  ),
                ],
@@ -633,43 +618,21 @@ class HeuresDeTravail extends StatelessWidget {
         );
       }
       return GFShimmer(
-        mainColor: primaryLite,
+        mainColor: primary,
         child: Column(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(14)),
-                color: primary,
-              ),
-              child: ListTile(
-                title: Container(height: 15, decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(14)),
-                  color: primary,
-                ),),
-                trailing: const Text('08:00 - 19:00',),
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(14))),
-                tileColor: primary,
-                dense: true,
-              ),
+          children: const [
+            ListTile(
+              title: Text('Dimanche',style: TextStyle(color: Colors.black),),
+              trailing: Text('08:00 - 22:00 h',style: TextStyle(color: Colors.black),),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+              dense: true,
             ),
-            const SizedBox(height: 10,),
-            Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(14)),
-                color: primary,
-              ),
-              child: ListTile(
-                title: Container(height: 15, decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(14)),
-                  color: primary,
-                ),),
-                trailing: const Text('08:00 - 19:00',),
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(14))),
-                tileColor: primary,
-                dense: true,
-              ),
+            SizedBox(height: 10,),
+            ListTile(
+              title: Text('Lundi',style: TextStyle(color: Colors.black),),
+              trailing: Text('08:00 - 22:00 h',style: TextStyle(color: Colors.black),),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+              dense: true,
             ),
           ],
         ),
@@ -753,7 +716,6 @@ class CommentsList extends StatelessWidget {
           }
           return GFShimmer(
             mainColor: primary,
-            secondaryColor: primary,
             duration: const Duration(seconds: 2),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -823,7 +785,6 @@ class ContactSection extends StatelessWidget {
         ),
         if(phone == '' && location == '') GFShimmer(
           mainColor: primary,
-          secondaryColor: primary,
           duration: const Duration(seconds: 2),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),

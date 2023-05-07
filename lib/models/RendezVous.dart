@@ -57,7 +57,7 @@ class RendezVous {
     remise = json["remise"] ?? 0;
     comment = json['comment'] ?? '';
     team = json['team'] ?? false;
-    teamInfo = json['teamInfo'];
+    teamInfo = Team.fromJson(json['teamInfo']);
     location = json['location'] ?? '';
     userPhone = json['userPhone'] ?? '';
     prixFin = json["prixFin"] ?? 0;

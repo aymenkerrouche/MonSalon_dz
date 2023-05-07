@@ -10,12 +10,12 @@ class Team {
   Team.fromJson(Map<String, dynamic> json){
     salonID= json['salonID'] ?? '';
     userID= json['userID'] ?? '';
-    name= json['user'] ?? '';
+    name= json['name'] ?? '';
   }
 
   Map<String, dynamic> toJson() => {
     "salonID": salonID,
     "userID": userID,
-    "user" : name
+    "name" : name
   };
 }

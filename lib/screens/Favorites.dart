@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:getwidget/components/toast/gf_toast.dart';
@@ -152,9 +152,9 @@ class _FavoriteListState extends State<FavoriteList> {
                       duration: const Duration(milliseconds: 400),
                       padding: const EdgeInsets.all(5),
                       margin: const EdgeInsets.only(right: 4),
-                      decoration: BoxDecoration(
-                          color: clr3,
-                          borderRadius: const BorderRadius.all(Radius.circular(6))
+                      decoration: const BoxDecoration(
+                          color: primary,
+                          borderRadius: BorderRadius.all(Radius.circular(6))
                       ),
                       child: Row(
                         children: const [

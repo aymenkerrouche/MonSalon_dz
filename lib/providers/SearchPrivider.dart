@@ -86,8 +86,6 @@ class SearchProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
   clearAll(){
   _searchWilaya.clear();
   _search.clear();
@@ -97,7 +95,6 @@ class SearchProvider extends ChangeNotifier {
   _prixFin = 0;
   notifyListeners();
 }
-
 
   static int _prixFin = 0;
   int get prixFin => _prixFin;

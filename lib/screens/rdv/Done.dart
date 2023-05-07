@@ -24,27 +24,27 @@ class DoneScreen extends StatelessWidget {
               style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
-            Row(
-              children: [
-                const Spacer(),
-                TextButton(
-                  onPressed:(){Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-                      const Root()), (Route<dynamic> route) => false);},
-                  style: TextButton.styleFrom(
-                    backgroundColor: clr3 ,
-                    //padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 6)
-                  ),
-                  child: Row(
-                    children: const [
-                      Text("  Continue", style: TextStyle(fontSize: 22,color: primary,fontWeight: FontWeight.w600),),
-                      SizedBox(width: 10,),
-                      Icon(Icons.arrow_forward_ios_rounded,size: 26,color: primary,),
-                    ],
-                  ),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: TextButton(
+                onPressed:() async {
+                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Root()), (Route<dynamic> route) => false);
+                },
+                style: TextButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    elevation: 20,
+                    foregroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))
                 ),
-                const Spacer(),
-              ],
-            )
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text("  Continue", style: TextStyle(fontSize: 24,color: Colors.white,fontWeight: FontWeight.w600),),
+                    SizedBox(width: 10,),
+                    Icon(Icons.arrow_forward_rounded,size: 26,color: Colors.white,),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -16,7 +16,7 @@ import 'providers/CategoriesProvider.dart';
 import 'providers/HistouriqueLocal.dart';
 import 'screens/home.dart';
 
-TextStyle optionStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: primary);
+TextStyle optionStyle = const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: primary);
 PersistentTabController controller = PersistentTabController(initialIndex: 0);
 
 class Root extends StatefulWidget {
@@ -105,6 +105,7 @@ class _RootState extends State<Root> {
       navBarStyle: NavBarStyle.style13,
     );
   }
+
   List<Widget> buildScreens() {
     return [
       Consumer<AuthProvider>(
