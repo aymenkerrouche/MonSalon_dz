@@ -69,7 +69,7 @@ class Body extends StatelessWidget {
 
           if(salon.team) teamList(teamController),
 
-          const SizedBox(height: 50,),
+          if(salon.team)const SizedBox(height: 50,),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),

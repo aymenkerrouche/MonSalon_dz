@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/Salon.dart';
 import 'package:monsalondz/models/Service.dart';
+import 'package:monsalondz/widgets/SnaKeBar.dart';
 import '../models/Comment.dart';
 import '../models/Hours.dart';
 import '../models/RendezVous.dart';
@@ -234,11 +235,33 @@ class SalonProvider extends ChangeNotifier {
   }
 
 
+  Future<void> setCommment(String comment, double rate, String salonID, String userID, String name, BuildContext context, rdvID) async {
+    try{
+      await FirebaseFirestore.instance.collection("notes").add({
+        "comment": comment,
+        "rate": rate,
+        "salonID": salonID,
+        "userID": userID,
+        "name": name
+      }).then((value) async => await FirebaseFirestore.instance.collection("rdv").doc(rdvID).update({
+        "note": true
+      }));
+      listRDV.where((element) => element.id == rdvID).first.note = true;
+    }
+    catch(e){
+      final snackBar = snaKeBar(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    notifyListeners();
+  }
+
+
 
 
   // RDV LIST
   List<RendezVous> listRDV = [];
   List<RendezVous> listDemandes = [];
+
   bool done = false;
 
   Future<void> getDemandes(context) async {
@@ -398,6 +421,128 @@ class SalonProvider extends ChangeNotifier {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+    notifyListeners();
+  }
+
+
+
+  Future<void> getAllRDV(context) async {
+    listRDV.clear();
+    done = false;
+    await FirebaseFirestore.instance.collection("rdv")
+        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .get().then((snapshot){
+      if(snapshot.docs.isNotEmpty){
+        for (var element in snapshot.docs) {
+          RendezVous rdv = RendezVous.fromJson(element.data());
+          rdv.id = element.id;
+          if(element.data()["service"] != null){
+            for (var srv in element.data()["service"]) {
+              rdv.services.add(Service.fromJson(srv));
+            }
+          }
+          listRDV.add(rdv);
+          notifyListeners();
+        }
+      }
+    })
+    .catchError((onError){
+      debugPrint(onError.toString());
+      done = false;
+      final snackBar = SnackBar(
+        elevation: 10,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          onError.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      notifyListeners();
+    });
+    done = true;
+    notifyListeners();
+  }
+
+  Future<void> getAnnuleRDV(context) async {
+    listRDV.clear();
+    done = false;
+    await FirebaseFirestore.instance.collection("rdv")
+        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where("etat",whereIn: [2, -1])
+        .get().then((snapshot){
+      if(snapshot.docs.isNotEmpty){
+        for (var element in snapshot.docs) {
+          RendezVous rdv = RendezVous.fromJson(element.data());
+          rdv.id = element.id;
+          if(element.data()["service"] != null){
+            for (var srv in element.data()["service"]) {
+              rdv.services.add(Service.fromJson(srv));
+            }
+          }
+          listRDV.add(rdv);
+          notifyListeners();
+        }
+      }
+    })
+    .catchError((onError){
+      debugPrint(onError.toString());
+      done = false;
+      final snackBar = SnackBar(
+        elevation: 10,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          onError.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      notifyListeners();
+    });
+    done = true;
+    notifyListeners();
+  }
+
+  Future<void> getTerminiRDV(context) async {
+    listRDV.clear();
+    done = false;
+    await FirebaseFirestore.instance.collection("rdv")
+        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where("etat",isEqualTo: 3)
+        .where("date2", isLessThanOrEqualTo: DateTime.now()).orderBy("date2")
+        .get().then((snapshot){
+      if(snapshot.docs.isNotEmpty){
+        for (var element in snapshot.docs) {
+          RendezVous rdv = RendezVous.fromJson(element.data());
+          rdv.id = element.id;
+          if(element.data()["service"] != null){
+            for (var srv in element.data()["service"]) {
+              rdv.services.add(Service.fromJson(srv));
+            }
+          }
+          listRDV.add(rdv);
+          notifyListeners();
+        }
+      }
+    })
+        .catchError((onError){
+      debugPrint(onError.toString());
+      done = false;
+      final snackBar = SnackBar(
+        elevation: 10,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          onError.toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      notifyListeners();
+    });
+    done = true;
     notifyListeners();
   }
 

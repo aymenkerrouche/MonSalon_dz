@@ -8,6 +8,15 @@ import 'package:intl/intl.dart';
 import '../models/Service.dart';
 import '../utils/constants.dart';
 
+/* ETAT
+  0 en attente
+  1 accepté
+  2 annulé
+  3 terminé
+  -1 refusé
+  -2 litige
+  */
+
 class RDVProvider extends ChangeNotifier {
   RendezVous? _rendezVous;
   RendezVous? get rendezVous => _rendezVous;
@@ -106,10 +115,13 @@ class RDVProvider extends ChangeNotifier {
     _rendezVous?.userPhone = phone;
     _rendezVous?.remise = salon.remise;
     if (salon.promo == true) _rendezVous?.remise = salon.remise;
-    if (teamController.selectedItem.name != "N'importe qui") {
-      _rendezVous?.team = true;
-      _rendezVous?.teamInfo = teamController.selectedItem;
-    } else {
+    if (salon.teams.isNotEmpty) {
+      if(teamController.selectedItem.name != "N'importe qui"){
+        _rendezVous?.team = true;
+        _rendezVous?.teamInfo = teamController.selectedItem;
+      }
+    }
+    else {
       _rendezVous?.team = false;
       _rendezVous?.teamInfo = null;
     }

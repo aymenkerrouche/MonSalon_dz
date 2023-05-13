@@ -10,27 +10,7 @@ class SignUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: primary,
-        elevation: 0,
-        flexibleSpace: FlexibleSpaceBar(
-          title: Container(
-            margin: const EdgeInsets.only(bottom: 5,left: 10),
-            child:  const Text(
-              "Authentification",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                //fontFamily: 'Rufik',
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.clip,
-            ),
-          ),
-          titlePadding: EdgeInsets.zero,
-        ),
-      ),
+      backgroundColor: background,
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: const SignUpForm(),

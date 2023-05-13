@@ -37,47 +37,40 @@ class FactureScreen extends StatelessWidget {
                   children:  const [
                     Icon(Icons.business_sharp,color: primaryLite2,size: 20,),
                     SizedBox(width: 10,),
-                    Text("Salon", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
+                    Text("Salon", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600),),
                   ],
                 ),
               ),
-              const SizedBox(height: 15,),
               Consumer<RDVProvider>(builder: (context, rdv, child){
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("${rdv.rendezVous?.salon}", style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700,),maxLines: 2,),
-                    if(rdv.rendezVous?.team == true)Text("Expert: ${rdv.rendezVous?.teamInfo?.name}", style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600,color: Colors.grey.shade600),maxLines: 2,),
-                    Text("${rdv.rendezVous?.location}", style: const TextStyle(
-                      fontSize: 14,fontWeight: FontWeight.w600,),maxLines: 2,overflow: TextOverflow.ellipsis,),
-                  ],
+                return Container(
+                  width: size.width,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(Radius.circular(14)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade200,
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 1), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  margin: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.symmetric(horizontal:8,vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("${rdv.rendezVous?.salon}", style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700,),maxLines: 2,),
+                      if(rdv.rendezVous?.team == true)Text("Expert: ${rdv.rendezVous?.teamInfo?.name}", style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600,color: Colors.grey.shade600),maxLines: 2,),
+                      Text("${rdv.rendezVous?.location}", style: const TextStyle(
+                        fontSize: 14,fontWeight: FontWeight.w600,),maxLines: 2,overflow: TextOverflow.ellipsis,),
+                    ],
+                  ),
                 );
               }),
 
-              const SizedBox(height: 35,),
-
-             /* SizedBox(
-                height: 20,
-                child: Row(
-                  children:  [
-                    Icon(Icons.person_outline_rounded,color: primaryLite,size: 20,),
-                    const  SizedBox(width: 10,),
-                    Text("client (e)", style: TextStyle(fontSize: 16,color: primaryLite,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10,),
-              Consumer<RDVProvider>(builder: (context, rdv, child){
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("${rdv.rendezVous?.user}", style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700,),maxLines: 2,),
-                    Text("${rdv.rendezVous?.userPhone}", style: const TextStyle(fontSize: 14,fontWeight: FontWeight.w600,),maxLines: 2,),
-                  ],
-                );
-              }),
-
-              const SizedBox(height: 25,),*/
+              const SizedBox(height: 20,),
 
               // RDV
               SizedBox(
@@ -86,21 +79,37 @@ class FactureScreen extends StatelessWidget {
                   children:  const [
                     Icon(Icons.calendar_month_rounded,color: primaryLite2,size: 20,),
                     SizedBox(width: 10,),
-                    Text("Rendez-vous", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
+                    Text("Rendez-vous", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600),),
                   ],
                 ),
               ),
-              const SizedBox(height: 15,),
               Consumer<RDVProvider>(builder: (context, rdv, child){
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("${rdv.rendezVous?.date?.toTitleCase()} à ${rdv.rendezVous?.hour} h", style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w700,),maxLines: 2,),
-                  ],
+                return Container(
+                  width: size.width,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade200,
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 1), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  margin: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.symmetric(horizontal:12,vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("${rdv.rendezVous?.date?.toTitleCase()} à ${rdv.rendezVous?.hour} h", style: const TextStyle(fontSize: 17,fontWeight: FontWeight.w700,),maxLines: 2,),
+                    ],
+                  ),
                 );
               }),
 
-              const SizedBox(height: 35,),
+              const SizedBox(height: 20,),
 
               // SERVICES
               SizedBox(
@@ -113,82 +122,118 @@ class FactureScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 15,),
               Consumer<RDVProvider>(builder: (context, rdv, child){
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: rdv.rendezVous!.services.map((e) =>
-                    SizedBox(
-                      width: size.width,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            alignment: Alignment.topLeft,
-                            constraints: BoxConstraints(maxWidth: size.width * 0.6),
-                            child: Text("${e.service}", style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w700,),maxLines: 2,)),
-                          Flexible(
-                            child: Text( e.prixFin != 0 ? "${e.prix} - ${e.prixFin} DA" : "${e.prix} DA", style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600,),maxLines: 1,),
-                          ),
-                        ],
+                return Container(
+                  width: size.width,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(Radius.circular(14)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade200,
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 1), // changes position of shadow
                       ),
-                    ),
-                  ).toList()
+                    ],
+                  ),
+                  margin: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.symmetric(horizontal:8,vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: rdv.rendezVous!.services.map((e) =>
+                      SizedBox(
+                        width: size.width,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              alignment: Alignment.topLeft,
+                              constraints: BoxConstraints(maxWidth: size.width * 0.55),
+                              child: Text("${e.service}", style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w700,),maxLines: 2,)),
+                            Flexible(
+                              child: Text( e.prixFin! > e.prix! ? "${e.prix} - ${e.prixFin} DA" : "${e.prix} DA", style: const TextStyle(fontSize: 15,fontWeight: FontWeight.w600,),maxLines: 1,),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ).toList()
+                  ),
                 );
               }),
               const SizedBox(height: 35,),
 
 
-              const Text("Prix", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w600,fontFamily: "Roboto"),),
-              const Divider(height: 20,),
+              const Text("PRIX", style: TextStyle(fontSize: 16,color: primaryLite2,fontWeight: FontWeight.w700),),
 
+              Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade200,
+                      spreadRadius: 1,
+                      blurRadius: 10,
+                      offset: const Offset(0, 1), // changes position of shadow
+                    ),
+                  ],
+                ),
+                margin: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.symmetric(horizontal:8,vertical: 12),
+                child: Column(
+                  children: [
+                    // PRIX
+                    Consumer<RDVProvider>(builder: (context, rdv, child){
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        height: 20,
+                        child: Row(
+                          children: [
+                            const Text("Montant", style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
+                            const Spacer(),
+                            Text(rdv.rendezVous?.prixFin == rdv.rendezVous?.prix ? "${rdv.rendezVous?.prix} DA" : "${rdv.rendezVous?.prix} - ${rdv.rendezVous?.prixFin} DA", style: const TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
+                          ],
+                        ),
+                      );
+                    }),
 
-              // PRIX
-              Consumer<RDVProvider>(builder: (context, rdv, child){
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  height: 20,
-                  child: Row(
-                    children: [
-                      const Text("Montant", style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
-                      const Spacer(),
-                      Text(rdv.rendezVous?.prixFin == rdv.rendezVous?.prix ? "${rdv.rendezVous?.prix} DA" : "${rdv.rendezVous?.prix} - ${rdv.rendezVous?.prixFin} DA", style: const TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.w600),),
-                    ],
-                  ),
-                );
-              }),
+                    // REMISE
+                    Consumer<RDVProvider>(builder: (context, rdv, child){
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        height: 20,
+                        child: Row(
+                          children: [
+                            const Text("Remise", style: TextStyle(fontSize: 16,color: Colors.teal,fontWeight: FontWeight.w600),),
+                            const Spacer(),
+                            Text("- ${rdv.rendezVous?.remise} DA", style: const TextStyle(fontSize: 16,color: Colors.teal,fontWeight: FontWeight.w600),),
+                          ],
+                        ),
+                      );
+                    }),
 
-              // REMISE
-              Consumer<RDVProvider>(builder: (context, rdv, child){
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  height: 20,
-                  child: Row(
-                    children: [
-                      const Text("Remise", style: TextStyle(fontSize: 16,color: Colors.teal,fontWeight: FontWeight.w600),),
-                      const Spacer(),
-                      Text("- ${rdv.rendezVous?.remise} DA", style: const TextStyle(fontSize: 16,color: Colors.teal,fontWeight: FontWeight.w600),),
-                    ],
-                  ),
-                );
-              }),
+                    // TOTAL
+                    Consumer<RDVProvider>(builder: (context, rdv, child){
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        height: 20,
+                        child: Row(
+                          children: [
+                            const Text("TOTAL", style: TextStyle(fontSize: 18,color: primary,fontWeight: FontWeight.w700),),
+                            const Spacer(),
+                            Text(rdv.rendezVous?.prixFin == rdv.rendezVous?.prix ? formatPrice(rdv.rendezVous!.prix!-rdv.rendezVous!.remise!) : "${formatPrice(rdv.rendezVous!.prix!-rdv.rendezVous!.remise!)} - ${formatPrice(rdv.rendezVous!.prixFin!-rdv.rendezVous!.remise!)}",
+                              style:const TextStyle(fontSize: 17,color: primary,fontWeight: FontWeight.w700),),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
 
-              // TOTAL
-              Consumer<RDVProvider>(builder: (context, rdv, child){
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  height: 20,
-                  child: Row(
-                    children: [
-                      const Text("Total", style: TextStyle(fontSize: 16,color: primary,fontWeight: FontWeight.w700),),
-                      const Spacer(),
-                      Text(rdv.rendezVous?.prixFin == rdv.rendezVous?.prix ? formatPrice(rdv.rendezVous!.prix!-rdv.rendezVous!.remise!) : "${formatPrice(rdv.rendezVous!.prix!-rdv.rendezVous!.remise!)} - ${formatPrice(rdv.rendezVous!.prixFin!-rdv.rendezVous!.remise!)}",
-                        style:const TextStyle(fontSize: 16,color: primary,fontWeight: FontWeight.w700),),
-                    ],
-                  ),
-                );
-              }),
 
               const SizedBox(height: kToolbarHeight,),
 
@@ -205,7 +250,7 @@ class FactureScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primary,
-                  fixedSize: const Size(double.maxFinite, 54),
+                  fixedSize: const Size(double.maxFinite, 52),
                   elevation: 6,
                   foregroundColor: Colors.white,
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16)))),

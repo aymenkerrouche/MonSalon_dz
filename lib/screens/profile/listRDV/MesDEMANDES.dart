@@ -130,7 +130,7 @@ class RendezVousCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("${rdv.date}".toTitleCase(),style: const TextStyle(fontWeight: FontWeight.w700),),
-                Text(rdv.prixFin! > rdv.prix! ? "${formatPrice(rdv.prix!)} - ${formatPrice(rdv.prixFin!)}" : formatPrice(rdv.prix!),style: TextStyle(fontWeight: FontWeight.w700,fontSize: 15,color: color),),
+                Text(rdv.prixFin! > rdv.prix! ? "${formatPrice(rdv.prix!)} - ${formatPrice(rdv.prixFin!)} DA" : "${formatPrice(rdv.prix!)} DA",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 15,color: color),),
                 Text(rdv.services.length > 1 ? "${rdv.services.length} services" : "${rdv.services.length} service",style: const TextStyle(fontWeight: FontWeight.w600,),),
               ],
             ),

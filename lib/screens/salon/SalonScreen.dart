@@ -283,7 +283,7 @@ class DetailScreen extends StatelessWidget {
                       if(salon.team)Experts(teams: salon.teams,),
 
                       // DIVIDER
-                      const SizedBox(height: 50,),
+                      if(salon.team)const SizedBox(height: 50,),
 
 
                       //Contacts

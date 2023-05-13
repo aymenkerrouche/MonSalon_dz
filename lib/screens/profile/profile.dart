@@ -34,8 +34,6 @@ class _ProfileState extends State<Profile> {
           title: const Text(
             "Profil",
             style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600,),
-            maxLines: 1,
-            overflow: TextOverflow.clip,
           ),
           elevation: 20,
           backgroundColor: primary,

@@ -69,17 +69,18 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-
-          const SizedBox(height: 30,),
-
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20,),
             Container(
-            height: 100,
-            padding: const EdgeInsets.only(right: 5,top: 15,bottom: 5),
-            child: Image.asset('assets/images/logo3.png',color: primaryPro,),
-          ),
+              height: 100,
+              padding: const EdgeInsets.only(right: 5,top: 15,bottom: 5),
+              child: Image.asset('assets/images/logo3.png',color: primaryPro,),
+            ),
+
+            const SizedBox(height: 10,),
             Text.rich(
               maxLines:1,
               TextSpan(
@@ -88,17 +89,19 @@ class _SignUpFormState extends State<SignUpForm> {
                   children: <InlineSpan>[
                     TextSpan(
                       text: login ? "compte" : "vous",
-                      style: TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
+                      style: const TextStyle(color: primary, fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: 1.0),
                     )
                   ]
               ),
             ),
-            SizedBox(height: size.height * 0.05),
+
+            SizedBox(height: size.height * 0.1),
 
             //AUTH
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 400),
                   height: auth ? !login ? 307 : 372 : 70,
@@ -116,7 +119,7 @@ class _SignUpFormState extends State<SignUpForm> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             backgroundColor: primary,
                             fixedSize: Size(size.width, 55),
-                            elevation: 6
+                            elevation: 4
                           ),
                           onPressed: () async {
                             setState(() {
@@ -597,7 +600,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                           setState(() {sms = true;});
                                         }),
                                       );
-                                    
+
                                     },
                                     child: Text( "Envoyer le code",
                                       style: TextStyle(fontSize: 20, color: white,fontWeight: FontWeight.w700),
@@ -663,7 +666,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                               .then((value) async {
                                                 await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).get().then((snapshot) async {
                                                   if(!snapshot.exists){
-                                                  
+
                                                     await FirebaseFirestore.instance.collection("users").doc(value.user?.uid).set({"phone": tlpn,"token":await FirebaseMessaging.instance.getToken()});
                                                   }
                                                 });
@@ -712,6 +715,7 @@ class _SignUpFormState extends State<SignUpForm> {
             SizedBox(height: size.height * 0.08),
           ],
         ),
+      ),
     );
   }
 
@@ -796,10 +800,10 @@ class _SignUpFormState extends State<SignUpForm> {
       },
       decoration: InputDecoration(
         labelText: "Password",
-        hintText: "Saisir votre mot de passe",
-        labelStyle: TextStyle(color: primary),
+        hintText: "*********",
+        labelStyle: const TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        hintStyle: const TextStyle(fontWeight: FontWeight.w700),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w600,color: Colors.black45),
         suffixIcon: IconButton(
             icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility,
                 color: primary),
@@ -816,7 +820,7 @@ class _SignUpFormState extends State<SignUpForm> {
         focusedBorder: inputBorder(),
         enabledBorder: outlineInputBorder(),
       ),
-      style: const TextStyle(fontWeight: FontWeight.w700),
+      style: const TextStyle(fontWeight: FontWeight.w600),
     );
   }
 
@@ -826,7 +830,7 @@ class _SignUpFormState extends State<SignUpForm> {
       controller: emailController,
       cursorColor: primary,
       onSaved: (s){FocusScope.of(context).unfocus();},
-      style: const TextStyle(fontWeight: FontWeight.w700),
+      style: const TextStyle(fontWeight: FontWeight.w600),
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
@@ -847,20 +851,20 @@ class _SignUpFormState extends State<SignUpForm> {
       },
       decoration: InputDecoration(
         labelText: "Email",
-        hintText: "Saisir votre email",
-        labelStyle: TextStyle(color: primary),
+        hintText: "exemple@monsalon.com",
+        labelStyle: const TextStyle(color: primary),
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: Icon(Icons.email_rounded, color: primary),
+        suffixIcon: const Icon(Icons.email_rounded, color: primary),
         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         border: outlineInputBorder(),
         focusedBorder: inputBorder(),
         enabledBorder: outlineInputBorder(),
-        hintStyle: const TextStyle(fontWeight: FontWeight.w700),
+        hintStyle: const TextStyle(fontWeight: FontWeight.w600,color: Colors.black45),
       ),
     );
   }
 
-  Future passwordReset() async {
+  Future<void> passwordReset() async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text.trim()).then((v) =>
         GFToast.showToast("le code a été envoyé", context,backgroundColor: Colors.green.shade700,toastPosition: GFToastPosition.BOTTOM)

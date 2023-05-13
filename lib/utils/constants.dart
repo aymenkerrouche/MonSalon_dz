@@ -33,12 +33,12 @@ OutlineInputBorder outlineInputBorder() {
 OutlineInputBorder inputBorder() {
   return OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
-      borderSide: BorderSide(color: primary, width: 1.5),
+      borderSide: const BorderSide(color: primary, width: 1.5),
       gapPadding: 6);
 }
 
 String formatPrice(int priceToFormat) {
-  final total = NumberFormat('#,##0 DA');
+  final total = NumberFormat('#,###');
   return total.format(priceToFormat);
 }
 

@@ -50,23 +50,31 @@ class _LesRendezVousState extends State<LesRendezVous> {
       body: SizedBox(
         height: size.height,
         width: size.width,
-        child: !done ? Center(child: CircularProgressIndicator(color: widget.color, strokeWidth: 3,)) : SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10,),
-              Padding(
-                padding: const EdgeInsets.only(left: 18,top: 10),
-                child: Consumer<SalonProvider>(
-                    builder: (context, rend, child) { return Text("Nombre de rendez-vous: ${rend.listRDV.length}",
-                      style: const TextStyle(color: primaryPro, fontWeight: FontWeight.w700, letterSpacing: 1), maxLines: 3,);}
+        child: !done || !Provider.of<SalonProvider>(context,listen: false).done ?
+          Center(child: CircularProgressIndicator(color: widget.color, strokeWidth: 3,)) :
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Consumer<SalonProvider>(
+                          builder: (context, rend, child) { return Text("Nombre de rendez-vous: ${rend.listRDV.length}",
+                            style: const TextStyle(color: primaryPro, fontWeight: FontWeight.w600, letterSpacing: 1), maxLines: 3,);}
+                      ),
+                      const DropDownDemo(),
+                    ],
+                  ),
                 ),
-              ),
-              ListRdv(color:widget.color),
-              const SizedBox(height: 20,),
-            ],
+                ListRdv(color:widget.color),
+                const SizedBox(height: 20,),
+              ],
+            ),
           ),
-        ),
       ),
     );
   }
@@ -90,7 +98,7 @@ class ListRdv extends StatelessWidget {
           }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(rend.listRDV.length, (index) => RendezVousCard(color:color,rdv: rend.listRDV[index],)),
+            children: List.generate(rend.listRDV.length, (index) => RendezVousCard(color: rend.listRDV[index].etat == 2 || rend.listRDV[index].etat == -1 ? Colors.pink :  rend.listRDV[index].etat == 3 ? primary : rend.listRDV[index].etat == 0 ? Colors.blue.shade700 : color,rdv: rend.listRDV[index],)),
           );
         }
     );
@@ -126,12 +134,12 @@ class RendezVousCard extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(14)),
           child: ListTile(
             minVerticalPadding: 15,
-            title: Text("${rdv.salon}".toTitleCase(),style: const TextStyle(fontWeight: FontWeight.w700,fontSize: 18),),
+            title: Text("${rdv.salon}".toTitleCase(),style: const TextStyle(fontWeight: FontWeight.w600,fontSize: 18),),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("${rdv.date}".toTitleCase(),style: const TextStyle(fontWeight: FontWeight.w700),),
-                Text(rdv.prixFin! > rdv.prix! ? "${formatPrice(rdv.prix!)} - ${formatPrice(rdv.prixFin!)}" :formatPrice(rdv.prix!),style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,color: color,fontFamily: "Roboto"),),
+                Text("${rdv.date}".toTitleCase(),style: const TextStyle(fontWeight: FontWeight.w600),),
+                Text(rdv.prixFin! > rdv.prix! ? "${formatPrice(rdv.prix!)} - ${formatPrice(rdv.prixFin!)} DA" :"${formatPrice(rdv.prix!)} DA",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,color: color,fontFamily: "Roboto"),),
                 Text(rdv.services.length > 1 ? "${rdv.services.length} services" : "${rdv.services.length} service",style: const TextStyle(fontWeight: FontWeight.w600,color: Colors.black54),),
               ],
             ),
@@ -153,12 +161,12 @@ class RendezVousCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment:CrossAxisAlignment.start,
               children: [
-                const Text(" Etat",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 14),),
+                const Text(" Etat",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 14),),
                 Chip(
                   side: BorderSide.none,
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                   padding: EdgeInsets.zero,
-                  label: Text("Accepté",style: TextStyle(fontWeight: FontWeight.w700,color: color,fontSize: 14),),
+                  label: Text(rdv.etat == 2 ? "Annulé"  : rdv.etat == -1 ? "Refusé" : rdv.etat == 3 ? "Terminé" : rdv.etat == 0 ? "En attente" : "Accepté",style: TextStyle(fontWeight: FontWeight.w600,color: color,fontSize: 14),),
                   backgroundColor: color.withOpacity(.1),),
               ],
             ),
@@ -168,6 +176,72 @@ class RendezVousCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+
+class DropDownDemo extends StatefulWidget {
+  const DropDownDemo({super.key});
+
+  @override
+  _DropDownDemoState createState() => _DropDownDemoState();
+}
+
+class _DropDownDemoState extends State<DropDownDemo> {
+  String chosenValue = "Prochains";
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      value: chosenValue,
+      dropdownColor: background,
+	  icon: const Icon(Icons.arrow_drop_down_rounded,color: Colors.teal,),
+      underline: const SizedBox(),
+      items: <String>[
+        'Tous',
+        'Prochains',
+        'Terminé',
+        'Annulé',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          enabled: chosenValue == value ? false:true,
+          child: Text(value,style: TextStyle(color: chosenValue == value ? Colors.teal : primary, fontWeight: FontWeight.w600)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          chosenValue = value!;
+        });
+        switch(chosenValue) {
+          case "Tous": {
+            Provider.of<SalonProvider>(context,listen: false).getAllRDV(context);
+          }
+          break;
+
+          case 'les prochains': {
+            Provider.of<SalonProvider>(context,listen: false).getRDV(context);
+          }
+          break;
+
+          case 'Terminé': {
+            Provider.of<SalonProvider>(context,listen: false).getTerminiRDV(context);
+          }
+          break;
+
+          case 'Annulé': {
+            Provider.of<SalonProvider>(context,listen: false).getAnnuleRDV(context);
+          }
+          break;
+
+          default: {
+            //statements;
+          }
+          break;
+        }
+      },
     );
   }
 }
