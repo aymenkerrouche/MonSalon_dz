@@ -23,7 +23,7 @@ class _LesRendezVousState extends State<LesRendezVous> {
 
   Future<void> getRDV() async {
     final provider =  Provider.of<SalonProvider>(context,listen: false);
-    await provider.getRDV(context).then((value){
+    await provider.getRDV(context,"Tous").then((value){
       Timer(const Duration(seconds: 1), () {setState(() {done = true;});});
     }).catchError((onError){setState(() {done = true;error = true;});});
   }
@@ -181,66 +181,43 @@ class RendezVousCard extends StatelessWidget {
 }
 
 
-
 class DropDownDemo extends StatefulWidget {
-  const DropDownDemo({super.key});
+  const DropDownDemo({Key? key}) : super(key: key);
 
   @override
-  _DropDownDemoState createState() => _DropDownDemoState();
+  State<DropDownDemo> createState() => _DropDownDemoState();
 }
 
 class _DropDownDemoState extends State<DropDownDemo> {
-  String chosenValue = "Prochains";
+  String chosenValue = "Tous";
 
   @override
   Widget build(BuildContext context) {
+    final prv = Provider.of<SalonProvider>(context,listen: false);
     return DropdownButton<String>(
       value: chosenValue,
       dropdownColor: background,
-	  icon: const Icon(Icons.arrow_drop_down_rounded,color: Colors.teal,),
+      icon: const Icon(Icons.arrow_drop_down_rounded,color: Colors.teal,),
       underline: const SizedBox(),
       items: <String>[
         'Tous',
         'Prochains',
         'Terminé',
         'Annulé',
+        "Récent",
+        "Ancien"
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           enabled: chosenValue == value ? false:true,
-          child: Text(value,style: TextStyle(color: chosenValue == value ? Colors.teal : primary, fontWeight: FontWeight.w600)),
+          child: Text(value,style: TextStyle(color: chosenValue == value ? Colors.teal : Colors.black, fontWeight: FontWeight.w600)),
         );
       }).toList(),
       onChanged: (value) {
         setState(() {
           chosenValue = value!;
         });
-        switch(chosenValue) {
-          case "Tous": {
-            Provider.of<SalonProvider>(context,listen: false).getAllRDV(context);
-          }
-          break;
-
-          case 'les prochains': {
-            Provider.of<SalonProvider>(context,listen: false).getRDV(context);
-          }
-          break;
-
-          case 'Terminé': {
-            Provider.of<SalonProvider>(context,listen: false).getTerminiRDV(context);
-          }
-          break;
-
-          case 'Annulé': {
-            Provider.of<SalonProvider>(context,listen: false).getAnnuleRDV(context);
-          }
-          break;
-
-          default: {
-            //statements;
-          }
-          break;
-        }
+        prv.getRDV(context,chosenValue);
       },
     );
   }

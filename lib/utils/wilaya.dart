@@ -1,9 +1,5 @@
 List<Map<dynamic,String>> wilaya = [
   {
-    "code": "",
-    "name": "Tous",
-  },
-  {
     "code": "01",
     "name": "Adrar",
     "ar_name": "أدرار",

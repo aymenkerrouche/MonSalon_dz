@@ -15,6 +15,7 @@ class ListCatigories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<SearchProvider>(context,listen: false);
     return Consumer<CategoriesProvider>(
       builder: (context, categories, child){
        return GridView.builder(
@@ -38,7 +39,7 @@ class ListCatigories extends StatelessWidget {
                   categories.selectedCat = categories.categories[index];
                   Timer(const Duration(milliseconds: 600), () async {
                     controller.jumpToTab(1);
-                    await Provider.of<SearchProvider>(context,listen: false).filterSalons(categories.categories[index].id, null, null, null);
+                    await provider.filterSalonsWithPrestation(categories.categories[index].id, null, null, null);
                   });
 
                 },

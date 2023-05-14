@@ -19,16 +19,17 @@ class SalonProvider extends ChangeNotifier {
   Salon? salon;
   bool search = false;
 
-  // IMAGE
 
+  // IMAGE
   Future<void> getSalonImages(String id) async {
+    _images.clear();
     try{
       ListResult listResult = await FirebaseStorage.instance.ref().child('salons/$id').listAll();
       for (var element in listResult.items){
         try{
           String image = await FirebaseStorage.instance.ref().child(element.fullPath).getDownloadURL();
           images.add(image);
-          //notifyListeners();
+          notifyListeners();
         }
         catch(ee){print("====== $ee =======");}
       }
@@ -39,60 +40,86 @@ class SalonProvider extends ChangeNotifier {
 
 
   // STATISTIQUES
-
   Future<void> incrVU(String id) async {
-    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+
+    final statisticsDoc = FirebaseFirestore.instance.collection("statistics").doc(id);
+    final batch = FirebaseFirestore.instance.batch();
+
+    final now = DateTime.now();
+    final currentYear = now.year;
+    final currentMonth = now.month;
+
+    batch.update(statisticsDoc, {
       "vuTotal": FieldValue.increment(1),
-      "vu${DateTime.now().year}.${DateTime.now().month}" : FieldValue.increment(1),
-    }).catchError((e) async {
-      await FirebaseFirestore.instance.collection("statistics").doc(id).set({
-        "vuTotal": FieldValue.increment(1),
-        "vu${DateTime.now().year}" : {"${DateTime.now().month}":FieldValue.increment(1)},
-      });
+      "vu$currentYear.$currentMonth": FieldValue.increment(1),
     });
-  }
-
-  Future<void> incrJaime(String id) async {
-    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
-      "favorites": FieldValue.increment(1),
-    });
-  }
-
-  Future<void> DecriJaime(String id) async {
-    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
-      "favorites": FieldValue.increment(-1),
-    });
+    try {
+      await batch.commit();
+    } catch (e) {
+      print("Error incrementing VU: $e");
+    }
   }
 
   Future<void> incrMaps(String id) async {
-    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+    final statisticsDoc = FirebaseFirestore.instance.collection("statistics").doc(id);
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    final now = DateTime.now();
+    final currentYear = now.year;
+    final currentMonth = now.month;
+
+    batch.update(statisticsDoc, {
       "mapsTotal": FieldValue.increment(1),
-      "maps${DateTime.now().year}.${DateTime.now().month}" : FieldValue.increment(1),
+      "maps$currentYear.$currentMonth": FieldValue.increment(1),
     });
+
+    try {
+      await batch.commit();
+    } catch (e) {
+      print("Error incrementing Maps: $e");
+    }
   }
 
   Future<void> incrTlpn(String id) async {
-    await FirebaseFirestore.instance.collection("statistics").doc(id).update({
+    final statisticsDoc = FirebaseFirestore.instance.collection("statistics").doc(id);
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    final now = DateTime.now();
+    final currentYear = now.year;
+    final currentMonth = now.month;
+
+    batch.update(statisticsDoc, {
       "tlpnTotal": FieldValue.increment(1),
-      "tlpn${DateTime.now().year}.${DateTime.now().month}" : FieldValue.increment(1),
+      "tlpn$currentYear.$currentMonth": FieldValue.increment(1),
     });
+
+    try {
+      await batch.commit();
+    } catch (e) {
+      print("Error incrementing Tlpn: $e");
+    }
   }
+
 
 
 
   // SET SALON
   Future<void> setSalon(Salon newSalon) async {
+    print(DateTime.now());
     search = true;
     salon = newSalon ;
     await getSalonImages(salon!.id!);
     await getHours();
     await getServices();
-    await getCommments();
+    await getComments();
     if(newSalon.team == true)await getTeam();
     await checkFavorite();
     search = false;
     notifyListeners();
     await incrVU(newSalon.id!);
+    print(DateTime.now());
   }
 
   clearSalon(){
@@ -107,89 +134,133 @@ class SalonProvider extends ChangeNotifier {
 
 
   // GET SALON INFORMATIONS
-
   Future<void> getHours() async {
-    //salon?.hours?.jours.clear();
-    try{
-      await FirebaseFirestore.instance.collection("hours").where("salonID", isEqualTo: salon?.id ).limit(1).get()
-      .then((snapshot) async {
-        if(snapshot.docs.isNotEmpty){
-          Hours hour = Hours.fromJson(snapshot.docs.first.data());
-          salon?.hours = hour;
-        }
-      });
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection("hours").doc(salon?.id).get();
+      if (snapshot.exists) {
+        final hour = Hours.fromJson(snapshot.data()!);
+        salon?.hours = hour;
+      }
+    } catch (e) {
+      print(e);
     }
-    catch(e){print(e);}
+
     notifyListeners();
   }
 
   Future<void> getServices() async {
-    salon!.service.clear();
-    try{
-      await FirebaseFirestore.instance.collection("services")
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection("services")
           .where("salonID", isEqualTo: salon?.id)
-          .get()
-      .then((snapshot) async {
-        if(snapshot.docs.isNotEmpty){
-          for (var element in snapshot.docs) {
-            Service service =  Service.fromJson(element.data());
-            service.id = element.id;
-            salon?.service.add(service);
-            if(!salon!.categories.contains(service.category)){
-              salon?.categories.add(service.category!);
-            }
-          }
-        }
-      });
+          .get();
+
+      final serviceList = <Service>[];
+      final categorySet = <String>{};
+
+      for (var element in snapshot.docs) {
+        final service = Service.fromJson(element.data());
+        service.id = element.id;
+        serviceList.add(service);
+        categorySet.add(service.category!);
+      }
+
+      salon?.service = serviceList;
+      salon?.categories = categorySet.toList();
+    } catch (e) {
+      print(e);
     }
-    catch(e){print(e);}
+
     notifyListeners();
   }
 
   Future<void> getTeam() async {
-    salon!.teams.clear();
-    if(salon!.team){
-      try{
-        await FirebaseFirestore.instance.collection("team").where("salonID", isEqualTo: salon?.id ).get()
-        .then((snapshot) async {
-          if(snapshot.docs.isNotEmpty){
-            for (var element in snapshot.docs) {
-              Team team = Team.fromJson(element.data());
-              salon?.teams.add(team);
-            }
-          }
-        });
-      }
-      catch(e){print(e);}
-      notifyListeners();
+    if (!salon!.team) {
+      return;
     }
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection("team")
+          .where("salonID", isEqualTo: salon?.id)
+          .get();
+
+      final teamList = <Team>[];
+
+      for (var element in snapshot.docs) {
+        final team = Team.fromJson(element.data());
+        teamList.add(team);
+      }
+
+      salon?.teams = teamList;
+    } catch (e) {
+      print(e);
+    }
+
+    notifyListeners();
   }
 
-  Future<void> getCommments() async {
-    salon?.comments.clear();
-    try{
-      await FirebaseFirestore.instance.collection("notes")
-          .where("salonID", isEqualTo: salon?.id )
-          .orderBy("rate",descending: true)
+  Future<void> getComments() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection("notes")
+          .where("salonID", isEqualTo: salon?.id)
+          .orderBy("rate", descending: true)
           .limit(5)
-          .get()
-      .then((snapshot) async {
-        if(snapshot.docs.isNotEmpty){
-          for (var element in snapshot.docs) {
-            Comment comment = Comment.fromJson(element.data());
-            comment.id = element.id;
-            salon?.comments.add(comment);
-          }
-        }
-      });
+          .get();
+
+      final commentList = <Comment>[];
+
+      for (var element in snapshot.docs) {
+        final comment = Comment.fromJson(element.data());
+        comment.id = element.id;
+        commentList.add(comment);
+      }
+
+      salon?.comments = commentList;
+    } catch (e) {
+      print(e);
     }
-    catch(e){print(e);}
+
     notifyListeners();
   }
 
 
-  // FAVORITES
+  Future<void> setCommment(String comment, double rate, String salonID, String userID, String name, BuildContext context, String rdvID,) async {
+    final notesCollection = FirebaseFirestore.instance.collection("notes");
+    final rdvDoc = FirebaseFirestore.instance.collection("rdv").doc(rdvID);
 
+    final batch = FirebaseFirestore.instance.batch();
+
+    try {
+      final newNoteRef = notesCollection.doc();
+      batch.set(newNoteRef, {
+        "comment": comment,
+        "rate": rate,
+        "salonID": salonID,
+        "userID": userID,
+        "name": name,
+      });
+
+      batch.update(rdvDoc, {
+        "note": true,
+      });
+
+      await batch.commit();
+
+      listRDV.firstWhere((element) => element.id == rdvID).note = true;
+    } catch (e) {
+      final snackBar = snaKeBar(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+
+    notifyListeners();
+  }
+
+
+
+
+  // FAVORITES
   Future<bool> checkFavorite() async {
     if(FirebaseAuth.instance.currentUser != null){
       await FirebaseFirestore.instance.collection("favorites")
@@ -212,48 +283,67 @@ class SalonProvider extends ChangeNotifier {
   }
 
   Future<void> disLikeSalon() async {
-    await FirebaseFirestore.instance.collection("favorites").doc(salon?.isFavorite["id"]).delete()
-    .then((value){
-      salon?.isFavorite["id"] = "";
-      salon?.isFavorite["like"] = false;
-    });
-    notifyListeners();
-    await DecriJaime(salon!.id!);
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && salon != null && salon!.isFavorite["id"] != null) {
+      final favoritesCollection = FirebaseFirestore.instance.collection("favorites");
+      final statisticsDoc = FirebaseFirestore.instance.collection("statistics").doc(salon!.id);
+
+      final batch = FirebaseFirestore.instance.batch();
+
+      final favoritesId = salon!.isFavorite["id"];
+
+      final favoritesDocRef = favoritesCollection.doc(favoritesId);
+
+      batch.delete(favoritesDocRef);
+      batch.update(statisticsDoc, {
+        "favorites": FieldValue.increment(-1),
+      });
+
+      await batch.commit();
+
+      salon!.isFavorite = {
+        "id": null,
+        "like": false,
+      };
+
+      notifyListeners();
+    }
   }
 
   Future<void> likeSalon() async {
-    await FirebaseFirestore.instance.collection("favorites").add({
-      "salonID":salon?.id,
-      "userID":FirebaseAuth.instance.currentUser?.uid
-    })
-    .then((value){
-      salon?.isFavorite["id"] = value.id;
-      salon?.isFavorite["like"] = true;
-    });
-    notifyListeners();
-    await incrJaime(salon!.id!);
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && salon != null) {
+      final favoritesCollection = FirebaseFirestore.instance.collection("favorites");
+      final statisticsDoc = FirebaseFirestore.instance.collection("statistics").doc(salon!.id);
+
+      final favoritesData = {
+        "salonID": salon!.id,
+        "userID": user.uid,
+      };
+
+      final batch = FirebaseFirestore.instance.batch();
+
+      final favoritesDocRef = favoritesCollection.doc();
+      final favoritesId = favoritesDocRef.id;
+
+      batch.set(favoritesDocRef, favoritesData);
+      batch.update(statisticsDoc, {
+        "favorites": FieldValue.increment(1),
+      });
+
+      await batch.commit();
+
+      salon!.isFavorite = {
+        "id": favoritesId,
+        "like": true,
+      };
+
+      notifyListeners();
+    }
   }
 
-
-  Future<void> setCommment(String comment, double rate, String salonID, String userID, String name, BuildContext context, rdvID) async {
-    try{
-      await FirebaseFirestore.instance.collection("notes").add({
-        "comment": comment,
-        "rate": rate,
-        "salonID": salonID,
-        "userID": userID,
-        "name": name
-      }).then((value) async => await FirebaseFirestore.instance.collection("rdv").doc(rdvID).update({
-        "note": true
-      }));
-      listRDV.where((element) => element.id == rdvID).first.note = true;
-    }
-    catch(e){
-      final snackBar = snaKeBar(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
-    notifyListeners();
-  }
 
 
 
@@ -263,47 +353,6 @@ class SalonProvider extends ChangeNotifier {
   List<RendezVous> listDemandes = [];
 
   bool done = false;
-
-  Future<void> getDemandes(context) async {
-    listDemandes.clear();
-    done = false;
-    await FirebaseFirestore.instance.collection("rdv")
-        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-        .where("etat",isEqualTo: 0)
-        .where("date2", isGreaterThanOrEqualTo: DateTime.now()).orderBy("date2")
-        .get().then((snapshot){
-      if(snapshot.docs.isNotEmpty){
-        for (var element in snapshot.docs) {
-          RendezVous rdv = RendezVous.fromJson(element.data());
-          rdv.id = element.id;
-          if(element.data()["service"] != null){
-            for (var srv in element.data()["service"]) {
-              rdv.services.add(Service.fromJson(srv));
-            }
-          }
-          listDemandes.add(rdv);
-          notifyListeners();
-        }
-      }
-    })
-    .catchError((onError){
-      debugPrint(onError.toString());
-      done = false;
-      final snackBar = SnackBar(
-        elevation: 10,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-        behavior: SnackBarBehavior.floating,
-        content: Text(
-          onError.toString(),
-          style: const TextStyle(color: Colors.white),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      notifyListeners();
-    });
-    done = true;
-    notifyListeners();
-  }
 
   Future<void> deleteDemande(String salonID,String rdvID,BuildContext context) async {
     try{
@@ -331,14 +380,72 @@ class SalonProvider extends ChangeNotifier {
 
 
 
-  Future<void> getRDV(context) async {
+  Future<void> getRDV(context,chosenValue) async {
     listRDV.clear();
     done = false;
-    await FirebaseFirestore.instance.collection("rdv")
-        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-        .where("etat",isEqualTo: 1)
-        .where("date2", isGreaterThanOrEqualTo: DateTime.now()).orderBy("date2")
-        .get().then((snapshot){
+
+    Query<Map<String, dynamic>> query;
+
+    switch(chosenValue) {
+      case "Tous": {
+        query = FirebaseFirestore.instance.collection("rdv").where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid);
+      }
+      break;
+
+      case 'Prochains': {
+        query = FirebaseFirestore.instance.collection("rdv")
+            .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .where("etat",isEqualTo: 1)
+            .where("date2", isGreaterThanOrEqualTo: DateTime.now().subtract(const Duration(days: 1))).orderBy("date2");
+      }
+      break;
+
+      case 'Terminé': {
+        query = FirebaseFirestore.instance.collection("rdv")
+            .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .where("etat",isEqualTo: 3)
+            .where("date2", isLessThanOrEqualTo: DateTime.now()).orderBy("date2");
+      }
+      break;
+
+      case 'Annulé': {
+        query = FirebaseFirestore.instance.collection("rdv")
+            .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .where("etat",whereIn: [2, -1]);
+      }
+      break;
+
+      case 'Récent': {
+        query = FirebaseFirestore.instance.collection("rdv")
+            .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .orderBy("date2",descending: true);
+      }
+      break;
+
+      case 'Ancien': {
+        query = FirebaseFirestore.instance.collection("rdv")
+            .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .orderBy("date2");
+      }
+      break;
+
+      case "Demandes":{
+        query = FirebaseFirestore.instance.collection("rdv").where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+        .where("etat",isEqualTo: 0)
+        .where("date2", isGreaterThanOrEqualTo: DateTime.now()).orderBy("date2");
+      }
+      break;
+
+      default: {
+        query = FirebaseFirestore.instance.collection("rdv")
+            .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .where("etat",isEqualTo: 1)
+            .where("date2", isGreaterThanOrEqualTo: DateTime.now().subtract(const Duration(days: 1))).orderBy("date2");
+      }
+      break;
+    }
+
+    await query.get().then((snapshot){
       if(snapshot.docs.isNotEmpty){
         for (var element in snapshot.docs) {
           RendezVous rdv = RendezVous.fromJson(element.data());
@@ -356,15 +463,7 @@ class SalonProvider extends ChangeNotifier {
     .catchError((onError){
       debugPrint(onError.toString());
       done = false;
-      final snackBar = SnackBar(
-        elevation: 10,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-        behavior: SnackBarBehavior.floating,
-        content: Text(
-          onError.toString(),
-          style: const TextStyle(color: Colors.white),
-        ),
-      );
+      final snackBar = snaKeBar(onError.toString());
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       notifyListeners();
     });
@@ -421,128 +520,6 @@ class SalonProvider extends ChangeNotifier {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
-    notifyListeners();
-  }
-
-
-
-  Future<void> getAllRDV(context) async {
-    listRDV.clear();
-    done = false;
-    await FirebaseFirestore.instance.collection("rdv")
-        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-        .get().then((snapshot){
-      if(snapshot.docs.isNotEmpty){
-        for (var element in snapshot.docs) {
-          RendezVous rdv = RendezVous.fromJson(element.data());
-          rdv.id = element.id;
-          if(element.data()["service"] != null){
-            for (var srv in element.data()["service"]) {
-              rdv.services.add(Service.fromJson(srv));
-            }
-          }
-          listRDV.add(rdv);
-          notifyListeners();
-        }
-      }
-    })
-    .catchError((onError){
-      debugPrint(onError.toString());
-      done = false;
-      final snackBar = SnackBar(
-        elevation: 10,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-        behavior: SnackBarBehavior.floating,
-        content: Text(
-          onError.toString(),
-          style: const TextStyle(color: Colors.white),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      notifyListeners();
-    });
-    done = true;
-    notifyListeners();
-  }
-
-  Future<void> getAnnuleRDV(context) async {
-    listRDV.clear();
-    done = false;
-    await FirebaseFirestore.instance.collection("rdv")
-        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-        .where("etat",whereIn: [2, -1])
-        .get().then((snapshot){
-      if(snapshot.docs.isNotEmpty){
-        for (var element in snapshot.docs) {
-          RendezVous rdv = RendezVous.fromJson(element.data());
-          rdv.id = element.id;
-          if(element.data()["service"] != null){
-            for (var srv in element.data()["service"]) {
-              rdv.services.add(Service.fromJson(srv));
-            }
-          }
-          listRDV.add(rdv);
-          notifyListeners();
-        }
-      }
-    })
-    .catchError((onError){
-      debugPrint(onError.toString());
-      done = false;
-      final snackBar = SnackBar(
-        elevation: 10,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-        behavior: SnackBarBehavior.floating,
-        content: Text(
-          onError.toString(),
-          style: const TextStyle(color: Colors.white),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      notifyListeners();
-    });
-    done = true;
-    notifyListeners();
-  }
-
-  Future<void> getTerminiRDV(context) async {
-    listRDV.clear();
-    done = false;
-    await FirebaseFirestore.instance.collection("rdv")
-        .where("userID",isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-        .where("etat",isEqualTo: 3)
-        .where("date2", isLessThanOrEqualTo: DateTime.now()).orderBy("date2")
-        .get().then((snapshot){
-      if(snapshot.docs.isNotEmpty){
-        for (var element in snapshot.docs) {
-          RendezVous rdv = RendezVous.fromJson(element.data());
-          rdv.id = element.id;
-          if(element.data()["service"] != null){
-            for (var srv in element.data()["service"]) {
-              rdv.services.add(Service.fromJson(srv));
-            }
-          }
-          listRDV.add(rdv);
-          notifyListeners();
-        }
-      }
-    })
-        .catchError((onError){
-      debugPrint(onError.toString());
-      done = false;
-      final snackBar = SnackBar(
-        elevation: 10,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
-        behavior: SnackBarBehavior.floating,
-        content: Text(
-          onError.toString(),
-          style: const TextStyle(color: Colors.white),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      notifyListeners();
-    });
-    done = true;
     notifyListeners();
   }
 

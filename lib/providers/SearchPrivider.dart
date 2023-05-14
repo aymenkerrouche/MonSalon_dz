@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/Salon.dart';
-
 import '../models/Service.dart';
 
 class SearchProvider extends ChangeNotifier {
@@ -93,6 +92,7 @@ class SearchProvider extends ChangeNotifier {
   _searchDate.clear();
   _hour = '';
   _prixFin = 0;
+  clearServicesSelectioned();
   notifyListeners();
 }
 
@@ -120,14 +120,13 @@ class SearchProvider extends ChangeNotifier {
   bool hasMore = true;
   DocumentSnapshot? lastDocument;
   bool isSearching = false;
-
   Service? servicesSelectioned;
+
 
   clearServicesSelectioned(){
     servicesSelectioned = null;
     notifyListeners();
   }
-
 
   setPrestation(Service service){
     servicesSelectioned = service;
@@ -155,7 +154,7 @@ class SearchProvider extends ChangeNotifier {
 
     if (_listSalon.isEmpty){
       isSearching= true;
-      await FirebaseFirestore.instance.collection("salon").orderBy('nom').limit(_limit).get().then((snapshot){
+      await FirebaseFirestore.instance.collection("salon").where("visible", isEqualTo: true).orderBy('nom').limit(_limit).get().then((snapshot){
         documentList = snapshot;
         for (var element in snapshot.docs) {
           Salon data = Salon.fromJson(element.data());
@@ -171,7 +170,7 @@ class SearchProvider extends ChangeNotifier {
     }
 
     else {
-      await FirebaseFirestore.instance.collection("salon").orderBy('nom').startAfterDocument(lastDocument!).limit(_limit).get().then((snapshot){
+      await FirebaseFirestore.instance.collection("salon").where("visible", isEqualTo: true).orderBy('nom').startAfterDocument(lastDocument!).limit(_limit).get().then((snapshot){
         documentList = snapshot;
         for (var element in snapshot.docs) {
           Salon data = Salon.fromJson(element.data());
@@ -196,463 +195,72 @@ class SearchProvider extends ChangeNotifier {
     Timer(const Duration(seconds: 1), () {isLoading = false;notifyListeners(); });
   }
 
-  Future<void> filterSalons(dynamic category,dynamic wilaya,dynamic price,dynamic date) async {
+  Future<void> filterSalons(dynamic category, dynamic wilaya, dynamic price, dynamic date) async {
 
-    isSearching= true;
+    final CollectionReference salonsSearchRef = FirebaseFirestore.instance.collection("salonsSearch");
+    final CollectionReference salonRef = FirebaseFirestore.instance.collection("salon");
+
+    Query query = salonsSearchRef;
+
+    if (category != null) {
+      query = query.where("category", arrayContains: category);
+    }
+
+    if (wilaya != null) {
+      query = query.where("wilaya", isEqualTo: wilaya);
+    }
+
+    if (price != null) {
+      query = query.where("prix", isLessThanOrEqualTo: price);
+    }
+
+    if (date != null) {
+      query = query.where("days.$date", isEqualTo: true);
+    }
+
+    query = query.where("visible", isEqualTo: true);
+
+    final QuerySnapshot querySnapshot = await query.get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final List<String> salonIds = [];
+      final List<Future<DocumentSnapshot>> salonFutures = [];
+
+      for (final QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        final String salonID = documentSnapshot["salonID"];
+        salonIds.add(salonID);
+        salonFutures.add(salonRef.doc(salonID).get());
+      }
+
+      final List<DocumentSnapshot> salonSnapshots = await Future.wait(salonFutures);
+
+      for (int i = 0; i < salonSnapshots.length; i++) {
+        final DocumentSnapshot salon = salonSnapshots[i];
+        if (salon.exists) {
+          final Salon data = Salon.fromJson(salon.data() as Map<String, dynamic>);
+          data.id = salon.id;
+          try{
+            data.prix = querySnapshot.docs[i].get("prix") ?? 0;
+          }
+          catch(e){
+            data.prix = 0;
+          }
+          _listSalon.add(data);
+        }
+      }
+    }
+  }
+
+  Future<void> filterSalonsWithPrestation(dynamic category, dynamic wilaya, dynamic price, dynamic date) async {
+    isSearching = true;
     _listSalon.clear();
     notifyListeners();
-
-    if(category != null ){
-
-      if(wilaya != null){
-
-        if(price != null){
-
-          if(date != null){
-
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", arrayContains: category )
-                .where("days.$date", isEqualTo: true )
-                .where("prix", isLessThanOrEqualTo: price )
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs){
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-          else{
-
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", arrayContains: category )
-                .where("prix", isLessThanOrEqualTo: price )
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs){
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-        }
-
-        else{
-
-          if(date != null){
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", arrayContains: category )
-                .where("days.$date", isEqualTo: true )
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs) {
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-          else{
-
-
-
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", arrayContains: category )
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs){
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-        }
-
-      }
-
-      // IF WILAYA NULL
-      else{
-
-        if(price != null){
-
-          if(date != null){
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", arrayContains: category )
-                .where("days.$date", isEqualTo: true )
-                .where("prix", isLessThanOrEqualTo: price )
-
-                .get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs){
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-          else{
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", arrayContains: category )
-                .where("prix", isLessThanOrEqualTo: price )
-
-                .get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs){
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-        }
-
-        else{
-
-          if(date != null){
-
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("category", arrayContains: category )
-                .where("days.$date", isEqualTo: true )
-                .get()
-            .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs){
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-
-                  });
-                }
-              }
-
-            });
-          }
-
-          else{
-            await FirebaseFirestore.instance.collection("salonsSearch")
-            .where("category", arrayContains: category )
-            .get()
-            .then((value) async {
-              if(value.docs.isNotEmpty){
-                for (var element in value.docs){
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                  .then((salons){
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-            });
-          }
-
-        }
-
-      }
+    try{
+      await filterSalons(category, wilaya, price, date).then((value) async => await getServices().whenComplete(() => filterPrestation()));
     }
-
-    else{
-
-      if(wilaya != null){
-
-        if(price != null){
-
-          if(date != null){
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days.$date", isEqualTo: true )
-                .where("prix", isLessThanOrEqualTo: price )
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs) {
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-          else{
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("prix", isLessThanOrEqualTo: price )
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs) {
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-        }
-
-        else{
-
-          if(date != null){
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days.$date", isEqualTo: true )
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs) {
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-          else{
-            await FirebaseFirestore.instance.collection("salon")
-                .where("wilaya", isEqualTo: wilaya ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs) {
-                  Salon data = Salon.fromJson(element.data() );
-                  data.id = element.id;
-                  _listSalon.add(data);
-                }
-              }
-            });
-          }
-        }
-
-      }
-
-      // IF WILAYA NULL
-      else{
-
-        if(price != null){
-
-          if(date != null){
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days.$date", isEqualTo: true )
-                .where("prix", isLessThanOrEqualTo: price ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs) {
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-
-          else{
-
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("prix", isLessThanOrEqualTo: price ).get()
-                .then((value) async {
-
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs) {
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-                  });
-                }
-              }
-
-            });
-          }
-        }
-
-        else{
-
-          if(date != null){
-
-            await FirebaseFirestore.instance.collection("salonsSearch")
-                .where("days.$date", isEqualTo: true ).get()
-                .then((value) async {
-              if(value.docs.isNotEmpty){
-
-                for (var element in value.docs){
-
-                  await FirebaseFirestore.instance.collection("salon").doc(element["salonID"]).get()
-                      .then((salons){
-
-                    if(salons.exists){
-                      Salon data = Salon.fromJson(salons.data() as Map<String, dynamic> );
-                      data.id = salons.id;
-                      data.prix = element["prix"] ?? 0;
-                      _listSalon.add(data);
-                    }
-
-                  });
-                }
-              }
-
-            });
-          }
-
-          //IF DATE NULL
-          else{
-            await fetchSalons();
-          }
-        }
-      }
-    }
-
-    Timer(const Duration(milliseconds: 500), () {isSearching= false;notifyListeners(); });
-
-    await getServices();
+    catch(e){print(e);}
+    isSearching = false;
+    notifyListeners();
   }
 
   Future<void> getServices() async {

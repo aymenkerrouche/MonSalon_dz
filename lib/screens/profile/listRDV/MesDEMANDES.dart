@@ -22,7 +22,7 @@ class _LesDemandesState extends State<LesDemandes> {
 
   Future<void> getDemandes() async {
     final provider =  Provider.of<SalonProvider>(context,listen: false);
-    await provider.getDemandes(context).then((value){
+    await provider.getRDV(context,"Demandes").then((value){
       Timer(const Duration(seconds: 1), () {setState(() {done = true;});});
     }).catchError((onError){setState(() {done = true;error = true;});});
   }

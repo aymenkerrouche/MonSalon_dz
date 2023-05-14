@@ -85,7 +85,7 @@ class RecentSearch extends StatelessWidget {
 
                       controller.jumpToTab(1);
 
-                      await search.filterSalons(
+                      await search.filterSalonsWithPrestation(
                           category.selectedCat.id == '' ? null:category.selectedCat.id,
                           serarchedWilaya != null ? serarchedWilaya["name"] : null,
                           search.prixFin == 0 ? null : search.prixFin,
@@ -93,7 +93,7 @@ class RecentSearch extends StatelessWidget {
                       );
 
                     },
-                    labelStyle: TextStyle(color: primaryPro),
+                    labelStyle: const TextStyle(color: primaryPro),
                   ),
                   ),
                 ),

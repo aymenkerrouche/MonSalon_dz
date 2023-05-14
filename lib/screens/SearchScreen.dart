@@ -314,7 +314,7 @@ class FilterCategory extends StatelessWidget {
                   if(searchSortie != searchEntry){
                     var serarchedWilaya;
                     if(provider.searchWilaya.text.isNotEmpty) serarchedWilaya = wilaya.where((element) => provider.searchWilaya.text.contains(element["name"]!)).first;
-                    provider.filterSalons(
+                    provider.filterSalonsWithPrestation(
                         categories.selectedCat.id == '' ? null:categories.selectedCat.id,
                         serarchedWilaya != null ? serarchedWilaya["name"]:null,
                         provider.prixFin == 0 ? null : provider.prixFin,
@@ -482,12 +482,12 @@ class FilterService extends StatelessWidget {
                     final categories = Provider.of<CategoriesProvider>(context,listen: false);
                     var serarchedWilaya;
                     if(srv.searchWilaya.text.isNotEmpty) serarchedWilaya = wilaya.where((element) => srv.searchWilaya.text.contains(element["name"]!)).first;
-                    srv.filterSalons(
+                    srv.filterSalonsWithPrestation(
                         categories.selectedCat.id == '' ? null:categories.selectedCat.id,
                         serarchedWilaya != null ? serarchedWilaya["name"]:null,
                         srv.prixFin == 0 ? null : srv.prixFin,
                         srv.day == ''? null : srv.day
-                    ).then((value) => srv.filterPrestation());
+                    );
                 });
               },
             );
@@ -627,12 +627,12 @@ class FilterPrix extends StatelessWidget {
                   var serarchedWilaya;
                   if(prix.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => prix.searchWilaya.text.contains(element["name"]!)).first;
 
-                  prix.filterSalons(
+                  prix.filterSalonsWithPrestation(
                       provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                       serarchedWilaya != null ? serarchedWilaya["name"]:null,
                       prix.prixFin == 0 ? null : prix.prixFin,
                       prix.day == ''? null:prix.day
-                  ).then((value) => prix.filterPrestation());
+                  );
 
 
                   var provider2 = Provider.of<HistoryProvider>(context,listen: false);
@@ -806,12 +806,12 @@ class FilterWilaya extends StatelessWidget {
                     var serarchedWilaya;
                     if(wilayas.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => wilayas.searchWilaya.text.contains(element["name"]!)).first;
 
-                    wilayas.filterSalons(
+                    wilayas.filterSalonsWithPrestation(
                         provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                         serarchedWilaya != null ? serarchedWilaya["name"]:null,
                         wilayas.prixFin == 0 ? null : wilayas.prixFin,
                         wilayas.day == ''? null:wilayas.day
-                    ).then((value) => wilayas.filterPrestation());
+                    );
 
 
                     var provider2 = Provider.of<HistoryProvider>(context,listen: false);
@@ -907,12 +907,12 @@ class FilterDate extends StatelessWidget {
 
 
 
-                  date.filterSalons(
+                  date.filterSalonsWithPrestation(
                       provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                       serarchedWilaya != null ? serarchedWilaya["name"]:null,
                       date.prixFin == 0 ? null : date.prixFin,
                       date.day == ''? null:date.day
-                  ).then((value) => date.filterPrestation());
+                  );
                 }
               }
               else {
@@ -921,12 +921,12 @@ class FilterDate extends StatelessWidget {
                 var serarchedWilaya;
                 if(date.searchWilaya.text.isNotEmpty)serarchedWilaya = wilaya.where((element) => date.searchWilaya.text.contains(element["name"]!)).first;
 
-                date.filterSalons(
+                date.filterSalonsWithPrestation(
                     provider.selectedCat.id == '' ? null:provider.selectedCat.id,
                     serarchedWilaya != null ? serarchedWilaya["name"]:null,
                     date.prixFin == 0 ? null : date.prixFin,
                     null
-                ).then((value) => date.filterPrestation());;
+                );
               }
 
 
@@ -1125,7 +1125,19 @@ class _SalonListState extends State<SalonList> {
           }
 
           else if(salons.listSalon.isEmpty ){
-              return Center(child: Lottie.asset("assets/animation/empty.json",reverse: true),);
+              return RefreshIndicator(
+                  color: Colors.white,
+                  backgroundColor: primary,
+                  onRefresh: () async {
+                    KeyboardUtil.hideKeyboard(context);
+                    Provider.of<SearchProvider>(context,listen: false).clearAll();
+                    if(Provider.of<CategoriesProvider>(context,listen: false).selectedCat.id != '')Provider.of<CategoriesProvider>(context,listen: false).selectedCat = cat.Category("", "", "");
+                    salons.listSalon.clear();
+                    salons.lastDocument = null;
+                    salons.fetchSalons();
+                    salons.hasMore = true;
+                  },
+                  child: ListView(children: [const SizedBox(height: 150,),Lottie.asset("assets/animation/empty.json",reverse: true)]));
           }
 
           if(salons.search.text.isNotEmpty){
@@ -1142,8 +1154,19 @@ class _SalonListState extends State<SalonList> {
           }
 
           if(salonsTemps.isEmpty){
-            return Center(child: Lottie.asset("assets/animation/empty.json",reverse: true),);
-          }
+            return RefreshIndicator(
+                color: Colors.white,
+                backgroundColor: primary,
+                onRefresh: () async {
+                  KeyboardUtil.hideKeyboard(context);
+                  Provider.of<SearchProvider>(context,listen: false).clearAll();
+                  if(Provider.of<CategoriesProvider>(context,listen: false).selectedCat.id != '')Provider.of<CategoriesProvider>(context,listen: false).selectedCat = cat.Category("", "", "");
+                  salons.listSalon.clear();
+                  salons.lastDocument = null;
+                  salons.fetchSalons();
+                  salons.hasMore = true;
+                },
+                child: ListView(children: [const SizedBox(height: 150,),Lottie.asset("assets/animation/empty.json",reverse: true)]));          }
 
           return Column(
             children: [

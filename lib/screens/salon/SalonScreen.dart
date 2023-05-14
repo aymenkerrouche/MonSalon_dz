@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +18,7 @@ import 'package:monsalondz/providers/RendezVousProvider.dart';
 import 'package:monsalondz/screens/rdv/RendezVousScreen.dart';
 import 'package:monsalondz/widgets/BlankImageWidget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -79,22 +81,49 @@ class _SalonScreenState extends State<SalonScreen> {
                       autoPlayInterval: const Duration(seconds: 15),
                     ),
                     items: List.generate(salon.images.length, (index) =>
-                      CachedNetworkImage(
-                        imageUrl: salon.images[index],
-                        errorWidget: (cnx, photo, err) => const BlankImageWidget(error: true,),
-                        placeholder: (context, s) => GFShimmer(
-                              mainColor: primary,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(14),),
-                                  color: primary
+                        InkWell(
+                          onTap: () async {
+                            await showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              enableDrag: false,
+                              builder: (context) => Stack(
+                                  children:[
+                                    PhotoView(
+                                      imageProvider: Image.network(salon.images[index]).image,
+                                    ),
+                                    Positioned(top: 40,right: 16,child: IconButton(
+                                      onPressed:() => Navigator.pop(context),
+                                      icon: const Icon(Icons.close_rounded,color: primaryPro,size: 30,),
+                                      style: IconButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: primary,
+                                          shape: const CircleBorder(),
+                                          padding: EdgeInsets.zero,
+                                          elevation: 20
+                                      ),
+                                    ),)
+                                  ]
+                              ),
+                            );
+                          },
+                        child: CachedNetworkImage(
+                          imageUrl: salon.images[index],
+                          errorWidget: (cnx, photo, err) => const BlankImageWidget(error: true,),
+                          placeholder: (context, s) => GFShimmer(
+                                mainColor: primaryLite,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(14),),
+                                    color: primary
+                                  ),
                                 ),
                               ),
+                          imageBuilder: (context, imageProvider) => Ink.image(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
                             ),
-                        imageBuilder: (context, imageProvider) => Ink.image(
-                            image: imageProvider,
-                            fit: BoxFit.cover,
-                          ),
+                        ),
                       ),
                     ),
                   );
@@ -541,17 +570,21 @@ class ListPrestation extends StatelessWidget {
          Consumer<SalonProvider>(builder: (context, salon, child){
            if(salon.salon!.service.isNotEmpty){
              return Column(
-               children: salon.salon!.categories.map((e) => ExpansionTile(
-                 title: Text(e.toUpperCase()),
-                 iconColor: primaryLite2,
-                 textColor: primaryLite2,
-                 backgroundColor: primaryLite.withOpacity(.1),
-                 children:salon.salon!.service.where((element) => element.category == e).map((service) =>
-                     ListTile(
-                       title: Text(service.service!,overflow: TextOverflow.ellipsis, maxLines: 2,),
-                       trailing: Text(service.prixFin == 0 ? '${service.prix} DA' : '${service.prix} - ${service.prixFin} DA'),
-                     ),
-                 ).toList()
+               children: salon.salon!.categories.map((e) => Container(
+                 margin: const EdgeInsets.only(bottom: 4),
+                 child: ExpansionTile(
+                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+                   title: Text(e.toUpperCase(),style: const TextStyle(fontWeight: FontWeight.w600),),
+                   iconColor: primaryLite2,
+                   textColor: primaryLite2,
+                   backgroundColor: primaryLite.withOpacity(.15),
+                   children:salon.salon!.service.where((element) => element.category == e).map((service) =>
+                       ListTile(
+                         title: Text(service.service!,overflow: TextOverflow.ellipsis, maxLines: 2,),
+                         trailing: Text(service.prixFin == 0 ? '${service.prix} DA' : '${service.prix} - ${service.prixFin} DA'),
+                       ),
+                   ).toList()
+                 ),
                )).toList(),
 
              );
@@ -660,7 +693,7 @@ class CommentsList extends StatelessWidget {
             ),),
           ],
         ),
-        const SizedBox(height: 25),
+        const SizedBox(height: 20),
         Consumer<SalonProvider>(builder: (context, salon, child){
           if(salon.salon!.comments.isNotEmpty){
             return  SizedBox(
@@ -671,11 +704,10 @@ class CommentsList extends StatelessWidget {
                     margin: const EdgeInsets.only(right: 20),
                     width: size.width * 0.7,
                     child: Material(
-                      //elevation: 5,
                       shape: const RoundedRectangleBorder(borderRadius:  BorderRadius.all(Radius.circular(14)),),
-                      color: primaryLite2.withOpacity(.1),
+                      color: primaryLite.withOpacity(.3),
                       child: ListTile(
-                        title: Text("${salon.salon!.comments[index].name}",overflow: TextOverflow.ellipsis, maxLines:2,),
+                        title: Text("${salon.salon!.comments[index].name}",style: const TextStyle(fontWeight: FontWeight.w600),overflow: TextOverflow.ellipsis, maxLines:2,),
                         contentPadding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -816,7 +848,7 @@ class ContactTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       shape: const RoundedRectangleBorder(borderRadius:  BorderRadius.all(Radius.circular(14)),),
-      color: primaryLite2.withOpacity(.1),
+      color: primaryLite.withOpacity(.3),
       child: InkWell(
         splashColor: primaryLite,
         borderRadius:  const BorderRadius.all(Radius.circular(14)),

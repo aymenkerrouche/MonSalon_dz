@@ -10,7 +10,6 @@ import '../models/Service.dart';
 class FavoriteProvider extends ChangeNotifier {
 
   List<Salon> mesSalon = [];
-
   bool orderByRate = false;
 
 

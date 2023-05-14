@@ -271,7 +271,7 @@ class FactureScreen2 extends StatelessWidget {
                                     const SizedBox(height: 20,),
                                     ElevatedButton(
                                       onPressed:() async =>
-                                      await Provider.of<SalonProvider>(context,listen: false).setCommment(commantaire.text, rate, rdv.salonID!, rdv.userID!, rdv.user!, context, rdv.id).whenComplete(() => Navigator.pop(context)),
+                                      await Provider.of<SalonProvider>(context,listen: false).setCommment(commantaire.text, rate, rdv.salonID!, rdv.userID!, rdv.user!, context, rdv.id!).whenComplete(() => Navigator.pop(context)),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: color,
                                         foregroundColor: Colors.white,
