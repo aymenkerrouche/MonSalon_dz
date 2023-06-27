@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:monsalondz/theme/colors.dart';
 
 class BlankImageWidget extends StatelessWidget {
   const BlankImageWidget({Key? key, this.error = false}) : super(key: key);

@@ -1,8 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore_for_file: prefer_final_fields, body_might_complete_normally_catch_error, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:monsalondz/models/History.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import '../main.dart';

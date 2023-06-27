@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:monsalondz/root.dart';
 
-import '../../theme/colors.dart';
 
 class DoneScreen extends StatelessWidget {
   const DoneScreen({Key? key}) : super(key: key);

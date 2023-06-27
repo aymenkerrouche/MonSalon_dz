@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:monsalondz/providers/MapsProvider.dart';
 import 'package:monsalondz/widgets/Category.dart';
