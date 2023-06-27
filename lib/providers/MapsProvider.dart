@@ -56,7 +56,7 @@ class MapsProvider extends ChangeNotifier {
       infoWindow: InfoWindow(
         onTap: (){
           if(salon != null){
-            Provider.of<HistoryProvider>(context!,listen: false).setSalonsHistory!(salon);
+            Provider.of<HistoryProvider>(context!,listen: false).setSalonsHistory(salon);
             Provider.of<SalonProvider>(context!,listen: false).search = true;
             Provider.of<SalonProvider>(context!,listen: false).clearSalon();
             Timer(const Duration(milliseconds: 200),(){
